@@ -4,6 +4,15 @@ __author__ = "Simon Lassourreuille"
 # --------------------------------- imports ---------------------------------- #
 import networkx as nx
 
+# --------------------------- utilitary functions ---------------------------- #
+def make_symmetric(graph):
+    "Creates a directed symmetrical graph from a classic graph"
+    assert isinstance(graph, nx.Graph) and not isinstance(graph, nx.DiGraph)
+    new_graph = nx.DiGraph()
+    for a, b in graph.edges_iter():
+        new_graph.add_edge(a, b)
+        new_graph.add_edge(b, a)
+    return new_graph
 
 # --------------------------------- classes ---------------------------------- #
 class Simulation(object):
@@ -15,7 +24,4 @@ class Simulation(object):
         Args:
             di_graph: A symmetrical, directed graph from nx_graph (nx.DiGraph)
         """
-        if not isinstance(di_graph, nx.DiGraph):
-            raise TypeError("This class expects an instance of networkx.DiGraph")
-
-
+        assert isinstance(di_graph, nx.DiGraph)
