@@ -19,7 +19,7 @@ def make_directed_graph(graph):
         new_graph.add_edge(b, a)
     return new_graph
 
-# ---------------------------- the network class ----------------------------- #
+# ───────────────────────────────── Network ────────────────────────────────── #
 class Network(object):
     """
     This class creates and holds the different nodes and let them communicate
@@ -74,7 +74,7 @@ class Network(object):
                 # nodecolor = 'b')
         # plt.show()
 
-# ------------------------- the router (node) class -------------------------- #
+# ───────────────────────────────── Routers ────────────────────────────────── #
 class Node(Thread):
     """
     Each node represents a router in the network
@@ -155,6 +155,7 @@ class Node(Thread):
         self.condition.acquire()
         self.wait_for_messages()
 
+# ───────────────────────────────── Messages ───────────────────────────────── #
 class Message(object):
     def __init__(self, src, dst, stack, cost):
         self.src = src
@@ -173,6 +174,7 @@ class Message(object):
                 self.cost, ' > '.join(["'" + str(x) + "'" for x in self.stack]))
 
 
+# ─────────────────────────── Adaptation functions ─────────────────────────── #
 EC, DC, CV = 1, 2, 3
 class AdaptationFunction(object):
     def __init__(self, _from, _to, _type):
@@ -185,12 +187,13 @@ class AdaptationFunction(object):
         assert _type in (EC, DC, CV)
         self._from = _from
         self._to = _to
-        self.type = _type
+        self._type = _type
 
         def __str__(self):
             return "({} \longrightarrow {}, {})".format(self._from, self._to,
                     {EC: "encap", DC: "decap", CV: "conv"}[self._type])
 
+# ────────────────────────────── Routing tables ────────────────────────────── #
 class RoutingTable(object):
     def __init__(self):
         self.table = {}
