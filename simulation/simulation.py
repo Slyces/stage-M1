@@ -1,6 +1,5 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
 # --------------------------------- imports ---------------------------------- #
 import networkx as nx, random #, matplotlib.pyplot as plt
 from threading import Thread, Condition
@@ -14,7 +13,7 @@ QUEUE_SIZE = 100
 def make_directed_graph(graph):
     "transforms an undirected graph into a symmetric directed graph"
     new_graph = nx.DiGraph()
-    for a, b in graph.edges_iter():
+    for a, b in graph.edges:
         new_graph.add_edge(a, b)
         new_graph.add_edge(b, a)
     return new_graph
@@ -36,11 +35,11 @@ class Network(object):
 
         # creating every router (node)
         self.threads = {}
-        for node_id in graph.nodes_iter():
+        for node_id in graph.nodes:
             self.threads[node_id] = Node(node_id, self)
 
         self.links = {}
-        for edge in graph.edges_iter():
+        for edge in graph.edges:
             self.links[edge] = Queue(QUEUE_SIZE)
 
     def notify(self, node_id):
@@ -63,7 +62,7 @@ class Network(object):
         for thread in self.threads.values():
             thread.start()
 
-        x = self.threads.values()[0]
+        x = random.choice(list(self.threads.values()))
         y = x.neighbors_id[0]
 
         # self.send(x.id, y, Message(x.id, y, ["a"], 0))
@@ -104,7 +103,7 @@ class Node(Thread):
     @property
     def neighbors_id(self):
         "returns the id of this node's neighbors"
-        return self.network.graph.neighbors(self.id)
+        return list(self.network.graph.neighbors(self.id))
 
     # ------------------------- adaptation functions ------------------------- #
     @property
@@ -124,13 +123,12 @@ class Node(Thread):
         "called upon reception of an item sent by anoother node"
         if type(item) is str:
             print("{:02d} ⟶  {:02d} : {}".format(sender_id, self.id, item))
-
             # ------------- temporarily send it to a random neighbor ------------- #
             next_hop = random.choice(self.neighbors_id)
             sleep(1)
             self.send(next_hop, item)
         elif isinstance(item, Message):
-            print("\nreceived message >> {} from {}".format(item, sender_id))
+            print("\nRouter ({:2}) | {} from ({:2})".format(self.id, item, sender_id), end='')
 
     # ---------------------------- initialisation ---------------------------- #
     def init(self):
@@ -170,7 +168,7 @@ class Message(object):
         return self.stack.pop()
 
     def __str__(self):
-        return "{} ⟶ {} : [cost: {}] {}".format(self.src, self.dst,
+        return "{:2} ⟶ {:2} : [cost: {}] {}".format(self.src, self.dst,
                 self.cost, ' > '.join(["'" + str(x) + "'" for x in self.stack]))
 
 
