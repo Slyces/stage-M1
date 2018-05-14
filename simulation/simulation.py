@@ -65,7 +65,7 @@ class Network(object):
         x = random.choice(list(self.threads.values()))
         y = x.neighbors_id[0]
 
-        # self.send(x.id, y, Message(x.id, y, ["a"], 0))
+        # self.send(x.id, y, ConfigurationMessage(x.id, y, ["a"], 0))
 
         while True:
             sleep(1)
@@ -127,15 +127,23 @@ class Node(Thread):
             next_hop = random.choice(self.neighbors_id)
             sleep(1)
             self.send(next_hop, item)
-        elif isinstance(item, Message):
+        elif isinstance(item, ConfigurationMessage):
             print("\nRouter ({:2}) | {} from ({:2})".format(self.id, item, sender_id), end='')
+        elif isinstance(item, Message):
+            self.route(sender_id, message)
+
+    # ---------------------------- route messages ---------------------------- #
+    def route(self, sender_id, message):
+        "uses the routing table to route any received message"
+        if message.dst == self.id:
+            print("The message reached its destination:\n\t- {}\n\tArrived to {} from hop {}".format(message, self.id, sender_id))
 
     # ---------------------------- initialisation ---------------------------- #
     def init(self):
         "Sends messages to each neighbors to initialise the routing table"
         for x in self.In:
             for n_id in self.neighbors_id:
-                message = Message(self.id, n_id, [x], 0)
+                message = ConfigurationMessage(self.id, n_id, [x], 0)
                 self.send(n_id, message)
 
     # ------------------------ wait for notifications ------------------------ #
@@ -154,8 +162,9 @@ class Node(Thread):
         self.wait_for_messages()
 
 # ───────────────────────────────── Messages ───────────────────────────────── #
-class Message(object):
+class ConfigurationMessage(object):
     def __init__(self, src, dst, stack, cost):
+        "Configuration message exchanged between routers to build the routing table"
         self.src = src
         self.dst = dst
         self.stack = stack
@@ -171,24 +180,106 @@ class Message(object):
         return "{:2} ⟶ {:2} : [cost: {}] {}".format(self.src, self.dst,
                 self.cost, ' > '.join(["'" + str(x) + "'" for x in self.stack]))
 
+# ────────────────────────────── Routed message ────────────────────────────── #
+class Message(object):
+    def __init__(self, src, dst, stack, payload, max_height=100):
+        "Regular message sent between routers to convey any content"
+        self.dst = dst
+        self.src = src
+        self.__stack_height = len(stack)
+        self.stack = stack
+        self.payload = payload
+
+    @property
+    def stack_height(self):
+        "getter for stack height"
+        return self.__stack_height
+
+    @stack_height.setter
+    def stack_height(self, new_value):
+        "setter for stack height, being carefull with max_height"
+        assert new_value <= self.max_height, "Max stack height exceeded"
+        self.__stack_height = new_value
+
+    def __str__(self):
+        "src: {s}, dst: {d}, stack: {}, payload: «{}»".format(
+            s = self.src, d = self.dst, stack = self.stack, payload = self.payload
+        )
 
 # ─────────────────────────── Adaptation functions ─────────────────────────── #
 EC, DC, CV = 1, 2, 3
 class AdaptationFunction(object):
     def __init__(self, _from, _to, _type):
         """
-        :param type_: The type of adaptation. Must be either :
+        :param _type: The type of adaptation. Must be either :
                       - EC : encapsulation
                       - DC : decapsulation
                       - CV : conversion
+        :param _from: The input protocol of the function
+                      - string or tuple of protocols, last element is the top of the stack
+        :param _to:   The output protocol of the function
+                      - string or tuple of protocols, last element is the top of the stack
         """
         assert _type in (EC, DC, CV)
-        self._from = _from
-        self._to = _to
+
+        # convert strings to tuples
+        self._from = tuple(_from)) if _from is str else _from
+        self._to = tuple(_to)) if _to is str else _to
         self._type = _type
 
-        def __str__(self):
-            return "({} \longrightarrow {}, {})".format(self._from, self._to,
+        # protocol length in conversion
+        if self._type == CV:
+            assert len(self._from) == len(self._to) == 1, "can only convert one protocol"
+
+        # protocol length in encapsulation
+        if self._type == EC:
+            assert len(self._from) == 1 and len(self._to) == 2, \
+                    "encapsulations takes 1 protocol in and 2 protocols out"
+            assert self._from[0] == self._to[0], \
+                    "encapsulation can not change the initial protocol"
+
+        # protocol length in decapsulation
+        if self._type == DC:
+            assert len(self._from) == 2 and len(self._to) == 1, \
+                    "decapsulation takes 2 protocol in and 1 protocol out"
+            assert self._from[0] == self._to[0], \
+                    "decapsulation can not change the inner protocol"
+
+    def apply(self, message):
+        "Applies an adaptation function to a message"
+        assert message.stack_height > 0, "not supposed to receive a message with empty stack"
+
+        # Checking if the function may apply to this stack
+        top_protocols = tuple(message.stack[len(self._from)])  # see the first or 2 firsts protocols
+        assert top_procol == self._from, \
+                "the function {} can't apply to top protocol {}".format(self, top_protocol)
+
+        # apply conversion
+        if self._type == CV:
+            message.stack.pop()
+            message.stack.push(*self._to)  # _to is only one protocol, safe to unpack with *
+
+        # apply encapsulation
+        if self._type == EC:
+            message.stack.push(self._to[-1])  # push the new top protocol
+            message.stack_height += 1
+
+        # apply decapsulation
+        if self._type == DC:
+            message.stack.pop()  # remove the old top protocol
+            message.stack_height -= 1
+
+    def reverse(self):
+        "returns the reverse operation corresponding to this adaptation function"
+        # conversion
+        if self._type == CV:
+            return AdaptationFunction(self._to, self._from, self._type)
+
+        # encapsulation / decapsulation : just invert the type and from / to
+        return AdaptationFunction(self._to, self._from, EC if self._type == DC else DC)
+
+    def __str__(self):
+        return "({} \longrightarrow {}, {})".format(self._from, self._to,
                     {EC: "encap", DC: "decap", CV: "conv"}[self._type])
 
 # ────────────────────────────── Routing tables ────────────────────────────── #
@@ -196,8 +287,8 @@ class RoutingTable(object):
     def __init__(self):
         self.table = {}
 
-    def add_row(self, dest, pile, next_hop, cost):
-        self.table[dest, pile] = (next_hop, cost)
+    def add_row(self, dest, stack, next_hop, cost):
+        self.table[dest, stack] = (next_hop, cost)
 
     @property
     def rows(self):
