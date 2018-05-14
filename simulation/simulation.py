@@ -121,15 +121,7 @@ class Node(Thread):
 
     def receive(self, sender_id, item):
         "called upon reception of an item sent by anoother node"
-        if type(item) is str:
-            print("{:02d} ⟶  {:02d} : {}".format(sender_id, self.id, item))
-            # ------------- temporarily send it to a random neighbor ------------- #
-            next_hop = random.choice(self.neighbors_id)
-            sleep(1)
-            self.send(next_hop, item)
-        elif isinstance(item, ConfigurationMessage):
-            print("\nRouter ({:2}) | {} from ({:2})".format(self.id, item, sender_id), end='')
-        elif isinstance(item, Message):
+        if isinstance(item, Message):
             self.route(sender_id, message)
 
     # ---------------------------- route messages ---------------------------- #
@@ -186,9 +178,12 @@ class Message(object):
         "Regular message sent between routers to convey any content"
         self.dst = dst
         self.src = src
-        self.__stack_height = len(stack)
+        self.__stack_height = 0
         self.stack = stack
         self.payload = payload
+
+        # use the setter to make sure the stack is not too long
+        self.stack_height = len(stack)
 
     @property
     def stack_height(self):
