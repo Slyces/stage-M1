@@ -39,29 +39,46 @@ class AdaptationFunction(object):
             assert self._from[0] == self._to[0], \
                     "decapsulation can not change the inner protocol"
 
-    def apply(self, message):
-        "Applies an adaptation function to a message"
-        assert message.stack_height > 0, "not supposed to receive a message with empty stack"
+    # ───────────────────── application of the function ────────────────────── #
+    def apply(self, item):
+        """Applies an adaptation function to a message or a stack"""
+        if isinstance(item, Message):
+            return self.apply_to_message(item)
+        if isinstance(item, List):
+            return self.apply_to_stack(item)
+        raise Exception("Not expected type encountered when applying this adaptation function")
 
+    # ---------------------------- case : message ---------------------------- #
+    def apply_to_message(self, message):
+        assert message.stack_height > 0, "not supposed to receive a message with empty stack"
+        message.stack = self.apply_to_stack(message.stack)
+        if self._type == EC:
+            message.stack_height += 1
+        elif self._type == DC:
+            message.stack_height -= 1
+        return message
+
+    # ----------------------------- case : stack ----------------------------- #
+    def apply_to_stack(self, stack):
+        """Applies an adaptation function to a stack"""
         # Checking if the function may apply to this stack
-        top_protocols = tuple(message.stack[len(self._from)])  # see the first or 2 firsts protocols
+        top_protocols = tuple(stack[-len(self._from):])  # see the last or 2 last protocols
         assert top_procol == self._from, \
                 "the function {} can't apply to top protocol {}".format(self, top_protocol)
 
         # apply conversion
         if self._type == CV:
-            message.stack.pop()
-            message.stack.push(*self._to)  # _to is only one protocol, safe to unpack with *
+            stack.pop()
+            stack.push(*self._to)  # _to is only one protocol, safe to unpack with *
 
         # apply encapsulation
         if self._type == EC:
-            message.stack.push(self._to[-1])  # push the new top protocol
-            message.stack_height += 1
+            stack.push(self._to[-1])  # push the new top protocol
 
         # apply decapsulation
         if self._type == DC:
-            message.stack.pop()  # remove the old top protocol
-            message.stack_height -= 1
+            stack.pop()  # remove the old top protocol
+        return stack
 
     @property
     def reverse(self):

@@ -2,18 +2,11 @@
 # -*- coding: utf-8 -*-
 # ───────────────────────────────── Messages ───────────────────────────────── #
 class ConfigurationMessage(object):
-    def __init__(self, src, dst, stack, cost):
+    def __init__(self, dest, stack, cost):
         "Configuration message exchanged between routers to build the routing table"
-        self.src = src
-        self.dst = dst
+        self.dest = dst
         self.stack = stack
         self.cost = cost
-
-    def push_to_stack(self, x):
-        self.stack.append(x)
-
-    def pop_from_stack(self):
-        return self.stack.pop()
 
     def __str__(self):
         return "{:2} ⟶ {:2} : [cost: {}] {}".format(self.src, self.dst,

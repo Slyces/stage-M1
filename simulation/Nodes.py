@@ -58,28 +58,32 @@ class Node(Thread):
 
     def receive(self, sender_id, message):
         "called upon reception of an message sent by anoother node"
+        # ----------------------------- routing ------------------------------ #
         if isinstance(message, Message):
             self.route(sender_id, message)
-
-    # ------------------------ broadcast to neighbors ------------------------ #
-    def send_neighbors(self, message):
-        "sends the same item to each neighbor"
-        for node_id in self.neighbors:
-            self.send(node_id, message)
+        # ------------------ configuring the routing table ------------------- #
+        if isinstance(message, ConfigurationMessage):
+            for function in self.adapt_functions:
+                in_stack = function.reverse.apply(message.stack)
+                cost = self.network.links[self.id, sender_id].cost(function) + message.cost
+                added = self.routing_table.add_route(
+                        message.dest, in_stack, sender_id, function, cost)
+                if added:
+                    for n_id in self.neighbors_id:
+                        self.send(n_id, ConfigurationMessage(message.dest, in_stack, cost))
 
     # ---------------------------- route messages ---------------------------- #
     def route(self, sender_id, message):
         "uses the routing table to route any received message"
         if message.dst == self.id:
-            print("The message reached its destination:\n\t- {}\n\tArrived to {} from hop {}".format(message, self.id, sender_id))
+            print("The message reached its destination:\n\t- {}\n" \
+                    "\tArrived to {} from hop {}".format(message, self.id, sender_id))
 
     # ---------------------------- initialisation ---------------------------- #
     def init(self):
         "Sends messages to each neighbors to initialise the routing table"
         for x in self.In:
-            for n_id in self.neighbors_id:
-                message = ConfigurationMessage(self.id, n_id, [x], 0)
-                self.send(n_id, message)
+            self.send_neighbors(ConfigurationMessage(self.id, n_id, [x], 0))
 
     # ------------------------ wait for notifications ------------------------ #
     def wait_for_messages(self):

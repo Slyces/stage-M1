@@ -4,6 +4,11 @@
 import networkx as nx, random as rd, pytest
 from simulation import Message, Network, AdaptationFunction, CV, EC, DC
 from threading import Lock
+# ─────────────────────────── project code imports ─────────────────────────── #
+from RoutingTable import RoutingTable, Row
+from AdaptationFunction import AdaptationFunction, EC, DC, CV
+from Messages import Message, ConfigurationMessage
+
 
 # ────────────────────────── utilitaries for tests ─────────────────────────── #
 def random_network():
@@ -138,8 +143,8 @@ def test_adapt_func_reverse():
     for x in protocols:
         for y in protocols:
             H = random_stack(protocols, n, n)
-            msg_x = Message("start", "end", H + [x],  2 * n)
-            msg_yx = Message("start", "end", H + [y, x],  2 * n)
+            msg_x = Message("start", "end", H + [x], 2 * n)
+            msg_yx = Message("start", "end", H + [y, x], 2 * n)
 
             encap = encapsulation(x, y)
             decap = decapsulation(x, y)
@@ -148,3 +153,21 @@ def test_adapt_func_reverse():
             assert msg_x.stack == conv.reverse.apply(conv.apply(msg_x)).stack
             assert msg_x.stack == encap.reverse.apply(encap.apply(msg_x)).stack
             assert msg_yx.stack == decap.reverse.apply(decap.apply(msg_x)).stack
+
+# ──────────────────────────── test routing table ──────────────────────────── #
+def test_routing_table_add_valid():
+    table = RoutingTable()
+    nodes = [i for i in range(10)]
+    for node in nodes:
+        H = random_stack(protocols, 20, 20)
+        function = AdaptationFunction(H[-1], H[-1], CV)
+        assert table.add_route(node, H, node, function, 1)
+        row = table.get(node, H)
+        assert row.cost == 1 and row.next_hop == node and row.func == function
+
+def test_routing_table_add_invalid():
+    table = RoutingTable()
+    function = AdaptationFunction("a", "a", CV)
+    assert table.add_route(0, ["a"], 1, function, 12)
+    for i in range(30):
+        assert not table.add_route(0, ["a"], 1, function, random.randint(12, 20))

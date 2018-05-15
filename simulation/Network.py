@@ -1,13 +1,25 @@
 
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# --------------------------------- imports ---------------------------------- #
-import networkx as nx, random #, matplotlib.pyplot as plt
+# ----------------------------- library imports ------------------------------ #
+import networkx as nx, random
 from threading import Thread, Condition
 from queue import Queue
 from time import sleep, time
+# --------------------------- custom code imports ---------------------------- #
+from Nodes import Node
 
+# ───────────────────────────────── globals ────────────────────────────────── #
+QUEUE_SIZE = 100
 
+# ─────────────────────────── utilitary functions ──────────────────────────── #
+def make_directed_graph(graph):
+    "transforms an undirected graph into a symmetric directed graph"
+    new_graph = nx.DiGraph()
+    for a, b in graph.edges:
+        new_graph.add_edge(a, b)
+        new_graph.add_edge(b, a)
+    return new_graph
 
 # ───────────────────────────────── Network ────────────────────────────────── #
 class Network(object):
@@ -16,7 +28,7 @@ class Network(object):
     network[x] is the node x
     network[x, y]
     """
-    def __init__(self, graph, max_stack = 100, default_cost = 1):
+    def __init__(self, graph, nodes = None, max_stack = 100, default_cost = 1):
         """
         Creates the network according to a graph.
         """
@@ -25,13 +37,17 @@ class Network(object):
         self.graph = graph
 
         # creating every router (node)
-        self.threads = {}
-        for node_id in graph.nodes:
-            self.threads[node_id] = Node(node_id, self)
+        if nodes is None:
+            self.threads = {}
+            for node_id in graph.nodes:
+                self.threads[node_id] = Node(node_id, self)
+        else:
+            assert set(nodes.keys) == set(graphs.nodes)
+            self.threads = nodes
 
         self.links = {}
         for edge in graph.edges:
-            self.links[edge] = Queue(QUEUE_SIZE)
+            self.links[edge] = Link(default_cost, None, QUEUE_SIZE)
 
     def notify(self, node_id):
         "wakes up a thread to let him look up received messages"
@@ -64,9 +80,9 @@ class Network(object):
 
 # ──────────────────── Links to communicate between nodes ──────────────────── #
 class Link(Queue):
-    def __init__(self, default_cost, functions_costs = None, *args, **kwargs):
+    def __init__(self, default_cost, functions_costs, *args, **kwargs):
         Queue.__init__(self, *args, **kwargs)
-        self.functions_consts = {} if functions_costs is None else functions_costs
+        self.functions_costs = {} if functions_costs is None else functions_costs
         self.default_cost = default_cost
 
     def cost(self, function):
