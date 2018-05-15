@@ -7,6 +7,8 @@ from threading import Thread, Condition
 from queue import Queue
 from time import sleep, time
 
+
+
 # ───────────────────────────────── Network ────────────────────────────────── #
 class Network(object):
     """
@@ -14,7 +16,7 @@ class Network(object):
     network[x] is the node x
     network[x, y]
     """
-    def __init__(self, graph):
+    def __init__(self, graph, max_stack = 100, default_cost = 1):
         """
         Creates the network according to a graph.
         """
@@ -59,3 +61,13 @@ class Network(object):
 
         while duration is None or time() - start_time < duration:
             sleep(1)
+
+# ──────────────────── Links to communicate between nodes ──────────────────── #
+class Link(Queue):
+    def __init__(self, default_cost, functions_costs = None, *args, **kwargs):
+        Queue.__init__(self, *args, **kwargs)
+        self.functions_consts = {} if functions_costs is None else functions_costs
+        self.default_cost = default_cost
+
+    def cost(self, function):
+        return self.functions_costs.get(function, self.default_cost)

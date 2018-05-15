@@ -63,6 +63,7 @@ class AdaptationFunction(object):
             message.stack.pop()  # remove the old top protocol
             message.stack_height -= 1
 
+    @property
     def reverse(self):
         "returns the reverse operation corresponding to this adaptation function"
         # conversion
@@ -73,5 +74,14 @@ class AdaptationFunction(object):
         return AdaptationFunction(self._to, self._from, EC if self._type == DC else DC)
 
     def __str__(self):
-        return "({} \longrightarrow {}, {})".format(self._from, self._to,
+        return "({} ⟶  {}, {})".format(self._from, self._to,
                     {EC: "encap", DC: "decap", CV: "conv"}[self._type])
+
+    def __hash__(self):
+        return hash(str(self))
+
+    def __eq__(self, peer):
+        return hash(self) == hash(peer)
+
+    def __ne__(self, peer):
+        return not self == peer
