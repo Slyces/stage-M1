@@ -22,6 +22,7 @@ class Message(object):
         self.stack = stack
         self.payload = payload
         self.max_height = max_height
+        self.valid = True
 
         # use the setter to make sure the stack is not too long
         self.stack_height = len(stack)
@@ -34,7 +35,8 @@ class Message(object):
     @stack_height.setter
     def stack_height(self, new_value):
         "setter for stack height, being carefull with max_height"
-        assert new_value <= self.max_height, "Max stack height exceeded"
+        if new_value > self.max_height:
+            self.valid = False
         self.__stack_height = new_value
 
     def copy(self):

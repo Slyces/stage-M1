@@ -197,3 +197,40 @@ def test_routing_table_add_invalid():
     assert table.add_route(0, ["a"], 1, function, 12)
     for i in range(30):
         assert not table.add_route(0, ["a"], 1, function, rd.randint(12, 20))
+
+def random_routing_table(n):
+    table = RoutingTable()
+    nodes = [i for i in range(n)]
+    rd_prot = lambda : rd.choice(protocols)
+    functions = [AdaptationFunction(rd_prot(), rd_prot(), CV)
+            for i in range(n)]
+    for i in range(3 * n):
+        table.add_route(rd.choice(nodes), random_stack(protocols, 1, 10),
+                rd.choice(nodes), rd.choice(functions), rd.randrange(100))
+    return table
+
+def test_routing_table_valid_get():
+    for i in range(10):
+        table = random_routing_table(10)
+        for row in table:  # iteration actually gets every row
+            assert isinstance(row, Row)
+
+def test_routing_table_invalid_get():
+    table = random_routing_table(10)
+    with pytest.raises(Exception):
+        for i in range(8):
+            table.get(0, [])
+
+def test_routing_table_replace_route():
+    table = RoutingTable()
+    function = AdaptationFunction("a", "a", CV)
+    assert table.add_route(0, ["a"], 1, function, 100)
+    for i in range(1, 101):
+        assert table.add_route(0, ["a"], 1, function, 100 - i) # == True
+
+def test_routing_table_print():
+    print('\n' + "=" * 80)
+    print("PRINTING TEST".center(80))
+    table = random_routing_table(3)
+    print(table)
+    print("=" * 80)

@@ -62,7 +62,10 @@ class Node(Thread):
         "called upon reception of an message sent by anoother node"
         # ----------------------------- routing ------------------------------ #
         if isinstance(message, Message):
-            self.route(sender_id, message)
+            if message.dest == self.id:
+                self.destination_reached(message)
+            else:
+                self.route(sender_id, message)
         # ------------------ configuring the routing table ------------------- #
         if isinstance(message, ConfigurationMessage):
             for function in self.adapt_functions:
@@ -77,9 +80,17 @@ class Node(Thread):
     # ---------------------------- route messages ---------------------------- #
     def route(self, sender_id, message):
         "uses the routing table to route any received message"
-        if message.dest == self.id:
-            print("The message reached its destination:\n\t- {}\n" \
-                    "\tArrived to {} from hop {}".format(message, self.id, sender_id))
+        stack, dest = message.stack, message.dest
+        if (dest, stack) in self.routing_table:
+            row = self.routing_table.get(dest, stack)
+            row.function.apply(message)
+            if message.stack < message.max_stack:
+                self.send(row.next_hop, message)
+
+    def destination_reached(self, message):
+        """Any message passed through this function was destined to this router"""
+        print("The message reached its destination:\n\t- {}\n" \
+                "\tArrived to {} from hop {}".format(message, self.id, sender_id))
 
     # ---------------------------- initialisation ---------------------------- #
     def init(self):

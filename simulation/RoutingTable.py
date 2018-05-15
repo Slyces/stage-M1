@@ -16,6 +16,10 @@ class RoutingTable(object):
         else:
             raise KeyError
 
+    def __iter__(self):
+        for row_keys in self.table:
+            yield self.get(*row_keys)
+
     def add_route(self, dest, stack, next_hop, func, cost):
         """
         :return added: boolean,
@@ -28,6 +32,24 @@ class RoutingTable(object):
             return True
         else:
             return False
+
+    def __str__(self):
+        titles = ["dest", "stack", "next_hop", "adaptation function", "cost"]
+        rows = [[str(dest), "".join(stack), str(row.next_hop), str(row.func),
+                 str(row.cost)] for ((dest, stack), row) in self.table.items()]
+        total = rows + [titles]
+        max_len = list(map(max, [map(len, line) for line in zip(*total)]))
+        max_len = [x + 2 for x in max_len]
+        print(max_len)
+        string = "|".join([titles[i].center(max_len[i]) for i in range(5)])
+        string += '\n' + (3 * 4 + sum(max_len)) * "-" + '\n'
+        for line in rows:
+            string += " ".join([line[i].center(max_len[i]) for i in range(2)])
+            string += "|"
+            string += " ".join([line[i + 2].center(max_len[i + 2]) for i in range(3)])
+            string += '\n'
+        return string
+
 
 # ──────────────────────────────── Rows class ──────────────────────────────── #
 class Row(object):
