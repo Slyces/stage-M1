@@ -4,13 +4,13 @@
 class ConfigurationMessage(object):
     def __init__(self, dest, stack, cost):
         "Configuration message exchanged between routers to build the routing table"
-        self.dest = dst
+        self.dest = dest
         self.stack = stack
         self.cost = cost
 
     def __str__(self):
-        return "{:2} ⟶ {:2} : [cost: {}] {}".format(self.src, self.dst,
-                self.cost, ' > '.join(["'" + str(x) + "'" for x in self.stack]))
+        return "→ {:1} : [cost: {}] {}".format(self.dest,
+                self.cost, self.stack)
 
 # ────────────────────────────── Routed message ────────────────────────────── #
 class Message(object):

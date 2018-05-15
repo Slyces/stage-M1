@@ -2,58 +2,61 @@
 # -*- coding: utf-8 -*-
 # ───────────────────────────────── imports ────────────────────────────────── #
 import networkx as nx, random as rd, pytest
-from simulation import Message, Network, AdaptationFunction, CV, EC, DC
 from threading import Lock
 # ─────────────────────────── project code imports ─────────────────────────── #
 from RoutingTable import RoutingTable, Row
 from AdaptationFunction import AdaptationFunction, EC, DC, CV
 from Messages import Message, ConfigurationMessage
+from Nodes import Node
+from Network import Network
 
 
 # ────────────────────────── utilitaries for tests ─────────────────────────── #
-def random_network():
-    n = Network(nx.erdos_renyi_graph(6, 0.15))
+def random_network(nodes):
+    n = Network(nx.erdos_renyi_graph(nodes, 0.15))
     print("\n# ---------------------------- Network : ----------------------------- #")
     for line in nx.generate_adjlist(n.graph):
-        print("\t" + line)
+        print(" " * 4 + line.split()[0] + " → " + " - ".join(line.split()[1:]))
     return n
 
 # ─────────────────── thread-safe counter to count things ──────────────────── #
-class Counter(int):
-    def __new__(cls, value, *args, **kwargs):
-        self.lock = Lock()
-        return super(Counter, cls).__new__(cls, value)
-
-
 def safe_increment(counter, inc):
     counter.lock.acquire()
-    counter == inc
+    counter += inc
     counter.lock.release()
 
 # ─────────────────────────── tests communication ──────────────────────────── #
 def test_initialisation_messages():
-    sent = Counter(0)
-    received = Counter(0)
-    class testNode(Node):
+
+    class TestNode(Node):
+        received = 0
+        lock = Lock()
         def receive(self, sender_id, item):
-            super().receive(self, sender_id, item)
             if isinstance(item, ConfigurationMessage):
-                # print("\nRouter ({:2}) | {} from ({:2})".format(self.id, item, sender_id), end='')
-                safe_increment(received, 1)
+                print("\nRouter ({:1}) | {} from ({:1})".format(
+                    self.id, item, sender_id), end='')
+                TestNode.lock.acquire()
+                TestNode.received += 1
+                TestNode.lock.release()
+        def send(self, receiver_id, message):
+            super().send(receiver_id, message)
+            print("\n{} sending {}".format(self.id, message), end='')
 
-        def send(self, receiver_id, item):
-            if isinstance(item, Configurationmessage):
-                safe_increment(sent, 1)
+    network = random_network(10)
+    network.set_nodes(dict([(node_id, TestNode(node_id, network))
+        for node_id in network.graph.nodes]))
 
-    network = random_network()
-    network.receive = receive_init_message
-    network.start(5)
+    expected_received = sum([len(node.neighbors_id) * len(node.In)
+        for node in network.threads.values()])
+
+    network.start(1)
+    assert TestNode.received == expected_received
 
 # ────────────────────────────── test messages ─────────────────────────────── #
 protocols = "abcdefghi"
 
 def random_stack(alphabet, min_size, max_size):
-    return [random.choice(alphabet) for x in range(random.randint(min_size, max_size))]
+    return [rd.choice(alphabet) for x in range(rd.randint(min_size, max_size))]
 
 def test_messages():
     for i in range(10):
@@ -170,4 +173,4 @@ def test_routing_table_add_invalid():
     function = AdaptationFunction("a", "a", CV)
     assert table.add_route(0, ["a"], 1, function, 12)
     for i in range(30):
-        assert not table.add_route(0, ["a"], 1, function, random.randint(12, 20))
+        assert not table.add_route(0, ["a"], 1, function, rd.randint(12, 20))

@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # ----------------------------- library imports ------------------------------ #
@@ -37,17 +36,18 @@ class Network(object):
         self.graph = graph
 
         # creating every router (node)
-        if nodes is None:
-            self.threads = {}
-            for node_id in graph.nodes:
-                self.threads[node_id] = Node(node_id, self)
-        else:
-            assert set(nodes.keys) == set(graphs.nodes)
-            self.threads = nodes
+        self.threads = {}
 
         self.links = {}
         for edge in graph.edges:
             self.links[edge] = Link(default_cost, None, QUEUE_SIZE)
+
+    def set_nodes(self, nodes):
+        """
+        :param nodes: A dict (node_id) → (Node instance).
+        """
+        assert set(nodes.keys()) == set(self.graph.nodes)
+        self.threads = nodes
 
     def notify(self, node_id):
         "wakes up a thread to let him look up received messages"
@@ -66,6 +66,10 @@ class Network(object):
         "starts every thread, and stops their execution after <duration> seconds"
         print("# ---------------------------- simulation started ---------------" \
                 "------------- #")
+        if not self.threads:
+            for node_id in self.graph.nodes:
+                self.threads[node_id] = Node(node_id, self)
+
         start_time = time()
         for thread in self.threads.values():
             thread.start()

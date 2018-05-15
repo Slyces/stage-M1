@@ -75,7 +75,7 @@ class Node(Thread):
     # ---------------------------- route messages ---------------------------- #
     def route(self, sender_id, message):
         "uses the routing table to route any received message"
-        if message.dst == self.id:
+        if message.dest == self.id:
             print("The message reached its destination:\n\t- {}\n" \
                     "\tArrived to {} from hop {}".format(message, self.id, sender_id))
 
@@ -83,7 +83,8 @@ class Node(Thread):
     def init(self):
         "Sends messages to each neighbors to initialise the routing table"
         for x in self.In:
-            self.send_neighbors(ConfigurationMessage(self.id, n_id, [x], 0))
+            for n_id in self.neighbors_id:
+                self.send(n_id, ConfigurationMessage(n_id, [x], 0))
 
     # ------------------------ wait for notifications ------------------------ #
     def wait_for_messages(self):
