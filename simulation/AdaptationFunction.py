@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # ─────────────────────────── Adaptation functions ─────────────────────────── #
+from Messages import Message
+
 EC, DC, CV = 1, 2, 3
 class AdaptationFunction(object):
     def __init__(self, _from, _to, _type):
@@ -44,7 +46,7 @@ class AdaptationFunction(object):
         """Applies an adaptation function to a message or a stack"""
         if isinstance(item, Message):
             return self.apply_to_message(item)
-        if isinstance(item, List):
+        if isinstance(item, list):
             return self.apply_to_stack(item)
         raise Exception("Not expected type encountered when applying this adaptation function")
 
@@ -63,17 +65,17 @@ class AdaptationFunction(object):
         """Applies an adaptation function to a stack"""
         # Checking if the function may apply to this stack
         top_protocols = tuple(stack[-len(self._from):])  # see the last or 2 last protocols
-        assert top_procol == self._from, \
-                "the function {} can't apply to top protocol {}".format(self, top_protocol)
+        assert top_protocols == tuple(self._from), \
+                "the function {} can't apply to top protocol {}".format(self, list(top_protocols))
 
         # apply conversion
         if self._type == CV:
             stack.pop()
-            stack.push(*self._to)  # _to is only one protocol, safe to unpack with *
+            stack.append(*self._to)  # _to is only one protocol, safe to unpack with *
 
         # apply encapsulation
         if self._type == EC:
-            stack.push(self._to[-1])  # push the new top protocol
+            stack.append(self._to[-1])  # push the new top protocol
 
         # apply decapsulation
         if self._type == DC:
@@ -91,7 +93,7 @@ class AdaptationFunction(object):
         return AdaptationFunction(self._to, self._from, EC if self._type == DC else DC)
 
     def __str__(self):
-        return "({} ⟶  {}, {})".format(self._from, self._to,
+        return "({} ⟶ {}, {})".format(self._from, self._to,
                     {EC: "encap", DC: "decap", CV: "conv"}[self._type])
 
     def __hash__(self):

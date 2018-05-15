@@ -60,6 +60,7 @@ class Network(object):
     def send(self, sender_id, receiver_id, item):
         "manually sends a message from sender to receiver"
         self.links[sender_id, receiver_id].put(item)
+        self.threads[receiver_id].wake_buffer.put(sender_id)
         self.notify(receiver_id)
 
     def start(self, duration=None):

@@ -33,6 +33,7 @@ class Node(Thread):
         self.condition = Condition()  # a tool to receive a notification from 
                                       # other threads
         self.network = network
+        self.wake_buffer = Queue()
         self.adapt_functions = adapt_functions
         self.routing_table = RoutingTable()
 
@@ -54,6 +55,7 @@ class Node(Thread):
     def send(self, receiver_id, message):
         "sends a specific message to a node"
         self.network.links[self.id, receiver_id].put(message)
+        self.network.threads[receiver_id].wake_buffer.put(self.id)
         self.network.notify(receiver_id)
 
     def receive(self, sender_id, message):
@@ -90,11 +92,12 @@ class Node(Thread):
     def wait_for_messages(self):
         self.init()
         while True:
-            self.condition.wait()
-            for sender in self.neighbors_id:
+            while not self.wake_buffer.empty():
+                sender = self.wake_buffer.get_nowait()
                 link = self.network.links[sender, self.id]
                 while not link.empty():
                     self.receive(sender, link.get_nowait())
+            self.condition.wait()
 
     # ---------------------------- run the thread ---------------------------- #
     def run(self):

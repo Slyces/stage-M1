@@ -37,6 +37,9 @@ class Message(object):
         assert new_value <= self.max_height, "Max stack height exceeded"
         self.__stack_height = new_value
 
+    def copy(self):
+        return Message(self.src, self.dst, self.stack[:], self.payload, self.max_height)
+
     def __str__(self):
         return "src: {s}, dst: {d}, stack: {st}, payload: «{p}»".format(
             s = self.src, d = self.dst, st = self.stack, p = self.payload

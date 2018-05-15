@@ -6,9 +6,11 @@ class RoutingTable(object):
         self.table = {}
 
     def __contains__(self, keys):
-        return keys in self.table
+        dest, stack = keys
+        return (dest, tuple(stack)) in self.table
 
     def get(self, dest, stack):
+        stack = tuple(stack)
         if (dest, stack) in self:
             return self.table[dest, stack]
         else:
@@ -20,8 +22,9 @@ class RoutingTable(object):
                         - True: the route is new or better than its predecessor
                         - False: this route costs more than the existing one, not added
         """
+        stack = tuple(stack)
         if (dest, stack) not in self or self.table[dest, stack].cost > cost:
-            self.table[dest, stack] = (next_hop, func, cost)
+            self.table[dest, stack] = Row(next_hop, func, cost)
             return True
         else:
             return False
