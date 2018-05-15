@@ -1,2 +1,8 @@
 # vim swap files
 *.swp
+
+# cache
+.cache
+.pytest_cache
+__pycache__
+.idea

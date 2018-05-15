@@ -4,7 +4,7 @@
 import networkx as nx, random #, matplotlib.pyplot as plt
 from threading import Thread, Condition
 from queue import Queue
-from time import sleep
+from time import sleep, time
 
 # --------------------------------- globals ---------------------------------- #
 QUEUE_SIZE = 100
@@ -55,10 +55,11 @@ class Network(object):
         self.links[sender_id, receiver_id].put(item)
         self.notify(receiver_id)
 
-    def start(self):
-        "starts every thread"
+    def start(self, duration=None):
+        "starts every thread, and stops their execution after <duration> seconds"
         print("# ---------------------------- simulation started ---------------" \
                 "------------- #")
+        start_time = time()
         for thread in self.threads.values():
             thread.start()
 
@@ -67,7 +68,7 @@ class Network(object):
 
         # self.send(x.id, y, ConfigurationMessage(x.id, y, ["a"], 0))
 
-        while True:
+        while duration is None or time() - start_time < duration:
             sleep(1)
         # nx.draw(self.graph, arrows = True, with_labels = True,
                 # nodecolor = 'b')
@@ -181,6 +182,7 @@ class Message(object):
         self.__stack_height = 0
         self.stack = stack
         self.payload = payload
+        self.max_height = max_height
 
         # use the setter to make sure the stack is not too long
         self.stack_height = len(stack)
@@ -197,8 +199,8 @@ class Message(object):
         self.__stack_height = new_value
 
     def __str__(self):
-        "src: {s}, dst: {d}, stack: {}, payload: «{}»".format(
-            s = self.src, d = self.dst, stack = self.stack, payload = self.payload
+        return "src: {s}, dst: {d}, stack: {st}, payload: «{p}»".format(
+            s = self.src, d = self.dst, st = self.stack, p = self.payload
         )
 
 # ─────────────────────────── Adaptation functions ─────────────────────────── #
@@ -218,8 +220,8 @@ class AdaptationFunction(object):
         assert _type in (EC, DC, CV)
 
         # convert strings to tuples
-        self._from = tuple(_from)) if _from is str else _from
-        self._to = tuple(_to)) if _to is str else _to
+        self._from = tuple(_from) if _from is str else _from
+        self._to = tuple(_to) if _to is str else _to
         self._type = _type
 
         # protocol length in conversion

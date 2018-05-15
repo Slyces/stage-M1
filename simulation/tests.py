@@ -1,14 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # ───────────────────────────────── imports ────────────────────────────────── #
-import networkx as nx, random as rd
+import networkx as nx, random as rd, pytest
 from simulation import Message, Network, AdaptationFunction, CV, EC, DC
 
 # ────────────────────────── utilitaries for tests ─────────────────────────── #
 def random_network():
-    n = Network(nx.erdos_renyi_graph(20, 0.15))
-    nx.write_adjlist(n.graph)
+    n = Network(nx.erdos_renyi_graph(6, 0.15))
+    print("\n# ---------------------------- Network : ----------------------------- #")
+    for line in nx.generate_adjlist(n.graph):
+        print("\t" + line)
     return n
+
 # ────────────────────────────────── tests ─────────────────────────────────── #
 def test_receive():
     def receive_text(self, sender_id, item):
@@ -21,7 +24,7 @@ def test_receive():
 
     network = random_network()
     network.receive = receive_text
-    network.start()
+    network.start(5)
 
 def test_initialisation_messages():
     def receive_init_message(self, sender_id, item):
@@ -29,8 +32,8 @@ def test_initialisation_messages():
             print("\nRouter ({:2}) | {} from ({:2})".format(self.id, item, sender_id), end='')
 
     network = random_network()
-    network.receive = receive_text
-    network.start()
+    network.receive = receive_init_message
+    network.start(5)
 
 def test_messages():
     for i in range(10):
@@ -38,11 +41,13 @@ def test_messages():
         H = []
         for k in range(n):
             H.append(rd.choice("abcde"))
-        if len(k) > 3:
+
+        if len(H) > 3:
             with pytest.raises(Exception):
+                msg = Message(-1, 1, H, "~payload~", 3)
         else:
             msg = Message(-1, 1, H, "~payload~", 3)
-        print(msg)
+            print(msg)
 
 
 def test_adaptation_functions():
