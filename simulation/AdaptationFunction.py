@@ -82,6 +82,10 @@ class AdaptationFunction(object):
             stack.pop()  # remove the old top protocol
         return stack
 
+    def appliable(self, msg):
+        top_protocols = tuple(msg.stack[-len(self._from):])
+        return top_protocols == tuple(self._from)
+
     @property
     def reverse(self):
         "returns the reverse operation corresponding to this adaptation function"

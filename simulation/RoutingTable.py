@@ -40,9 +40,8 @@ class RoutingTable(object):
         total = rows + [titles]
         max_len = list(map(max, [map(len, line) for line in zip(*total)]))
         max_len = [x + 2 for x in max_len]
-        print(max_len)
         string = "|".join([titles[i].center(max_len[i]) for i in range(5)])
-        string += '\n' + (3 * 4 + sum(max_len)) * "-" + '\n'
+        string += '\n' + (1 * 4 + sum(max_len)) * "-" + '\n'
         for line in rows:
             string += " ".join([line[i].center(max_len[i]) for i in range(2)])
             string += "|"

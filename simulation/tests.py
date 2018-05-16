@@ -28,34 +28,42 @@ def safe_increment(counter, inc):
 
 
 # ─────────────────────────── tests communication ──────────────────────────── #
+@pytest.mark.focus
 def test_initialisation_messages():
     print("=" * 80)
     print("TEST WITH A LOT OF PRINTS".center(80))
+    # --------------------------- inner test class --------------------------- #
     class TestNode(Node):
-        received = 0
-        lock = Lock()
+        def __init__(self, *args, **kwargs):
+            Node.__init__(self, *args, **kwargs)
+            self.received = 0
+            self.sent = 0
 
         def receive(self, sender_id, item):
+            print(item)
+            self.received += 1
             if isinstance(item, ConfigurationMessage):
-                # print("\nRouter ({:1}) | {} from ({:1})".format(
-                #     self.id, item, sender_id), end='')
-                TestNode.lock.acquire()
-                TestNode.received += 1
-                TestNode.lock.release()
+                print("\nRouter ({:1}) received {} from ({:1})".format(
+                    self.id, item, sender_id))
 
         def send(self, receiver_id, message):
             super().send(receiver_id, message)
-            # print("\n{} sending {}".format(self.id, message), end='')
+            if isinstance(message, ConfigurationMessage):
+                print("\n{} sending {}".format(self.id, message), end='')
+                self.sent += 1
 
     network = random_network(20)
-    network.set_nodes(dict([(node_id, TestNode(node_id, network))
-                            for node_id in network.graph.nodes]))
+    nodes = dict([(node_id, TestNode(node_id, network))
+                            for node_id in network.graph.nodes])
+    network.set_nodes(nodes)
 
     expected_received = sum([len(node.neighbors_id) * len(node.In)
                              for node in network.threads.values()])
-
     network.start(0.5)
-    assert TestNode.received == expected_received
+    received = sum([x.received for x in nodes.values()])
+    sent = sum([x.sent for x in nodes.values()])
+    print("received : {}, sent : {}, expected : {}".format(received, sent, expected_received))
+    assert received == sent == expected_received
     print("=" * 80)
 
 # ────────────────────────────── test messages ─────────────────────────────── #
@@ -69,10 +77,10 @@ def random_stack(alphabet, min_size, max_size):
 def test_messages():
     for i in range(10):
         H = random_stack(protocols, 2, 10)
-        with pytest.raises(Exception):
-            Message(-1, 1, H, "~payload~", len(H) - 1)
+        msg = Message(-1, 1, H, "~payload~", len(H) - 1)
+        assert not msg.valid
         msg = Message(-1, 1, H, "~payload~", 10)
-
+        assert msg.valid
         print(msg)
 
 
@@ -234,3 +242,27 @@ def test_routing_table_print():
     table = random_routing_table(3)
     print(table)
     print("=" * 80)
+
+# ────────────────────────── test automatic routing ────────────────────────── #
+def test_network_1():
+    """
+    A ← → B ← → C ← → D
+    -------------------
+    A, B, C, D: x → x
+    """
+    graph = nx.Graph()
+    # adding edges
+    graph.add_edges_from([("A", "B"), ("B", "C"), ("C", "D")])
+
+    network = Network(graph)
+    x_to_x = AdaptationFunction("x", "x", CV)
+    nodes = dict([(char, Node(char, network, [x_to_x])) for char in "ABCD"])
+    network.set_nodes(nodes)
+    network.start(1)
+    for node in network.threads.values():
+        print("Routing table : {}\n".format(node.id))
+        print(node.routing_table)
+        count = 0
+        for row in node.routing_table:
+            count += 1
+        assert count == 4

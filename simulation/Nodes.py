@@ -36,6 +36,9 @@ class Node(Thread):
         self.wake_buffer = Queue()
         self.adapt_functions = adapt_functions
         self.routing_table = RoutingTable()
+        for function in self.adapt_functions:
+            self.routing_table.add_route(self.id, function._from,
+                    self.id, function, 0)
 
     @property
     def neighbors_id(self):
@@ -68,14 +71,18 @@ class Node(Thread):
                 self.route(sender_id, message)
         # ------------------ configuring the routing table ------------------- #
         if isinstance(message, ConfigurationMessage):
+            print("{} ← {} : {}".format(self.id, sender_id, message))
             for function in self.adapt_functions:
-                in_stack = function.reverse.apply(message.stack)
-                cost = self.network.links[self.id, sender_id].cost(function) + message.cost
-                added = self.routing_table.add_route(
-                        message.dest, in_stack, sender_id, function, cost)
-                if added:
-                    for n_id in self.neighbors_id:
-                        self.send(n_id, ConfigurationMessage(message.dest, in_stack, cost))
+                if function.reverse.appliable(message):
+                    in_stack = function.reverse.apply(message.stack)
+                    cost = self.network.links[self.id, sender_id].cost(function) + message.cost
+                    print("Found new route ?")
+                    added = self.routing_table.add_route(
+                            message.dest, in_stack, sender_id, function, cost)
+                    print(added)
+                    if added:
+                        for n_id in self.neighbors_id:
+                            self.send(n_id, ConfigurationMessage(message.dest, in_stack, cost))
 
     # ---------------------------- route messages ---------------------------- #
     def route(self, sender_id, message):
@@ -84,7 +91,7 @@ class Node(Thread):
         if (dest, stack) in self.routing_table:
             row = self.routing_table.get(dest, stack)
             row.function.apply(message)
-            if message.stack < message.max_stack:
+            if message.valid:
                 self.send(row.next_hop, message)
 
     def destination_reached(self, message):
@@ -94,10 +101,12 @@ class Node(Thread):
 
     # ---------------------------- initialisation ---------------------------- #
     def init(self):
-        "Sends messages to each neighbors to initialise the routing table"
+        """
+        Sends messages to each neighbors to initialise the routing table
+        """
         for x in self.In:
             for n_id in self.neighbors_id:
-                self.send(n_id, ConfigurationMessage(n_id, [x], 0))
+                self.send(n_id, ConfigurationMessage(self.id, [x], 0))
 
     # ------------------------ wait for notifications ------------------------ #
     def wait_for_messages(self):
