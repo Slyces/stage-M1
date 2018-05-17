@@ -49,19 +49,13 @@ class Network(object):
         assert set(nodes.keys()) == set(self.graph.nodes)
         self.threads = nodes
 
-    def notify(self, node_id):
-        "wakes up a thread to let him look up received messages"
-        node = self.threads[node_id]
-
-        node.condition.acquire()
-        node.condition.notify()
-        node.condition.release()
-
     def send(self, sender_id, receiver_id, item):
         "manually sends a message from sender to receiver"
         self.links[sender_id, receiver_id].put(item)
         self.threads[receiver_id].wake_buffer.put(sender_id)
-        self.notify(receiver_id)
+
+    def on_loop(self, timer):
+        return sleep(1)
 
     def start(self, duration=None):
         "starts every thread, and stops their execution after <duration> seconds"
@@ -75,13 +69,8 @@ class Network(object):
         for thread in self.threads.values():
             thread.start()
 
-        x = random.choice(list(self.threads.values()))
-        y = x.neighbors_id[0]
-
-        # self.send(x.id, y, ConfigurationMessage(x.id, y, ["a"], 0))
-
         while duration is None or time() - start_time < duration:
-            sleep(1)
+            self.on_loop(time() - start_time < duration)
 
 # ──────────────────── Links to communicate between nodes ──────────────────── #
 class Link(Queue):

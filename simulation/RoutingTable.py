@@ -35,13 +35,14 @@ class RoutingTable(object):
 
     def __str__(self):
         titles = ["dest", "stack", "next_hop", "adaptation function", "cost"]
-        rows = [[str(dest), "".join(stack), str(row.next_hop), str(row.func),
+        rows = [[str(dest), "".join(stack), str(row.next_hop), str(row.function),
                  str(row.cost)] for ((dest, stack), row) in self.table.items()]
         total = rows + [titles]
         max_len = list(map(max, [map(len, line) for line in zip(*total)]))
         max_len = [x + 2 for x in max_len]
         string = "|".join([titles[i].center(max_len[i]) for i in range(5)])
         string += '\n' + (1 * 4 + sum(max_len)) * "-" + '\n'
+        rows.sort()
         for line in rows:
             string += " ".join([line[i].center(max_len[i]) for i in range(2)])
             string += "|"
@@ -52,7 +53,7 @@ class RoutingTable(object):
 
 # ──────────────────────────────── Rows class ──────────────────────────────── #
 class Row(object):
-    def __init__(self, next_hop, func, cost):
+    def __init__(self, next_hop, function, cost):
         self.next_hop = next_hop
-        self.func = func
+        self.function = function
         self.cost = cost
