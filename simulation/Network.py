@@ -35,12 +35,18 @@ class Network(object):
             graph = make_directed_graph(graph)
         self.graph = graph
 
+        self.start_time = 0
+        self.duration = 0
+
         # creating every router (node)
         self.threads = {}
 
         self.links = {}
         for edge in graph.edges:
             self.links[edge] = Link(default_cost, None, QUEUE_SIZE)
+
+    def convergence_time(self):
+        return Node.last_received - self.start_time
 
     def set_nodes(self, nodes):
         """
@@ -55,7 +61,9 @@ class Network(object):
         self.threads[receiver_id].wake_buffer.put(sender_id)
 
     def on_loop(self, timer):
-        return sleep(1)
+        sleep(1e-4)
+        if time() - Node.last_received > 1e-4:
+            self.duration = time() - self.start_time
 
     def start(self, duration=None):
         "starts every thread, and stops their execution after <duration> seconds"
@@ -65,12 +73,14 @@ class Network(object):
             for node_id in self.graph.nodes:
                 self.threads[node_id] = Node(node_id, self)
 
-        start_time = time()
+        self.duration = duration
+        self.start_time = time()
         for thread in self.threads.values():
             thread.start()
 
-        while duration is None or time() - start_time < duration:
-            self.on_loop(time() - start_time < duration)
+        stop = False
+        while (duration is None or time() - self.start_time < self.duration):
+            self.on_loop(time() - self.start_time)
 
 # ──────────────────── Links to communicate between nodes ──────────────────── #
 class Link(Queue):

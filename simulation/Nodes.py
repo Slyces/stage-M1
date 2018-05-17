@@ -3,6 +3,7 @@
 # ----------------------------- library imports ------------------------------ #
 from threading import Thread, Condition
 from queue import Queue
+from time import time
 import random
 # ---------------------------- custom code import ---------------------------- #
 from AdaptationFunction import AdaptationFunction, EC, DC, CV
@@ -15,7 +16,7 @@ class Node(Thread):
     """
     Each node represents a router in the network
     """
-
+    last_received = 0
     def __init__(self, node_id, network, adapt_functions=None, **kwargs):
         """
         :param node_id: any unique identifier
@@ -88,6 +89,7 @@ class Node(Thread):
                     if added:
                         for n_id in self.neighbors_id:
                             self.send(n_id, ConfigurationMessage(msg_copy.dest, in_stack, cost))
+            Node.last_received = time()
 
     # ---------------------------- route messages ---------------------------- #
     def route(self, sender_id, message):

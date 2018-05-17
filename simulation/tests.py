@@ -21,14 +21,6 @@ def random_network(nodes):
         print(" " * 4 + line.split()[0] + " → " + " - ".join(line.split()[1:]))
     return n
 
-
-# ─────────────────── thread-safe counter to count things ──────────────────── #
-def safe_increment(counter, inc):
-    counter.lock.acquire()
-    counter += inc
-    counter.lock.release()
-
-
 # ─────────────────────────── tests communication ──────────────────────────── #
 @pytest.mark.focus
 def test_initialisation_messages():
@@ -46,6 +38,7 @@ def test_initialisation_messages():
             if isinstance(item, ConfigurationMessage):
                 # print("\nRouter ({:1}) received {} from ({:1})".format(
                 #     self.id, item, sender_id), end="")
+                Node.last_received = time()
                 self.received += 1
 
         def send(self, receiver_id, message):
@@ -55,18 +48,19 @@ def test_initialisation_messages():
                 #                                     message), end='')
                 self.sent += 1
 
-    network = random_network(100)
+    network = random_network(50)
     nodes = dict([(node_id, TestNode(node_id, network))
                   for node_id in network.graph.nodes])
     network.set_nodes(nodes)
 
     expected_received = sum([len(node.neighbors_id) * len(node.In)
                              for node in network.threads.values()])
-    network.start(0.5)
+    network.start(0.02)
     received = sum([x.received for x in nodes.values()])
     sent = sum([x.sent for x in nodes.values()])
     # print("received : {}, sent : {}, expected : {}".format(received, sent, expected_received))
     assert received == sent == expected_received
+    print('\n' + ' Converged in {:5f} -- Stopped in {:5f} '.center(60, '=').format(network.convergence_time(), network.duration))
     print("=" * 80)
 
 
@@ -279,6 +273,7 @@ class StatsNode(Node):
             self.conf_sent += 1
 
 def stats(nodes):
+    print(" ")
     nodes_id = list(nodes.keys())
     nodes_id.sort()
     rows = []
@@ -299,6 +294,16 @@ def stats(nodes):
     print(string)
 
 # ────────────────────────── test automatic routing ────────────────────────── #
+def routing_tables(nodes):
+    nodes_id = list(nodes.keys())
+    nodes_id.sort()
+    for node_id in nodes_id:
+        print("Routing table : {}\n".format(node_id))
+        print(nodes[node_id].routing_table)
+    received = sum([x.conf_received for x in nodes.values()])
+    sent = sum([x.conf_sent for x in nodes.values()])
+    return received, sent
+
 def test_routing_1():
     """
     A ← → B ← → C ← → D
@@ -311,30 +316,19 @@ def test_routing_1():
 
     class TestNetwork(Network):
         def on_loop(self, timer):
-            if timer > 0.5:
+            super().on_loop(timer)
+            if ('D', ['x']) in self.threads['A'].routing_table:
                 self.send("A", "B", Message("A", "D", ["x"], "------"))
-            sleep(0.01)
 
     network = TestNetwork(graph)
     x_to_x = AdaptationFunction("x", "x", CV)
     nodes = dict([(char, StatsNode(char, network, [x_to_x])) for char in "ABCD"])
     network.set_nodes(nodes)
-    network.start(2)
-    nodes_id = list(nodes.keys())
-    nodes_id.sort()
-    print('')
-    for node_id in nodes_id:
-        print("Routing table : {}\n\tA ← → B ← → C ← → D".format(node_id))
-        print(nodes[node_id].routing_table)
-        count = 0
-        for row in nodes[node_id].routing_table:
-            count += 1
-        assert count == 4
-    received = sum([x.conf_received for x in nodes.values()])
-    sent = sum([x.conf_sent for x in nodes.values()])
-    assert received == sent
+    network.start(0.1)
     stats(nodes)
-
+    received, sent = routing_tables(nodes)
+    assert received == sent
+    print('\n' + ' Converged in {:5f} -- Stopped in {:5f} '.center(60, '=').format(network.convergence_time(), network.duration))
 
 def test_routing_2():
     """
@@ -349,9 +343,9 @@ def test_routing_2():
 
     class TestNetwork(Network):
         def on_loop(self, timer):
-            if timer > 0.5:
+            super().on_loop(timer)
+            if ('D', ['x']) in self.threads['A'].routing_table:
                 self.send("A", "B", Message("A", "D", ["x"], "------"))
-            sleep(0.01)
 
     network = TestNetwork(graph)
     x_to_x = AdaptationFunction("x", "x", CV)
@@ -362,16 +356,11 @@ def test_routing_2():
         [(char, StatsNode(char, network, [x_to_xy, xy_to_x])) for char in "BC"]
     )
     network.set_nodes(nodes)
-    network.start(0.5)
-    nodes_id = list(nodes.keys())
-    nodes_id.sort()
-    for node_id in nodes_id:
-        print("Routing table : {}\n\tA ← → B ← → C ← → D".format(node_id))
-        print(nodes[node_id].routing_table)
-    received = sum([x.conf_received for x in nodes.values()])
-    sent = sum([x.conf_sent for x in nodes.values()])
-    assert received == sent
+    network.start(0.1)
     stats(nodes)
+    received, sent = routing_tables(nodes)
+    assert received == sent
+    print('\n' + ' Converged in {:5f} -- Stopped in {:5f} '.center(60, '=').format(network.convergence_time(), network.duration))
 
 def test_routing_3():
     """
@@ -396,9 +385,9 @@ def test_routing_3():
 
     class TestNetwork(Network):
         def on_loop(self, timer):
+            super().on_loop(timer)
             if ('G', ['x']) in self.threads['A'].routing_table:
                 self.send("A", "B", Message("A", "G", ["x"], "------"))
-            sleep(0.01)
 
     network = TestNetwork(graph)
     x__x = AdaptationFunction('x', 'x', CV)
@@ -421,13 +410,51 @@ def test_routing_3():
         'G': StatsNode('G', network, [x__x])
     }
     network.set_nodes(nodes)
-    network.start(2)
-    nodes_id = list(nodes.keys())
-    nodes_id.sort()
-    for node_id in nodes_id:
-        print("Routing table : {}\n".format(node_id))
-        print(nodes[node_id].routing_table)
-    received = sum([x.conf_received for x in nodes.values()])
-    sent = sum([x.conf_sent for x in nodes.values()])
-    assert received == sent
+    network.start(0.1)
     stats(nodes)
+    received, sent = routing_tables(nodes)
+    assert received == sent
+    print('\n' + ' Converged in {:5f} -- Stopped in {:5f} '.center(60, '=').format(network.convergence_time(), network.duration))
+
+def test_routing_4():
+    """
+       B ← →  C ← → D
+     ↙↗              ↖↘
+    A    ← →  E  ← →   F
+    ---------------------------------
+    A, B, C: x → x
+    D: x → y
+    E: x → xy
+    F: y → y
+    ---------------------------------
+    """
+    graph = nx.Graph()
+    # adding edges
+    graph.add_edges_from([("A", "B"), ("B", "C"), ("C", "D"), ("D", "F"), ("A", "E"), ("E", "F")])
+
+    class TestNetwork(Network):
+        def on_loop(self, timer):
+            super().on_loop(timer)
+            if ('F', ['x']) in self.threads['A'].routing_table:
+                self.send("B", "A", Message("A", "G", ["x"], "------"))
+
+    network = TestNetwork(graph)
+    x__x = AdaptationFunction('x', 'x', CV)
+    y__y = AdaptationFunction('y', 'y', CV)
+    x__y = AdaptationFunction('x', 'y', CV)
+    x__xy = AdaptationFunction('x', 'xy', EC)
+
+    nodes = {
+        'A': StatsNode('A', network, [x__x]),
+        'B': StatsNode('B', network, [x__x]),
+        'C': StatsNode('C', network, [x__x]),
+        'D': StatsNode('D', network, [x__y]),
+        'E': StatsNode('E', network, [x__xy]),
+        'F': StatsNode('F', network, [y__y])
+    }
+    network.set_nodes(nodes)
+    network.start(0.1)
+    stats(nodes)
+    received, sent = routing_tables(nodes)
+    assert received == sent
+    print('\n' + ' Converged in {:5f} -- Stopped in {:5f} '.center(60, '=').format(network.convergence_time(), network.duration))
