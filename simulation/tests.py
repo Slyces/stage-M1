@@ -29,24 +29,11 @@ def test_initialisation_messages():
 
     # --------------------------- inner test class --------------------------- #
     class TestNode(Node):
-        def __init__(self, *args, **kwargs):
-            Node.__init__(self, *args, **kwargs)
-            self.received = 0
-            self.sent = 0
-
-        def receive(self, sender_id, item):
-            if isinstance(item, ConfigurationMessage):
-                # print("\nRouter ({:1}) received {} from ({:1})".format(
-                #     self.id, item, sender_id), end="")
-                Node.last_received = time()
-                self.received += 1
-
-        def send(self, receiver_id, message):
-            super().send(receiver_id, message)
+        def receive(self, sender_id, message):
             if isinstance(message, ConfigurationMessage):
-                # print("\n{} → {} : sending {}".format(self.id, receiver_id,
-                #                                     message), end='')
-                self.sent += 1
+                self.conf_received += 1
+                Node.last_conf_received = time()
+            Node.last_received = time()
 
     network = random_network(50)
     nodes = dict([(node_id, TestNode(node_id, network))
@@ -56,8 +43,8 @@ def test_initialisation_messages():
     expected_received = sum([len(node.neighbors_id) * len(node.In)
                              for node in network.threads.values()])
     network.start(0.02)
-    received = sum([x.received for x in nodes.values()])
-    sent = sum([x.sent for x in nodes.values()])
+    received = sum([x.conf_received for x in nodes.values()])
+    sent = sum([x.conf_sent for x in nodes.values()])
     # print("received : {}, sent : {}, expected : {}".format(received, sent, expected_received))
     assert received == sent == expected_received
     print('\n' + ' Converged in {:5f} -- Stopped in {:5f} '.center(60, '=').format(network.convergence_time(), network.duration))
@@ -314,20 +301,17 @@ def test_routing_1():
     # adding edges
     graph.add_edges_from([("A", "B"), ("B", "C"), ("C", "D")])
 
-    class TestNetwork(Network):
-        def on_loop(self, timer):
-            super().on_loop(timer)
-            if ('D', ['x']) in self.threads['A'].routing_table:
-                self.send("A", "B", Message("A", "D", ["x"], "------"))
-
-    network = TestNetwork(graph)
+    network = Network(graph)
     x_to_x = AdaptationFunction("x", "x", CV)
     nodes = dict([(char, StatsNode(char, network, [x_to_x])) for char in "ABCD"])
     network.set_nodes(nodes)
+    for i in range(10):
+        network.send_after_convergence("A", "B", Message("A", "D", ["x"], "------"))
     network.start(0.1)
-    stats(nodes)
     received, sent = routing_tables(nodes)
+    stats(nodes)
     assert received == sent
+    assert network.sent == sum([x.msg_received for x in nodes.values()])
     print('\n' + ' Converged in {:5f} -- Stopped in {:5f} '.center(60, '=').format(network.convergence_time(), network.duration))
 
 def test_routing_2():
@@ -341,13 +325,7 @@ def test_routing_2():
     # adding edges
     graph.add_edges_from([("A", "B"), ("B", "C"), ("C", "D")])
 
-    class TestNetwork(Network):
-        def on_loop(self, timer):
-            super().on_loop(timer)
-            if ('D', ['x']) in self.threads['A'].routing_table:
-                self.send("A", "B", Message("A", "D", ["x"], "------"))
-
-    network = TestNetwork(graph)
+    network = Network(graph)
     x_to_x = AdaptationFunction("x", "x", CV)
     x_to_xy = AdaptationFunction("x", "xy", EC)
     xy_to_x = AdaptationFunction("xy", "x", DC)
@@ -356,10 +334,13 @@ def test_routing_2():
         [(char, StatsNode(char, network, [x_to_xy, xy_to_x])) for char in "BC"]
     )
     network.set_nodes(nodes)
+    for i in range(10):
+        network.send_after_convergence("A", "B", Message("A", "D", ["x"], "------"))
     network.start(0.1)
-    stats(nodes)
     received, sent = routing_tables(nodes)
+    stats(nodes)
     assert received == sent
+    assert network.sent == sum([x.msg_received for x in nodes.values()])
     print('\n' + ' Converged in {:5f} -- Stopped in {:5f} '.center(60, '=').format(network.convergence_time(), network.duration))
 
 def test_routing_3():
@@ -383,13 +364,7 @@ def test_routing_3():
     # adding edges
     graph.add_edges_from([("A", "B"), ("B", "C"), ("C", "D"), ("D", "B"), ("B", "E"), ("E", "F"), ("F",  "G")])
 
-    class TestNetwork(Network):
-        def on_loop(self, timer):
-            super().on_loop(timer)
-            if ('G', ['x']) in self.threads['A'].routing_table:
-                self.send("A", "B", Message("A", "G", ["x"], "------"))
-
-    network = TestNetwork(graph)
+    network = Network(graph)
     x__x = AdaptationFunction('x', 'x', CV)
     y__y = AdaptationFunction('y', 'y', CV)
     z__z = AdaptationFunction('z', 'z', CV)
@@ -410,10 +385,13 @@ def test_routing_3():
         'G': StatsNode('G', network, [x__x])
     }
     network.set_nodes(nodes)
+    for i in range(10):
+        network.send_after_convergence("A", "B", Message("A", "G", ["x"], "------"))
     network.start(0.1)
-    stats(nodes)
     received, sent = routing_tables(nodes)
+    stats(nodes)
     assert received == sent
+    assert network.sent == sum([x.msg_received for x in nodes.values()])
     print('\n' + ' Converged in {:5f} -- Stopped in {:5f} '.center(60, '=').format(network.convergence_time(), network.duration))
 
 def test_routing_4():
@@ -432,13 +410,7 @@ def test_routing_4():
     # adding edges
     graph.add_edges_from([("A", "B"), ("B", "C"), ("C", "D"), ("D", "F"), ("A", "E"), ("E", "F")])
 
-    class TestNetwork(Network):
-        def on_loop(self, timer):
-            super().on_loop(timer)
-            if ('F', ['x']) in self.threads['A'].routing_table:
-                self.send("B", "A", Message("A", "G", ["x"], "------"))
-
-    network = TestNetwork(graph)
+    network = Network(graph)
     x__x = AdaptationFunction('x', 'x', CV)
     y__y = AdaptationFunction('y', 'y', CV)
     x__y = AdaptationFunction('x', 'y', CV)
@@ -453,8 +425,11 @@ def test_routing_4():
         'F': StatsNode('F', network, [y__y])
     }
     network.set_nodes(nodes)
-    network.start(0.1)
-    stats(nodes)
+    for i in range(10):
+        network.send_after_convergence("B", "A", Message("A", "F", ["x"], "------"))
+    network.start()
     received, sent = routing_tables(nodes)
+    stats(nodes)
     assert received == sent
+    assert network.sent == sum([x.msg_received for x in nodes.values()])
     print('\n' + ' Converged in {:5f} -- Stopped in {:5f} '.center(60, '=').format(network.convergence_time(), network.duration))

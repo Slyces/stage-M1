@@ -17,6 +17,7 @@ class Node(Thread):
     Each node represents a router in the network
     """
     last_received = 0
+    last_conf_received = 0
     def __init__(self, node_id, network, adapt_functions=None, **kwargs):
         """
         :param node_id: any unique identifier
@@ -31,7 +32,7 @@ class Node(Thread):
                                    random.choice(("a", "b", "c")), CV) for i in range(2)
                 ]
         # --------------- communication related initialisation --------------- #
-        self.daemon = True
+        # self.daemon = True
         self.id = node_id
         self.network = network
         self.wake_buffer = Queue()
@@ -40,6 +41,9 @@ class Node(Thread):
         for function in self.adapt_functions:
             self.routing_table.add_route(self.id, list(function._from),
                     self.id, function, 0)
+        # -------------------- counting sent and received -------------------- #
+        self.conf_received = 0
+        self.conf_sent = 0
 
     @property
     def neighbors_id(self):
@@ -58,14 +62,13 @@ class Node(Thread):
     # ---------------------- send and receive messages ----------------------- #
     def send(self, receiver_id, message):
         "sends a specific message to a node"
+        if isinstance(message, ConfigurationMessage):
+            self.conf_sent += 1
         self.network.links[self.id, receiver_id].put(message)
         self.network.threads[receiver_id].wake_buffer.put(self.id)
-        # if isinstance(message, ConfigurationMessage):
-        #     if self.id == 'B' and message.dest == 'D':
-        #         print("({}) SENDING to {} : {} → {} → {} - {}".format(self.id, receiver_id, self.id, message.stack, message.dest, message.cost))
 
     def receive(self, sender_id, message):
-        "called upon reception of an message sent by anoother node"
+        "called upon reception of a message sent by another node"
         # ----------------------------- routing ------------------------------ #
         if isinstance(message, Message):
             if message.dest == self.id:
@@ -74,22 +77,21 @@ class Node(Thread):
                 self.route(sender_id, message)
         # ------------------ configuring the routing table ------------------- #
         if isinstance(message, ConfigurationMessage):
-            # if self.id == 'A' and sender_id == 'B':
-            #     print("({}) new {} → {} → {} - {}".format(self.id, sender_id, message.stack, message.dest, message.cost))
+            self.conf_received += 1
+            return
             for function in self.adapt_functions:
-                # if self.id == 'B' and message.dest == 'D':
-                #     top_protocols = tuple(message.stack[-len(function._from):])
-                #     print(function, message.stack, top_protocols, tuple(function._from))
                 msg_copy = message.copy()
                 if function.reverse.appliable(msg_copy):
                     in_stack = function.reverse.apply_to_stack(msg_copy.stack)
-                    cost = self.network.links[self.id, sender_id].cost(function) + msg_copy.cost
-                    added = self.routing_table.add_route(
-                        msg_copy.dest, in_stack, sender_id, function, cost)
-                    if added:
-                        for n_id in self.neighbors_id:
-                            self.send(n_id, ConfigurationMessage(msg_copy.dest, in_stack, cost))
-            Node.last_received = time()
+                    if len(in_stack) <= self.network.max_stack:
+                        cost = self.network.links[self.id, sender_id].cost(function) + msg_copy.cost
+                        added = self.routing_table.add_route(
+                            msg_copy.dest, in_stack, sender_id, function, cost)
+                        if added:
+                            for n_id in self.neighbors_id:
+                                self.send(n_id, ConfigurationMessage(msg_copy.dest, in_stack, cost))
+            Node.last_conf_received = time()
+        Node.last_received = time()
 
     # ---------------------------- route messages ---------------------------- #
     def route(self, sender_id, message):
@@ -100,6 +102,8 @@ class Node(Thread):
             row.function.apply(message)
             if message.valid:
                 self.send(row.next_hop, message)
+        else:
+            print("message {} not valid, I do not have this entry".format(message))
 
     def destination_reached(self, message):
         """Any message passed through this function was destined to this router"""
@@ -117,15 +121,22 @@ class Node(Thread):
 
     # ------------------------ wait for notifications ------------------------ #
     def wait_for_messages(self):
-        self.init()
         # print(">> {} Finished sending".format(self.id))
         while True:
+            # if self.wake_buffer.empty():
+                # pass
+            # else:
             sender = self.wake_buffer.get(block=True)  # blocks
+            # print("{} woke {} up\n".format(sender, self.id), end="")
             link = self.network.links[sender, self.id]
             while not link.empty():
-                self.receive(sender, link.get_nowait())
+                item = link.get_nowait()
+                # print("{} found {} in the link {} ↔ {}\n".format(self.id, item, sender, self.id), end="")
+                self.receive(sender, item)
+            self.wake_buffer.task_done()
 
     # ---------------------------- run the thread ---------------------------- #
     def run(self):
         # self.condition.acquire()
+        self.init()
         self.wait_for_messages()
