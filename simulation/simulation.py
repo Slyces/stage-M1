@@ -112,7 +112,22 @@ def test_simulation():
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
+    parser = argparse.argparse.ArgumentParser(
+        prog='simulation',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        description=textwrap.dedent('''\
+            Output
+            --------------------------------
+            conv_m conv_v paths_m paths_v sent_m sent_v_m diam_m diam_v
+            --------------------------------
+            where:
+                - _m = mean value over all iterations
+                - _v = variance over all iterations
+                - conv = convergence time
+                - paths = is there a path between the 2 most distant nodes ?
+                - sent = number of messages sent
+                - diam = diameter of the network
+            '''))
     parser.add_argument('size', help='number of nodes in the network', type=int)
     parser.add_argument('p', help='probability of each adaptation function to be added to a node', type=float)
     parser.add_argument('nb_protocols', help='number of protocols used in the simulation', type=int)
