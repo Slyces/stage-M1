@@ -4,7 +4,7 @@
 import networkx as nx, random, pytest, argparse
 from networkx.generators.random_graphs import barabasi_albert_graph
 from time import sleep, time
-from statistics import mean, pvariance as var
+from statistics import mean, variance as var
 # --------------------------- custom code imports ---------------------------- #
 from Nodes import Node
 from Network import Network
