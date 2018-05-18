@@ -9,7 +9,7 @@ from time import sleep, time
 from Nodes import Node
 
 # ───────────────────────────────── globals ────────────────────────────────── #
-QUEUE_SIZE = 1
+QUEUE_SIZE = -1
 
 # ─────────────────────────── utilitary functions ──────────────────────────── #
 def make_directed_graph(graph):
@@ -36,6 +36,7 @@ class Network(object):
         self.graph = graph
 
         self.start_time = 0
+        self.running = True
         self.duration = 0
         self.to_send = []
         self.converged = False
@@ -71,18 +72,17 @@ class Network(object):
         self.threads[receiver_id].wake_buffer.put_nowait(sender_id)
 
     def on_loop(self, timer):
-        # print('{:5f}'.format((time() - Node.last_received) * 100))
-        if time() - Node.last_received > 1e-3:
-            self.duration = time() - self.start_time
-        # for node in self.threads.values():
-            # node.wake_buffer.join()
-
-        sleep(1e-5)
-        if time() - Node.last_conf_received > 1e-2:
-            while self.to_send:
-                self.send(*self.to_send.pop())
-                self.sent += 1
-        # Stopping the network
+        buffers_empty = [n.wake_buffer.empty() for n in self.threads.values()]
+        if all(buffers_empty):
+            if self.to_send:
+                if time() - Node.last_conf_received > 1e-3:
+                    while self.to_send:
+                        self.send(*self.to_send.pop())
+                        self.sent += 1
+                    sleep(1e-3)
+            else:
+                self.running = False
+        sleep(1e-2)
 
     def start(self, duration=None):
         "starts every thread, and stops their execution after <duration> seconds"
@@ -97,14 +97,10 @@ class Network(object):
         for thread in self.threads.values():
             thread.start()
 
-        # while self.duration is None or time() - self.start_time < self.duration:
-            # # self.on_loop(time() - self.start_time)
-            buffers = [node.wake_buffer for node in self.threads.values()]
-        while not all([b.empty() for b in buffers]):
-            # for b in buffers:
-                # b.join()
-            sleep(0.1)
-        self.duration = time() - self.start_time
+        while self.running and (self.duration is None or time() - self.start_time < self.duration):
+            timer = time() - self.start_time
+            self.on_loop(timer)
+        self.duration = timer
 
 
 # ──────────────────── Links to communicate between nodes ──────────────────── #

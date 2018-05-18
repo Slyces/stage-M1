@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # ----------------------------- library imports ------------------------------ #
 from threading import Thread, Condition
-from queue import Queue
+from queue import Queue, Empty
 from time import time
 import random
 # ---------------------------- custom code import ---------------------------- #
@@ -78,7 +78,6 @@ class Node(Thread):
         # ------------------ configuring the routing table ------------------- #
         if isinstance(message, ConfigurationMessage):
             self.conf_received += 1
-            return
             for function in self.adapt_functions:
                 msg_copy = message.copy()
                 if function.reverse.appliable(msg_copy):
@@ -122,18 +121,16 @@ class Node(Thread):
     # ------------------------ wait for notifications ------------------------ #
     def wait_for_messages(self):
         # print(">> {} Finished sending".format(self.id))
-        while True:
-            # if self.wake_buffer.empty():
-                # pass
-            # else:
-            sender = self.wake_buffer.get(block=True)  # blocks
-            # print("{} woke {} up\n".format(sender, self.id), end="")
-            link = self.network.links[sender, self.id]
-            while not link.empty():
-                item = link.get_nowait()
-                # print("{} found {} in the link {} ↔ {}\n".format(self.id, item, sender, self.id), end="")
-                self.receive(sender, item)
-            self.wake_buffer.task_done()
+        while self.network.running:
+            try:
+                sender = self.wake_buffer.get(timeout=1e-2)  # blocks
+                link = self.network.links[sender, self.id]
+                while not link.empty():
+                    item = link.get_nowait()
+                    self.receive(sender, item)
+                self.wake_buffer.task_done()
+            except Empty:
+                pass
 
     # ---------------------------- run the thread ---------------------------- #
     def run(self):

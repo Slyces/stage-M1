@@ -35,14 +35,14 @@ def test_initialisation_messages():
                 Node.last_conf_received = time()
             Node.last_received = time()
 
-    network = random_network(50)
+    network = random_network(200)
     nodes = dict([(node_id, TestNode(node_id, network))
                   for node_id in network.graph.nodes])
     network.set_nodes(nodes)
 
     expected_received = sum([len(node.neighbors_id) * len(node.In)
                              for node in network.threads.values()])
-    network.start(0.02)
+    network.start(5)
     received = sum([x.conf_received for x in nodes.values()])
     sent = sum([x.conf_sent for x in nodes.values()])
     # print("received : {}, sent : {}, expected : {}".format(received, sent, expected_received))
@@ -427,7 +427,7 @@ def test_routing_4():
     network.set_nodes(nodes)
     for i in range(10):
         network.send_after_convergence("B", "A", Message("A", "F", ["x"], "------"))
-    network.start()
+    network.start(0.1)
     received, sent = routing_tables(nodes)
     stats(nodes)
     assert received == sent

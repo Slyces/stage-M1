@@ -10,6 +10,7 @@ from Nodes import Node
 from Network import Network
 from AdaptationFunction import AdaptationFunction, CV, EC, DC
 
+
 # ───────────────────────────────── globals ────────────────────────────────── #
 
 # ─────────────────────────── utilitary functions ──────────────────────────── #
@@ -19,6 +20,7 @@ def functions_subset(functions, p):
         if random.random() < p:
             subset.append(x)
     return subset
+
 
 # ─────────────────────────── running a simulation ─────────────────────────── #
 def run(size, p, nb_protocols, max_stack):
@@ -43,7 +45,6 @@ def run(size, p, nb_protocols, max_stack):
                     u, v = x, y
 
     # ---------------- create every valid adaptation function ---------------- #
-    print(nb_protocols)
     protocols = "abcdefghijklmnopqrstuvwxyz"[:nb_protocols]
     functions = set()
     for i in range(len(protocols)):
@@ -73,7 +74,6 @@ def run(size, p, nb_protocols, max_stack):
     received = sum([node.conf_received for node in nodes.values()])
     sent = sum([node.conf_sent for node in nodes.values()])
     # ---------------------- end of network somulation ----------------------- #
-    print(" | ".join(['{} : {: <5}'.format(x.id, str(x.wake_buffer.empty())) for x in nodes.values()]))
     rows = 0
     for node in nodes.values():
         for row in node.routing_table:
@@ -81,28 +81,14 @@ def run(size, p, nb_protocols, max_stack):
     assert received >= rows
 
     assert sent == received
-    return
 
     path_exists = False
     for dest, stack in nodes[u].routing_table.table.keys():
-        if dest == v:
-            print(dest, stack)
-            print(nodes[u].Out)
         if dest == v and len(stack) == 1 and stack[0] in nodes[u].Out:
-            print('Here !')
             path_exists = True
-    print('-' * 40)
     for dest, stack in nodes[v].routing_table.table.keys():
-        if dest == u:
-            print(dest, stack)
         if dest == u and stack in nodes[u].Out:
             path_exists = True
-    print('-' * 40)
-    print([str(x) for x in nodes[u].adapt_functions])
-
-    print(nodes[u].routing_table)
-    print(nodes[v].routing_table)
-    print('  {}  '.format(path_exists).center(80, '-'))
 
     # returns
     #  - convergence time
@@ -111,11 +97,13 @@ def run(size, p, nb_protocols, max_stack):
     #  - diameter
     return network.convergence_time(), int(path_exists), sent, diameter
 
+
 def simulation(size, p, nb_protocols, max_stack, n):
     results = []
     for i in range(n):
         results.append(run(size, p, nb_protocols, max_stack))
     convergences, paths, sent, diameters = zip(*results)
+
     # conv_mean conv_var paths_mean paths_var sent_mean sent_var diam_mean diam_var
     print('{:.8f} {:.8f} {:.8f} {:.8f} {:.8f} {:.8f} {:.8f} {:.8f}'.format(
         mean(convergences), var(convergences),
@@ -124,8 +112,9 @@ def simulation(size, p, nb_protocols, max_stack, n):
         mean(diameters), var(diameters)
     ))
 
+
 def test_simulation():
-    simulation(7, 1, 2, 4, 10)
+    simulation(40, 0.1, 3, 2, 1)
 
 
 if __name__ == '__main__':
