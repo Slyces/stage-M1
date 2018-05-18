@@ -74,12 +74,6 @@ def run(size, p, nb_protocols, max_stack):
     received = sum([node.conf_received for node in nodes.values()])
     sent = sum([node.conf_sent for node in nodes.values()])
     # ---------------------- end of network somulation ----------------------- #
-    rows = 0
-    for node in nodes.values():
-        for row in node.routing_table:
-            rows += 1
-    assert received >= rows
-
     assert sent == received
 
     path_exists = False
