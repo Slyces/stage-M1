@@ -1,5 +1,5 @@
 #include <igraph.h>
-#include <pthreads.h>
+#include <pthread.h>
 
 int main(void)
 {

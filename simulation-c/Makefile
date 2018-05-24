@@ -22,7 +22,7 @@ LDLIBS += -lpthread
 $(OBJECTS): $(MAKEFILES)
 
 $(PROGRAM): $(SOURCES)
-	$(CC) $(LDFLAGS) $(LDLIBS) -o $@ $^
+	$(CC) $(CFLAGS) $(LDLIBS) -o $@ $^
 
 $(OBJECTS): obj/%.o: src/%.c
 	$(CC) -o $@ $(CFLAGS) -c $<
