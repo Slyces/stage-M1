@@ -11,8 +11,6 @@
 #ifndef _STACK_H
 #define _STACK_H
 
-#include "network.h"
-
 /*
  * Type: stackElementT
  * -------------------
@@ -21,7 +19,7 @@
  * the stack.
  */
 
-typedef protocol stackElementT;
+typedef void * stackElementT;
 
 /*
  * Type: stackT
