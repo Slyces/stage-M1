@@ -1,10 +1,12 @@
-#ifndef NETWORK_HEADER
-#define NETWORK_HEADER
+#ifndef _NETWORK_H
+#define _NETWORK_H
 
 // includes
 #include <pthread.h>
 #include <igraph.h>
 #include <stdio.h>
+
+#include "stack.h"
 
 /* ─────────────────────────────── protocols ──────────────────────────────── */
 #define MSG 'm'
@@ -27,7 +29,7 @@ struct adapt_function {
 typedef struct adapt_function adapt_f;
 
 /* ---------------- adaptation function creation and display ---------------- */
-adapt_function create_adapt_function(protocol from, protocol to, adapt_type);
+adapt_f create_adapt_function(protocol from, protocol to, adapt_type);
 
 void store_repr(adapt_f func, char * str);
 
