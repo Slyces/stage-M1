@@ -1,2 +1,6 @@
+# vim files
 *.swp
+compile_commands.json
+
+# compilation files
 simulation
