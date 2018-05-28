@@ -121,4 +121,13 @@ int AdaptValid(pStack * stack, adaptFunction * function);
  */
 void AdaptApply(pStack * stack, adaptFunction * function);
 
+/*
+ * Function: AdaptPrint
+ * Usage: printf("My function : %s", AdaptPrint(&function));
+ * ---------------------------------------------------------
+ * Creates a string representing a given adaptation function.
+ * Two functions with the same representation are equals.
+ */
+char * AdaptPrint(adaptFunction * function);
+
 #endif
