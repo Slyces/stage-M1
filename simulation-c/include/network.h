@@ -11,10 +11,8 @@
 
 #define MAX_SIZE 1024
 
-/* ─────────────────────────────── protocols ──────────────────────────────── */
 #define MSG 'm'
 #define CONF 'c'
-typedef char protocol;
 
 /* ────────────────────────── adaptation functions ────────────────────────── */
 typedef enum adapt_types {CV, EC, DC} adapt_type;
