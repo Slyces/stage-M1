@@ -37,7 +37,7 @@ typedef struct {
     adaptFunction * adaptArray;
     int adaptNumber;
     protocol * in, out;
-    int inSize, outSize;
+    size_t inSize, outSize;
     /* statistics */
     int confReceived, confSent;
     int messageReceived, messageRouted, messageDiscarded;
@@ -55,7 +55,7 @@ typedef struct {
  * the in and out arrays, along with the routign table. Do not forget to use
  * NodeDestroy to free those structures.
  */
-node * NodeCreate(int id, adaptFunction * adaptArray, int adaptNumber);
+node * NodeCreate(int id, adaptFunction * adaptArray, size_t adaptNumber);
 
 /*
  * Function: NodeDestroy

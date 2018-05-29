@@ -97,8 +97,8 @@ char * PhysicalPrint(physicalMessage * msg);
 typedef struct {
     int dest;
     protocol * pStack;
-    int stackSize;
-    int maxStack;
+    size_t stackSize;
+    size_t maxStack;
     int cost;
 } confMessage;
 
@@ -110,7 +110,7 @@ typedef struct {
  * to properly destroy the message after reception.
  */
 confMessage * ConfCreate(int dest, protocol * pStack,
-        int stackSize, int maxStack, int cost);
+        size_t stackSize, size_t maxStack, int cost);
 
 /*
  * Function: ConfDestroy
@@ -143,8 +143,8 @@ typedef struct {
     int src;
     int dest;
     protocol * pStack;
-    int stackSize;
-    int maxStack;
+    size_t stackSize;
+    size_t maxStack;
     void * payload;
 } message;
 
@@ -156,7 +156,7 @@ typedef struct {
  * to properly destroy the message after reception.
  */
 confMessage * MessageCreate(int src, int dest, protocol * pStack,
-        int stackSize, int maxStack, void * payload);
+        size_t stackSize, size_t maxStack, void * payload);
 
 /*
  * Function: MessageDestroy

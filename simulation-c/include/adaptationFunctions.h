@@ -19,6 +19,7 @@
 typedef struct {
     adaptType type;
     protocol * protocols;
+    UT_hash_handle hh;
 } adaptFunction;
 
 /*
@@ -56,7 +57,7 @@ typedef enum {CV, EC, DC} adaptType;
  * returns: a pointer to a new adaptFunction structure
  * ------------------------------------------------------
  * Creates and allocates the appropriate structure for an adaptation
- * function.
+ * function. Also defines a unique hash.
  */
 adaptFunction * AdaptCreate(protocol from, protocol to, adaptType type);
 

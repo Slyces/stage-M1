@@ -3,38 +3,58 @@
  * Author: Simon Lassourreuille <simon.lassourreuille@u-bordeaux.fr>
  * Topic: Main file for the network simulation. Creates and runs a random network.
  */
-#ifndef _NODES_H
-#define _NODES_H
+#ifndef _SIMULATION_H
+#define _SIMULATION_H
 
 /*
  * Function: RandomGraph
  * ---------------------
+ * Creates a random symetrical graph with n nodes
  */
 void * Randomgraph(int n);
 
 /*
  * Function: RandomAdapt
  * ---------------------
+ * Creates a random subset of adaptation fuctions. Each functions has
+ * a probability p to be included in the subset.
  */
-void RandomAdapt(adaptFunction * allAdapt, int maxAdapt, double p);
+adaptFunction * RandomAdapt(adaptFunction * allAdapt, size_t maxAdapt, double p);
 
 /*
- * Function: RandomNodes
- * ---------------------
+ * Function: RandomLink
+ * --------------------
+ * Create a random link, with random costs for each adaptation function.
  */
-node ** RandomNodes(int nbNodes, int nbProtocols, double p);
+link * RandomLink(void);
 
 /*
  * Function: RandomNetwork
  * -----------------------
+ * Creates a random network for a given number of nodes and number of
+ * protocols.
+ *
+ * This network is created in several steps:
+ * - create a random graph
+ * - create links structures for each edge in the graph
+ * - create an array with every valid adaptation function with this number of
+ *   protocols
+ * - create an array of nodes, with random adaptation functions
  */
-network * random_network(int n, double p, int nbProtocols, int max_stack);
+network * random_network(int n, size_t nbProtocols, double p, size_t max_stack);
 
 /*
  * Function: main
  * --------------
  *  Parses the console arguments to create a simulation, then gathers
  *  statistitcs about the run and prints those stats to stderr
+ *
+ *  Inputs:
+ *  - n: the size of the graph
+ *  - nbProtocols: number of protocols to be included
+ *  - maxStack: maximum stackSize of a message
+ *  - p: probability for a node to possess each adaptation function
+ *  - nbIter: number of iterations
  */
 int main(int argc, const char *argv[]);
 
