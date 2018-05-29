@@ -11,67 +11,6 @@
 
 #define MAX_SIZE 1024
 
-#define MSG 'm'
-#define CONF 'c'
-
-/* ────────────────────────── adaptation functions ────────────────────────── */
-typedef enum adapt_types {CV, EC, DC} adapt_type;
-
-typedef struct adapt_function {
-    adapt_type type;
-    /* array of protocols, size and contents depends on the type of function:
-     *   - conversion: [from, to]
-     *   - encapsulation: [from, to] 
-     *   - decapsulation: [from, to] */
-    protocol * protocols;
-} adapt_f;
-
-/* ---------------- adaptation function creation and display ---------------- */
-adapt_f create_adapt_function(protocol from, protocol to, adapt_type);
-
-void store_repr(adapt_f func, char * str);
-
-/* ──────────────────────────────── messages ──────────────────────────────── */
-
-/* ------------------------ physical layer messages ------------------------- */
-typedef struct physical_layer {
-    int sender;
-    int receiver;
-    char prot;
-    void * content;
-} physical_message;
-
-
-/* ------------------------- configuration messages ------------------------- */
-typedef struct conf_msg {
-    int sender;
-    int dest;
-    int cost;
-    int stack_size;
-    stackT * protocol_stack;
-} conf_message;
-
-/* ---------------------------- regular messages ---------------------------- */
-typedef struct msg_struct {
-    int src;
-    int dest;
-    int stack_size;
-    int max_stack;
-    void * payload;  // literally anything
-} message;
-
-physical_message * create_physical(int sender, int receiver, char type, void * content);
-/* ──────────────────────────── nodes (routers) ───────────────────────────── */
-typedef struct router {
-    int id;
-    int n_adapt;
-    adapt_f * adapt_functions; // array of adaptation functions
-    stackT * messages_stack;
-    // stats
-    int received;
-    int sent;
-} node;
-
 /* ──────────────────────────────── network ───────────────────────────────── */
 typedef struct ntw {
     int n;  // number of nodes 

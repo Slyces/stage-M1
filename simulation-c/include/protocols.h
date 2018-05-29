@@ -17,7 +17,7 @@
  * protocol, as the number of protocols
  * will never go above 2^8
  */
-typedef char protocol;
+//typedef char protocol;
 
 /*
  * Type: pStack
@@ -26,11 +26,11 @@ typedef char protocol;
  * than a classic stack of pointers. This types gives
  * an interface to the most basic stack manipulations.
  */
-typedef struct {
-    protocol * content;
-    int maxSize;
-    int top;
-} pStack;
+//typedef struct {
+    //protocol * content;
+    //int maxSize;
+    //int top;
+//} pStack;
 
 /*
  * Function: pStackinit
@@ -39,7 +39,7 @@ typedef struct {
  * Allocates memory for the protocol stack. The initial
  * stack is empty.
  */
-void pStackInit(pStack * stack, int maxSize);
+//void pStackInit(pStack * stack, int maxSize);
 
 /*
  * Function: pStackDestroy
@@ -48,7 +48,7 @@ void pStackInit(pStack * stack, int maxSize);
  * Frees all memory associated to the stack. Be carefull
  * not to use the variable after destruction.
  */
-void pStackDestroy(pStack * stack);
+//void pStackDestroy(pStack * stack);
 
 /*
  * Function: pStackPush, pStackPop
@@ -60,8 +60,8 @@ void pStackDestroy(pStack * stack);
  * elements from an empty stack (see pStackEmpty) or
  * add elements to a full stack (see pStackFull)
  */
-void pStackPush(pStack * stack, protocol p);
-protocol pStackPop(pStack * stack);
+//void pStackPush(pStack * stack, protocol p);
+//protocol pStackPop(pStack * stack);
 
 /*
  * Function: pStackGet
@@ -73,6 +73,6 @@ protocol pStackPop(pStack * stack);
  * end of the stack. It is an error if the index does not
  * exist.
  */
-protocol pStackget(int index);
+//protocol pStackget(int index);
 
 #endif

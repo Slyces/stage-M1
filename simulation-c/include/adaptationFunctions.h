@@ -11,7 +11,7 @@
 /*
  * Type: adaptFunction
  * -------------------
- * This types defines an adaptation function. An adaptation function
+ * This type defines an adaptation function. An adaptation function
  * is a function that modifies stacks of protocols, in the context
  * of routing a message with multiple encapsulated protocols. Its 
  * primitives can be called on a stack.
