@@ -27,7 +27,7 @@
  *   - threads: an array of p_thread_t ids of the threads
  *   - running: an int true if the network is on, false when it's off
  */
-typedef struct ntw {
+typedef struct {
     int n;  // number of nodes 
     pthread_t * threads;
     node ** nodes;
