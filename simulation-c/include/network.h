@@ -11,7 +11,6 @@
 #include <igraph.h>
 #include <stdio.h>
 /* ────────────────────────── project code include ────────────────────────── */
-#include "stack.h"
 #include "nodes.h"
 
 #define MAX_SIZE 1024

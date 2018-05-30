@@ -7,6 +7,8 @@
 #define _NODES_H
 
 #include "routingTable.h"
+#include "messages.h"
+#include "adaptationFunctions.h"
 
 /*
  * Type: Node

@@ -1,1 +1,1 @@
-#include "$x.h"
+#include "links.h"
