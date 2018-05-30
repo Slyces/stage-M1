@@ -11,14 +11,16 @@ from Nodes import Node
 # ───────────────────────────────── globals ────────────────────────────────── #
 QUEUE_SIZE = 1
 
+
 # ─────────────────────────── utilitary functions ──────────────────────────── #
 def make_directed_graph(graph):
-    "transforms an undirected graph into a symmetric directed graph"
+    """transforms an undirected graph into a symmetric directed graph"""
     new_graph = nx.DiGraph()
     for a, b in graph.edges:
         new_graph.add_edge(a, b)
         new_graph.add_edge(b, a)
     return new_graph
+
 
 # ───────────────────────────────── Network ────────────────────────────────── #
 class Network(object):
@@ -27,7 +29,8 @@ class Network(object):
     network[x] is the node x
     network[x, y]
     """
-    def __init__(self, graph, nodes = None, max_stack = 100, default_cost = 1):
+
+    def __init__(self, graph, nodes=None, max_stack=100, default_cost=1):
         """
         Creates the network according to a graph.
         """
@@ -66,15 +69,15 @@ class Network(object):
         self.threads = nodes
 
     def send(self, sender_id, receiver_id, item):
-        "manually sends a message from sender to receiver"
+        """manually sends a message from sender to receiver"""
         self.links[sender_id, receiver_id].put_nowait(item)
         self.threads[receiver_id].wake_buffer.put_nowait(sender_id)
 
-    def on_loop(self, timer):
+    def on_loop(self):
         # print('{:5f}'.format((time() - Node.last_received) * 100))
         if time() - Node.last_received > 1e-3:
             self.duration = time() - self.start_time
-        # for node in self.threads.values():
+            # for node in self.threads.values():
             # node.wake_buffer.join()
 
         sleep(1e-5)
@@ -82,12 +85,12 @@ class Network(object):
             while self.to_send:
                 self.send(*self.to_send.pop())
                 self.sent += 1
-        # Stopping the network
+                # Stopping the network
 
     def start(self, duration=None):
-        "starts every thread, and stops their execution after <duration> seconds"
+        """starts every thread, and stops their execution after <duration> seconds"""
         # print("# ---------------------------- simulation started ---------------" \
-                # "------------- #")
+        # "------------- #")
         if not self.threads:
             for node_id in self.graph.nodes:
                 self.threads[node_id] = Node(node_id, self)
@@ -97,12 +100,12 @@ class Network(object):
         for thread in self.threads.values():
             thread.start()
 
-        # while self.duration is None or time() - self.start_time < self.duration:
+            # while self.duration is None or time() - self.start_time < self.duration:
             # # self.on_loop(time() - self.start_time)
             buffers = [node.wake_buffer for node in self.threads.values()]
         while not all([b.empty() for b in buffers]):
             # for b in buffers:
-                # b.join()
+            # b.join()
             sleep(0.1)
         self.duration = time() - self.start_time
 

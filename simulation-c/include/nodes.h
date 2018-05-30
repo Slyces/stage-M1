@@ -6,13 +6,9 @@
 #ifndef _NODES_H
 #define _NODES_H
 
-#include "adaptationFunctions.h"
-#include "links.h"
 #include "routingTable.h"
 #include "messages.h"
-
-struct networkStruct;
-typedef struct networkStruct network;
+#include "adaptationFunctions.h"
 
 /*
  * Type: Node
@@ -24,7 +20,7 @@ typedef struct networkStruct network;
  *   - functionsArray: an array of adaptation functions, representing
  *                     the protocols this node is able to handle
  *   - functionsNumber: size of this array.
- *   - in, out: arrays of protocols accepted as input (resp. output).
+ *   - in, out: arrays of protocol stacks accepted as input (resp. output).
  *   - inSize, outSize: size of the corresponding arrays;
  *   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *   # Some statistics for the simulation
@@ -42,7 +38,7 @@ typedef struct {
     routingTable * table;
     adaptFunction * adaptArray;
     int adaptNumber;
-    protocol * in, out;
+    pStack * in, out;
     size_t inSize, outSize;
     /* statistics */
     int confReceived, confSent;
@@ -75,11 +71,11 @@ void NodeDestroy(node * router);
  * Function: ValidInput, ValidOutput
  * Usage: int valid = ValidInput(&node, protocol);
  * -----------------------------------------------
- * Checks if a given protocol is accepted as an input (resp. output)
+ * Checks if a given protocol stack is accepted as an input (resp. output)
  * by a node.
  */
-int ValidInput(node * router, protocol p);
-int ValidOutput(node * router, protocol p);
+int ValidInput(node * router, pStack * protocolStack);
+int ValidOutput(node * router, pStack * protocolStack);
 
 /*
  * Function: NodeStart, NodeWaitMessages

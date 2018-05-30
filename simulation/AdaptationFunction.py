@@ -4,6 +4,8 @@
 from Messages import Message
 
 EC, DC, CV = 1, 2, 3
+
+
 class AdaptationFunction(object):
     def __init__(self, _from, _to, _type):
         """
@@ -30,16 +32,16 @@ class AdaptationFunction(object):
         # protocol length in encapsulation
         if self._type == EC:
             assert len(self._from) == 1 and len(self._to) == 2, \
-                    "encapsulations takes 1 protocol in and 2 protocols out"
+                "encapsulations takes 1 protocol in and 2 protocols out"
             assert self._from[0] == self._to[0], \
-                    "encapsulation can not change the initial protocol"
+                "encapsulation can not change the initial protocol"
 
         # protocol length in decapsulation
         if self._type == DC:
             assert len(self._from) == 2 and len(self._to) == 1, \
-                    "decapsulation takes 2 protocol in and 1 protocol out"
+                "decapsulation takes 2 protocol in and 1 protocol out"
             assert self._from[0] == self._to[0], \
-                    "decapsulation can not change the inner protocol"
+                "decapsulation can not change the inner protocol"
 
     # ───────────────────── application of the function ────────────────────── #
     def apply(self, item):
@@ -66,7 +68,7 @@ class AdaptationFunction(object):
         # Checking if the function may apply to this stack
         top_protocols = tuple(stack[-len(self._from):])  # see the last or 2 last protocols
         assert top_protocols == tuple(self._from), \
-                "the function {} can't apply to top protocol {}".format(self, list(top_protocols))
+            "the function {} can't apply to top protocol {}".format(self, list(top_protocols))
 
         # apply conversion
         if self._type == CV:
@@ -88,7 +90,7 @@ class AdaptationFunction(object):
 
     @property
     def reverse(self):
-        "returns the reverse operation corresponding to this adaptation function"
+        """returns the reverse operation corresponding to this adaptation function"""
         # conversion
         if self._type == CV:
             return AdaptationFunction(self._to, self._from, self._type)
@@ -98,7 +100,7 @@ class AdaptationFunction(object):
 
     def __str__(self):
         return "({} ⟶ {}, {})".format(self._from, self._to,
-                    {EC: "encap", DC: "decap", CV: "conv"}[self._type])
+                                      {EC: "encap", DC: "decap", CV: "conv"}[self._type])
 
     def __hash__(self):
         return hash(str(self))

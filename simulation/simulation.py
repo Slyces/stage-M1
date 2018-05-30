@@ -1,14 +1,18 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # ----------------------------- library imports ------------------------------ #
-import networkx as nx, random, pytest, argparse
-from networkx.generators.random_graphs import barabasi_albert_graph
-from time import sleep, time
 from statistics import mean, pvariance as var
+
+import argparse
+import networkx as nx
+import random
+from networkx.generators.random_graphs import barabasi_albert_graph
+
 # --------------------------- custom code imports ---------------------------- #
 from Nodes import Node
 from Network import Network
 from AdaptationFunction import AdaptationFunction, CV, EC, DC
+
 
 # ───────────────────────────────── globals ────────────────────────────────── #
 
@@ -20,9 +24,11 @@ def functions_subset(functions, p):
             subset.append(x)
     return subset
 
+
 # ─────────────────────────── running a simulation ─────────────────────────── #
 def run(size, p, nb_protocols, max_stack):
     """
+    :param max_stack: the maximum number of stacks
     :param size: the number of nodes of the generated network
     :param p: probability for each adaptation function to be in a router
     :param nb_protocols: number of protocols used in the simulation
@@ -40,7 +46,6 @@ def run(size, p, nb_protocols, max_stack):
                 seen.add(y)
                 if len(paths[x][y]) > diameter:
                     diameter = len(paths[x][y])
-                    u, v = x, y
 
     # ---------------- create every valid adaptation function ---------------- #
     print(nb_protocols)
@@ -76,40 +81,42 @@ def run(size, p, nb_protocols, max_stack):
     print(" | ".join(['{} : {: <5}'.format(x.id, str(x.wake_buffer.empty())) for x in nodes.values()]))
     rows = 0
     for node in nodes.values():
-        for row in node.routing_table:
+        for _ in node.routing_table:
             rows += 1
+
     assert received >= rows
 
     assert sent == received
     return
 
-    path_exists = False
-    for dest, stack in nodes[u].routing_table.table.keys():
-        if dest == v:
-            print(dest, stack)
-            print(nodes[u].Out)
-        if dest == v and len(stack) == 1 and stack[0] in nodes[u].Out:
-            print('Here !')
-            path_exists = True
-    print('-' * 40)
-    for dest, stack in nodes[v].routing_table.table.keys():
-        if dest == u:
-            print(dest, stack)
-        if dest == u and stack in nodes[u].Out:
-            path_exists = True
-    print('-' * 40)
-    print([str(x) for x in nodes[u].adapt_functions])
+    # path_exists = False
+    # for dest, stack in nodes[u].routing_table.table.keys():
+    #     if dest == v:
+    #         print(dest, stack)
+    #         print(nodes[u].Out)
+    #     if dest == v and len(stack) == 1 and stack[0] in nodes[u].Out:
+    #         print('Here !')
+    #         path_exists = True
+    # print('-' * 40)
+    # for dest, stack in nodes[v].routing_table.table.keys():
+    #     if dest == u:
+    #         print(dest, stack)
+    #     if dest == u and stack in nodes[u].Out:
+    #         path_exists = True
+    # print('-' * 40)
+    # print([str(x) for x in nodes[u].adapt_functions])
+    #
+    # print(nodes[u].routing_table)
+    # print(nodes[v].routing_table)
+    # print('  {}  '.format(path_exists).center(80, '-'))
+    #
+    # # returns
+    # #  - convergence time
+    # #  - path exists
+    # #  - nb messages
+    # #  - diameter
+    # return network.convergence_time(), int(path_exists), sent, diameter
 
-    print(nodes[u].routing_table)
-    print(nodes[v].routing_table)
-    print('  {}  '.format(path_exists).center(80, '-'))
-
-    # returns
-    #  - convergence time
-    #  - path exists
-    #  - nb messages
-    #  - diameter
-    return network.convergence_time(), int(path_exists), sent, diameter
 
 def simulation(size, p, nb_protocols, max_stack, n):
     results = []
@@ -123,6 +130,7 @@ def simulation(size, p, nb_protocols, max_stack, n):
         mean(sent), var(sent),
         mean(diameters), var(diameters)
     ))
+
 
 def test_simulation():
     simulation(7, 1, 2, 4, 10)

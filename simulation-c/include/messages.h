@@ -7,23 +7,7 @@
 #define _MESSAGES_H
 
 #include <stddef.h>
-
-/* ────────────────────── protocols and protocol stack ────────────────────── */
-
-/* Type: protocol
- * --------------
- * We use a char (1 byte) to code a protocol, as the number of protocols
- * will never go above 2^8
- */
-typedef char protocol;
-
-/*
- * Function: protocolsPrint
- * Usage: printf("My protocol stack: %s", protocolsPrint(&pStack, stackSize));
- * ----------------------------------------------------------------
- * Creates a string representing a given protocol stack.
- */
-char * protocolsPrint(protocol * pStack, size_t stackSize);
+#include "protocols.h"
 
 /* ─────────────────────────── physical messages ──────────────────────────── */
 
@@ -98,9 +82,7 @@ char * PhysicalPrint(physicalMessage * msg);
  */
 typedef struct {
     int dest;
-    protocol * pStack;
-    size_t stackSize;
-    size_t maxStack;
+    pStack * protocolStack;
     int cost;
 } confMessage;
 
@@ -111,8 +93,7 @@ typedef struct {
  * This creates and allocate the stack. Do not forget
  * to properly destroy the message after reception.
  */
-confMessage * ConfCreate(int dest, protocol * pStack,
-        size_t stackSize, size_t maxStack, int cost);
+confMessage * ConfCreate(int dest, pStack * protocolStack, int cost);
 
 /*
  * Function: ConfDestroy
@@ -144,9 +125,7 @@ char * ConfPrint(confMessage * confMsg);
 typedef struct {
     int src;
     int dest;
-    protocol * pStack;
-    size_t stackSize;
-    size_t maxStack;
+    pStack * protocolStack;
     void * payload;
 } message;
 
@@ -157,8 +136,7 @@ typedef struct {
  * This does not create and allocate the payload. Do not forget
  * to properly destroy the message after reception.
  */
-confMessage * MessageCreate(int src, int dest, protocol * pStack,
-        size_t stackSize, size_t maxStack, void * payload);
+confMessage * MessageCreate(int src, pStack * protocolStack, size_t maxStack, void * payload);
 
 /*
  * Function: MessageDestroy

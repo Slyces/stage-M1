@@ -11,68 +11,53 @@
 #ifndef _PROTOCOLS_H
 #define _PROTOCOLS_H
 
+#include <stddef.h>
+
 /* Type: protocol
  * --------------
- * We use a char (1 byte) to code a 
- * protocol, as the number of protocols
+ * We use a char (1 byte) to code a protocol, as the number of protocols
  * will never go above 2^8
  */
-//typedef char protocol;
+typedef char protocol;
 
 /*
  * Type: pStack
  * -------------------
  * A stack of protocols requires fewer informations
- * than a classic stack of pointers. This types gives
- * an interface to the most basic stack manipulations.
+ * than a classic stack of pointers.
  */
-//typedef struct {
-    //protocol * content;
-    //int maxSize;
-    //int top;
-//} pStack;
+typedef struct {
+    protocol * content;
+    size_t currentSize;
+    size_t maxSize;
+} pStack;
 
 /*
- * Function: pStackinit
- * Usage: pStackinit(&stack, maxSize);
- * -----------------------------------
- * Allocates memory for the protocol stack. The initial
- * stack is empty.
+ * Function: pStackEquals
+ * ----------------------
+ * Equality between two stacks, returns true or false
  */
-//void pStackInit(pStack * stack, int maxSize);
+int pStackEquals(pStack stackA, pStack stackB);
 
 /*
- * Function: pStackDestroy
- * Usage: pStackDestroy(&stack);
- * -----------------------------
- * Frees all memory associated to the stack. Be carefull
- * not to use the variable after destruction.
+ * Function: pStackIsTop
+ * Usage: int isTop = pStackIsTop(&stack, &otherStack);
+ * ----------------------------------------------------
+ * container: a stack to be tested
+ * top: a smaller stack than container
+ *
+ * returns: true if the top of container equals `top`
+ * ----------------------------------------------------
+ * This functions tests if the top of one stack corresponds
+ * to another stack
  */
-//void pStackDestroy(pStack * stack);
+int pStackIsTop(pStack container, pStack top);
 
 /*
- * Function: pStackPush, pStackPop
- * Usage: pStackpush(&stack, element);
- *        element = pStackPop(&stack);
- * -----------------------------------
- * Elementary operations to add and remove / retrieve
- * elements from the stack. be carefull not to remove
- * elements from an empty stack (see pStackEmpty) or
- * add elements to a full stack (see pStackFull)
+ * Function: protocolsPrint
+ * Usage: printf("My protocol stack: %s", protocolsPrint(&pStack, stackSize));
+ * ----------------------------------------------------------------
+ * Creates a string representing a given protocol stack.
  */
-//void pStackPush(pStack * stack, protocol p);
-//protocol pStackPop(pStack * stack);
-
-/*
- * Function: pStackGet
- * Usage: element = pStackget(index);
- * -------------------------------
- * Non-conventional function to access the value of an
- * element of the stack. A positive index, starting from
- * 0. If a negative number is given, looks up from the
- * end of the stack. It is an error if the index does not
- * exist.
- */
-//protocol pStackget(int index);
-
+char * protocolsPrint(protocol * pStack, size_t stackSize);
 #endif

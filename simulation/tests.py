@@ -21,6 +21,7 @@ def random_network(nodes):
         print(" " * 4 + line.split()[0] + " → " + " - ".join(line.split()[1:]))
     return n
 
+
 # ─────────────────────────── tests communication ──────────────────────────── #
 @pytest.mark.focus
 def test_initialisation_messages():
@@ -47,7 +48,8 @@ def test_initialisation_messages():
     sent = sum([x.conf_sent for x in nodes.values()])
     # print("received : {}, sent : {}, expected : {}".format(received, sent, expected_received))
     assert received == sent == expected_received
-    print('\n' + ' Converged in {:5f} -- Stopped in {:5f} '.center(60, '=').format(network.convergence_time(), network.duration))
+    print('\n' + ' Converged in {:5f} -- Stopped in {:5f} '.center(60, '=').format(network.convergence_time(),
+                                                                                   network.duration))
     print("=" * 80)
 
 
@@ -259,6 +261,7 @@ class StatsNode(Node):
         if isinstance(message, ConfigurationMessage):
             self.conf_sent += 1
 
+
 def stats(nodes):
     print(" ")
     nodes_id = list(nodes.keys())
@@ -280,6 +283,7 @@ def stats(nodes):
         string += '\n'
     print(string)
 
+
 # ────────────────────────── test automatic routing ────────────────────────── #
 def routing_tables(nodes):
     nodes_id = list(nodes.keys())
@@ -290,6 +294,7 @@ def routing_tables(nodes):
     received = sum([x.conf_received for x in nodes.values()])
     sent = sum([x.conf_sent for x in nodes.values()])
     return received, sent
+
 
 def test_routing_1():
     """
@@ -312,7 +317,9 @@ def test_routing_1():
     stats(nodes)
     assert received == sent
     assert network.sent == sum([x.msg_received for x in nodes.values()])
-    print('\n' + ' Converged in {:5f} -- Stopped in {:5f} '.center(60, '=').format(network.convergence_time(), network.duration))
+    print('\n' + ' Converged in {:5f} -- Stopped in {:5f} '.center(60, '=').format(network.convergence_time(),
+                                                                                   network.duration))
+
 
 def test_routing_2():
     """
@@ -341,7 +348,9 @@ def test_routing_2():
     stats(nodes)
     assert received == sent
     assert network.sent == sum([x.msg_received for x in nodes.values()])
-    print('\n' + ' Converged in {:5f} -- Stopped in {:5f} '.center(60, '=').format(network.convergence_time(), network.duration))
+    print('\n' + ' Converged in {:5f} -- Stopped in {:5f} '.center(60, '=').format(network.convergence_time(),
+                                                                                   network.duration))
+
 
 def test_routing_3():
     """
@@ -362,7 +371,7 @@ def test_routing_3():
     """
     graph = nx.Graph()
     # adding edges
-    graph.add_edges_from([("A", "B"), ("B", "C"), ("C", "D"), ("D", "B"), ("B", "E"), ("E", "F"), ("F",  "G")])
+    graph.add_edges_from([("A", "B"), ("B", "C"), ("C", "D"), ("D", "B"), ("B", "E"), ("E", "F"), ("F", "G")])
 
     network = Network(graph)
     x__x = AdaptationFunction('x', 'x', CV)
@@ -392,7 +401,9 @@ def test_routing_3():
     stats(nodes)
     assert received == sent
     assert network.sent == sum([x.msg_received for x in nodes.values()])
-    print('\n' + ' Converged in {:5f} -- Stopped in {:5f} '.center(60, '=').format(network.convergence_time(), network.duration))
+    print('\n' + ' Converged in {:5f} -- Stopped in {:5f} '.center(60, '=').format(network.convergence_time(),
+                                                                                   network.duration))
+
 
 def test_routing_4():
     """
@@ -432,4 +443,5 @@ def test_routing_4():
     stats(nodes)
     assert received == sent
     assert network.sent == sum([x.msg_received for x in nodes.values()])
-    print('\n' + ' Converged in {:5f} -- Stopped in {:5f} '.center(60, '=').format(network.convergence_time(), network.duration))
+    print('\n' + ' Converged in {:5f} -- Stopped in {:5f} '.center(60, '=').format(network.convergence_time(),
+                                                                                   network.duration))
