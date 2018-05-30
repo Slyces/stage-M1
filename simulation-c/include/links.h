@@ -8,7 +8,7 @@
 #define _LINKS_H
 
 /*
- * Type: link
+ * Type: networkLink
  * ----------
  * This type represents a link between two nodes. A link is provided with
  * a correspondance (adaptFunction → cost) for each adaptFunction of the
@@ -16,6 +16,6 @@
  */
 typedef struct {
     int defaultCost;
-} link;
+} networkLink;
 
 #endif

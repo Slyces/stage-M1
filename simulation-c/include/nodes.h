@@ -6,9 +6,13 @@
 #ifndef _NODES_H
 #define _NODES_H
 
+#include "adaptationFunctions.h"
+#include "links.h"
 #include "routingTable.h"
 #include "messages.h"
-#include "adaptationFunctions.h"
+
+struct networkStruct;
+typedef struct networkStruct network;
 
 /*
  * Type: Node

@@ -6,27 +6,32 @@
 #ifndef _SIMULATION_H
 #define _SIMULATION_H
 
+#include <stddef.h>
+#include <nodes.h>
+#include <network.h>
+
 /*
  * Function: RandomGraph
  * ---------------------
  * Creates a random symetrical graph with n nodes
  */
-void * Randomgraph(int n);
+void * RandomGraph(int n);
 
 /*
- * Function: RandomAdapt
- * ---------------------
+ * Function: RandomNode
+ * --------------------
  * Creates a random subset of adaptation fuctions. Each functions has
- * a probability p to be included in the subset.
+ * a probability p to be included in the subset. Then creates a node
+ * using those adaptation functions.
  */
-adaptFunction * RandomAdapt(adaptFunction * allAdapt, size_t maxAdapt, double p);
+node * RandomNode(int id, adaptFunction * allAdapt, size_t maxAdapt, double p);
 
 /*
  * Function: RandomLink
  * --------------------
  * Create a random link, with random costs for each adaptation function.
  */
-link * RandomLink(void);
+networkLink * RandomLink(void);
 
 /*
  * Function: RandomNetwork
@@ -41,7 +46,7 @@ link * RandomLink(void);
  *   protocols
  * - create an array of nodes, with random adaptation functions
  */
-network * random_network(int n, size_t nbProtocols, double p, size_t max_stack);
+network * RandomNetwork(int n, size_t nbProtocols, double p, size_t maxStack);
 
 /*
  * Function: main

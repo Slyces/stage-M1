@@ -3,24 +3,11 @@
  * Author: Simon Lassourreuille <simon.lassourreuille@u-bordeaux.fr>
  * Topic: Adaptation functions definition for routing similation
  */
-#ifdef _ADAPTATION_FUNCTIONS_H
+#ifndef _ADAPTATION_FUNCTIONS_H
 #define _ADAPTATION_FUNCTIONS_H
 
-#include "protocols.h"
-
-/*
- * Type: adaptFunction
- * -------------------
- * This type defines an adaptation function. An adaptation function
- * is a function that modifies stacks of protocols, in the context
- * of routing a message with multiple encapsulated protocols. Its 
- * primitives can be called on a stack.
- */
-typedef struct {
-    adaptType type;
-    protocol * protocols;
-    UT_hash_handle hh;
-} adaptFunction;
+#include <stddef.h>
+#include "messages.h"
 
 /*
  * Enum: adaptType
@@ -45,6 +32,20 @@ typedef struct {
  * top protocol after application.
  */
 typedef enum {CV, EC, DC} adaptType;
+
+/*
+ * Type: adaptFunction
+ * -------------------
+ * This type defines an adaptation function. An adaptation function
+ * is a function that modifies stacks of protocols, in the context
+ * of routing a message with multiple encapsulated protocols. Its 
+ * primitives can be called on a stack.
+ */
+typedef struct {
+    adaptType type;
+    protocol * protocols;
+    //UT_hash_handle hh;
+} adaptFunction;
 
 /*
  * Function: AdaptCreate
@@ -96,31 +97,36 @@ adaptFunction * AdaptReverse(adaptFunction * function);
 
 /*
  * Function: AdaptValid
- * Usage: AdaptValid(&stack, &function);
- * -------------------------------------
+ * Usage: AdaptValid(&stack, stackSize, maxSize, &function);
+ * ---------------------------------------------------------
  * function: the function to apply
  * stack: the stack to apply the function to
  *
  * returns: true if this function is valid for this stack
- * -------------------------------------
+ * ---------------------------------------------------------
  * Checks if a given function can be applied to a given stack.
  * Depending on its type and protocols, a function can not be
  * applied to every stack.
  */
-int AdaptValid(pStack * stack, adaptFunction * function);
+int AdaptValid(protocol * stack, size_t stacksize, size_t maxSize,
+       adaptFunction * function);
 
 /*
  * Function: AdaptApply
- * Usage: AdaptApply(&stack, &function);
- * -------------------------------------
+ * Usage: AdaptApply(&stack, stackSize, &function);
+ * ------------------------------------------------
+ * stack: a pointer to a stack of protocols
+ * stackSize: the number of protocols in the stack
+ * function: a pointer to the function
  *
- * -------------------------------------
+ * returns: void, the modifications are made on the stack
+ * ------------------------------------------------
  * Applys a given function to a given stack. The result of the
  * application depends on the type of the function. There is
  * an error if the stack is not valid for this specific function, 
  * see AdaptValid.
  */
-void AdaptApply(pStack * stack, adaptFunction * function);
+void AdaptApply(protocol * stack, size_t stackSize, adaptFunction * function);
 
 /*
  * Function: AdaptPrint

@@ -6,6 +6,8 @@
 #ifndef _MESSAGES_H
 #define _MESSAGES_H
 
+#include <stddef.h>
+
 /* ────────────────────── protocols and protocol stack ────────────────────── */
 
 /* Type: protocol
@@ -17,11 +19,11 @@ typedef char protocol;
 
 /*
  * Function: protocolsPrint
- * Usage: printf("My protocol stack: %s", protocolsPrint(&pStack));
+ * Usage: printf("My protocol stack: %s", protocolsPrint(&pStack, stackSize));
  * ----------------------------------------------------------------
  * Creates a string representing a given protocol stack.
  */
-char * protocolsPrint(protocol * pStack);
+char * protocolsPrint(protocol * pStack, size_t stackSize);
 
 /* ─────────────────────────── physical messages ──────────────────────────── */
 

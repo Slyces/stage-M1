@@ -3,8 +3,8 @@
  * Author: Simon Lassourreuille <simon.lassourreuille@u-bordeaux.fr>
  * Topic: Definition of routing tables for a network routing simulation
  */
-#ifndef _MESSAGES_H
-#define _MESSAGES_H
+#ifndef _ROUTING_TABLE_H
+#define _ROUTING_TABLE_H
 
 /*
  * Type: routingTable

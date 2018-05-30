@@ -26,7 +26,7 @@
  *   - threads: an array of p_thread_t ids of the threads
  *   - running: an int true if the network is on, false when it's off
  */
-typedef struct {
+typedef struct networkStruct {
     int n;  // number of nodes 
     pthread_t * threads;
     node ** nodes;
@@ -41,7 +41,7 @@ typedef struct {
  * to create a valid graph and valid nodes.
  * The graph must be oriented and symetric.
  */
-network * NetworkCreate(void * graph, node ** nodeArray, int nodeNumber);
+network * NetworkCreate(void * graph, node ** nodesArray, int nodeNumber);
 
 /*
  * Function: NetworkStart
@@ -75,9 +75,17 @@ void NetworkDestroy(network * net);
  * Function: IdFromThread, NodeFromThread
  * --------------------------------------
  * Returns the id (resp. node pointer) of the node handled by the calling
- * thread.
+ * thread. Return -1 (resp. NULL) if not found.
  */
-int IdFromthread(void);
-node * NodeFromThread(void);
+int IdFromThread(network * net);
+node * NodeFromThread(network * net);
+
+/*
+ * Function: ThreadStart
+ * ---------------------
+ * Function called as the main task for each thread. Starts the node
+ * and waits for messages.
+ */
+void * ThreadStart(void * ptr);
 
 #endif
