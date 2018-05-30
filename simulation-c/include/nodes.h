@@ -6,9 +6,10 @@
 #ifndef _NODES_H
 #define _NODES_H
 
+#include "adaptationFunctions.h"
 #include "routingTable.h"
 #include "messages.h"
-#include "adaptationFunctions.h"
+#include "network.h"
 
 /*
  * Type: Node
@@ -33,12 +34,12 @@
  *   - messageDiscarded: counts the invalid messages thrown by this
  *                       node.
  */
-typedef struct {
+typedef struct nodeStruct {
     int id;
     routingTable * table;
     adaptFunction * adaptArray;
-    int adaptNumber;
-    pStack * in, out;
+    size_t adaptNumber;
+    pStack * in, * out;
     size_t inSize, outSize;
     /* statistics */
     int confReceived, confSent;

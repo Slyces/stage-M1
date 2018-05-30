@@ -11,9 +11,10 @@
 #include <igraph.h>
 #include <stdio.h>
 /* ────────────────────────── project code include ────────────────────────── */
-#include "nodes.h"
-
 #define MAX_SIZE 1024
+
+struct nodeStruct;
+typedef struct nodeStruct node;
 
 /*
  * Type: network
@@ -26,7 +27,7 @@
  *   - threads: an array of p_thread_t ids of the threads
  *   - running: an int true if the network is on, false when it's off
  */
-typedef struct networkStruct {
+typedef struct {
     int n;  // number of nodes 
     pthread_t * threads;
     node ** nodes;

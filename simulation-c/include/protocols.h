@@ -27,10 +27,42 @@ typedef char protocol;
  * than a classic stack of pointers.
  */
 typedef struct {
-    protocol * content;
-    size_t currentSize;
-    size_t maxSize;
+    protocol * protocols;
+    int top;
+    size_t size;
 } pStack;
+
+/*
+ * Function: pStackCreate
+ * ----------------------
+ * Allocates all necessary structures for the stack
+ */
+pStack * pStackCreate(size_t size);
+
+/*
+ * Funciton: pStackDestroy
+ * -----------------------
+ * Frees all memorry associated to the stack
+ */
+void pStackDestroy(pStack * stack);
+
+/*
+ * Function: pStackPush, pStackPop
+ * -------------------------------
+ * Push adds a value at the top of the stack. Pop removes
+ * the value at the top and returns it.
+ */
+void pStackPush(pStack * stack, protocol p);
+protocol pStackPop(pStack * stack);
+
+/*
+ * Function: pStackFull, pStackEmpty
+ * ---------------------------------
+ * This functions test if the stack is full (resp. empty).
+ * Be sure to call it before pushing or poping.
+ */
+int pStackFull(pStack * stack);
+int pStackEmpty(pStack * stack);
 
 /*
  * Function: pStackEquals
@@ -59,5 +91,5 @@ int pStackIsTop(pStack container, pStack top);
  * ----------------------------------------------------------------
  * Creates a string representing a given protocol stack.
  */
-char * protocolsPrint(protocol * pStack, size_t stackSize);
+char * protocolsPrint(pStack * stack);
 #endif

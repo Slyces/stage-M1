@@ -43,7 +43,8 @@ typedef enum {CV, EC, DC} adaptType;
  */
 typedef struct {
     adaptType type;
-    protocol * protocols;
+    protocol in;
+    protocol out;
     //UT_hash_handle hh;
 } adaptFunction;
 
@@ -60,7 +61,7 @@ typedef struct {
  * Creates and allocates the appropriate structure for an adaptation
  * function. Also defines a unique hash.
  */
-adaptFunction * AdaptCreate(protocol from, protocol to, adaptType type);
+adaptFunction * AdaptCreate(protocol in, protocol out, adaptType type);
 
 /*
  * Function: AdaptDestroy
@@ -108,8 +109,7 @@ adaptFunction * AdaptReverse(adaptFunction * function);
  * Depending on its type and protocols, a function can not be
  * applied to every stack.
  */
-int AdaptValid(protocol * stack, size_t stacksize, size_t maxSize,
-       adaptFunction * function);
+int AdaptValid(pStack * stack, adaptFunction * function);
 
 /*
  * Function: AdaptApply
@@ -126,7 +126,17 @@ int AdaptValid(protocol * stack, size_t stacksize, size_t maxSize,
  * an error if the stack is not valid for this specific function, 
  * see AdaptValid.
  */
-void AdaptApply(protocol * stack, size_t stackSize, adaptFunction * function);
+void AdaptApply(pStack * stack, adaptFunction * function);
+
+/*
+ * Function: AdaptIn, AdaptOut
+ * ---------------------------
+ * Returns the smaller stack accepted (resp. created) by this
+ * function.
+ */
+pStack * AdaptOut(adaptFunction * function);
+pStack * AdaptIn(adaptFunction * function);
+
 
 /*
  * Function: AdaptPrint

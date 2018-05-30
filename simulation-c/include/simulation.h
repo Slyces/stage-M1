@@ -7,6 +7,7 @@
 #define _SIMULATION_H
 
 #include <stddef.h>
+#include "links.h"
 #include <nodes.h>
 #include <network.h>
 

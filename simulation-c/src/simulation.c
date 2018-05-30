@@ -54,5 +54,6 @@ network * RandomNetwork(int n, size_t nbProtocols, double p, size_t maxStack) {
 int main(int argc, const char *argv[]) {
     printf("/* ─────────────────────────── simulation started ─────────────────────────── */\n");
     network * net = RandomNetwork(10, 0, 0, 0); // 10 nodes, everything else disabled
-    NetworkStart(net, 2.0);
+    NetworkStart(net, 3.0);
+    printf("/* ──────────────────────────── simulation ended ──────────────────────────── */\n");
 }

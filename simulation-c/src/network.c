@@ -1,5 +1,6 @@
 #include "network.h"
 #include <unistd.h>
+#include "nodes.h"
 
 network * NetworkCreate(void * graph, node ** nodesArray, int nodeNumber) {
     network * net = malloc(sizeof(network));
@@ -7,6 +8,7 @@ network * NetworkCreate(void * graph, node ** nodesArray, int nodeNumber) {
     net->graph = graph;
     net->running = 0;
     net->threads = malloc(nodeNumber * sizeof(pthread_t));
+    net->nodes = nodesArray;
     return net;
 }
 
@@ -33,9 +35,14 @@ void NetworkStart(network * net, double maxTime) {
         pthread_create(&net->threads[i], NULL, ThreadStart, (void *) net);
         printf("Created thread %d with pthread_id %lu\n", i, net->threads[i]);
     }
+    printf("/* ------------------------- end of thread creation ------------------------- */\n");
+
 
     /* -------------------- wait for end of the network --------------------- */
     NetworkCheckEnd(net, maxTime);
+    for (int i = 0; i < net->n; i++) {
+        pthread_join(net->threads[i], NULL);
+    } 
 
     /* -------------------------- stop the network -------------------------- */
     NetworkDestroy(net);
@@ -43,6 +50,7 @@ void NetworkStart(network * net, double maxTime) {
 
 void NetworkCheckEnd(network * net, double maxTime) {
     sleep(maxTime);
+    net->running = 0;
 }
 
 void * ThreadStart(void * ptr) {
