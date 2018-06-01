@@ -47,6 +47,8 @@ node * NodeCreate(int id, adaptFunction * adaptArray, size_t adaptNumber) {
     for (int i = 0; i < outCount; i++) {
         newNode->out[i] = outArray[i];
     }
+    newNode->inSize = inCount;
+    newNode->outSize = outCount;
     /* ------------------------ initialise the stats ------------------------ */
     newNode->confReceived = 0;
     newNode->confSent = 0;
