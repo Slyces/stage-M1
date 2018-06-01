@@ -34,8 +34,8 @@ typedef struct {
     node ** nodes;
     int running;
     void * graph;
-    pipe_producer_t * producers;
-    pipe_consumer_t * consumers;
+    pipe_producer_t ** producers;
+    pipe_consumer_t ** consumers;
 } network;
 
 /*

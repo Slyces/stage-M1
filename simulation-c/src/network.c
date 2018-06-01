@@ -11,12 +11,12 @@ network * NetworkCreate(void * graph, node ** nodesArray, int nodeNumber) {
     net->nodes = nodesArray;
     /* -------------- creating pipes, producers and consumers --------------- */
     pipe_t * pipes[net->n];
-    net->producers = malloc(net->n * sizeof(pipe_producer_t));
-    net->consumers = malloc(net->n * sizeof(pipe_consumer_t));
+    net->producers = malloc(net->n * sizeof(pipe_producer_t *));
+    net->consumers = malloc(net->n * sizeof(pipe_consumer_t *));
     for (int i = 0; i < net->n; i++) {
-        pipes[i] = pipe_new(sizeof(physicalMessage *));
-        net->producers[i] = pipe_producer_new(pipes[i], 0);
-        net->consumers[i] = pipe_consumer_new(pipes[i], 0);
+        pipes[i] = pipe_new(sizeof(physicalMessage *), 0);
+        net->producers[i] = pipe_producer_new(pipes[i]);
+        net->consumers[i] = pipe_consumer_new(pipes[i]);
         pipe_free(pipes[i]);
     }
     return net;
