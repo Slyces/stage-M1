@@ -12,6 +12,15 @@
 /* ─────────────────────────── physical messages ──────────────────────────── */
 
 /*
+ * Enum: messageType
+ * -----------------
+ * Enumrate the different types of messages that can be conveyed
+ * in the physical layer. It is used to write and read the physical
+ * layer.
+ */
+typedef enum {MSG, CONF} messageType;
+
+/*
  * Type: physicalMessage
  * ---------------------
  * This type represents the physicial layer of a message,
@@ -21,18 +30,9 @@
 typedef struct {
     int sender;
     int receiver;
-    char type; 
+    messageType type; 
     void * content;
 } physicalMessage;
-
-/*
- * Enum: messageType
- * -----------------
- * Enumrate the different types of messages that can be conveyed
- * in the physical layer. It is used to write and read the physical
- * layer.
- */
-typedef enum {MSG, CONF} messageType;
 
 /*
  * Function: PhysicalCreate
@@ -58,7 +58,7 @@ physicalMessage * PhysicalCreate(int sender, int receiver,
  * Usage: PhysicalDestroy(&physMessage);
  * -------------------------------------
  * Frees all memorry associated with a physical message. Do not use the
- * pointer after this function call.
+ * pointer after this function call. It does not free the content.
  */
 void PhysicalDestroy(physicalMessage * msg);
 

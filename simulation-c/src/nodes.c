@@ -1,6 +1,7 @@
 #include "nodes.h"
 #include <stdlib.h>
 #include <unistd.h>
+#include <assert.h>
 
 #define true 1
 #define false 0
@@ -80,17 +81,74 @@ void NodeDestroy(node * someNode) {
     free(someNode);
 }
 
+/* ──────────────────── initialisation and passive loop ───────────────────── */
 void NodeStart(network * net, node * router) {
     /* -------------------- send initialisation messages -------------------- */
+    for (int i = 0; i < net->n; i++) {
+        if (i != router->id) {
+            for (int j = 0; j < router->inSize; j++) {
+                pStack
+                confMessage * confMsg = ConfCreate(i, &router->in[j], 0);
+                physicalMessage * physMsg = PhysicalCreate(router->id, i,
+                        CONF, (void *) congMsg);
+            }
+        }
+    }
 
     /* ------------------------- wait for messages -------------------------- */
-    NodeWaitMessages(net, router);
+    NodeWaitMessages(net, router->id);
 }
 
-void NodeWaitMessages(network * net, node * router) {
+void NodeWaitMessages(network * net, int node_id) {
     /* --------------------- check if messages arrived ---------------------- */
     while (net->running) {
-        sleep(1);
-        printf("I'm %d and I'm awake\n", IdFromThread(net));
+        // try to pop messages
+        int pointer[sizeof(void *)];
+        size_t bytesRead = pipe_pop(net->consumers[node_id], pointer, 1);
+        assert(bytesRead == sizeof(physicalMessage *));
+        ReceivePhysical(net, node_id, (physicalMessage *) pointer);
     }
+}
+
+/* ────────────── emission and reception of physical messages ─────────────── */
+void ReceivePhysical(network * net, int receiver, physicalMessage * physMsg) {
+    int node_id = IdFromThread(net);
+    assert(node_id == receiver);
+    node * currentNode = net->nodes[node_id];
+    if (physMsg->type == MSG) {
+        message * msg = (message *) physMsg->content;
+        if (msg->dest == receiver)
+            ReceiveMessage(net, currentNode, msg);
+        else
+            RouteMessage(net, currentNode, msg);
+    } else if (physMsg->type == CONF) {
+        ReceiveConf(net, currentNode, (confMessage *) physMsg->content);
+    }
+    PhysicalDestroy(physMsg);
+}
+
+void SendPhysical(network * net, physicalMessage * msg) {
+    pipe_push(net->producers[msg->receiver], (void *) msg, 1);
+}
+
+/* ──────────────────────────── sending messages ──────────────────────────── */
+void SendMessage(network * net, int sender, int receiver, message * msg) {
+    SendPhysical(net, PhysicalCreate(sender, receiver, MSG, (void *) msg));
+}
+
+void SendConfMessage(network * net, int sender, int receiver, confMessage * msg) {
+    SendPhysical(net, PhysicalCreate(sender, receiver, CONF, (void *) msg));
+}
+
+/* ──────────────────── reception / routing of messages ───────────────────── */
+void ReceiveConf(network * net, node * router, confMessage * msg) {
+    printf("conf received\n");
+}
+
+void ReceiveMessage(network * net, node * router, message * msg) {
+    printf("message for me received\n");
+}
+
+void RouteMessage(network * net, node * router, message * msg) {
+    printf("msg to route received\n");
 }

@@ -86,7 +86,7 @@ int ValidOutput(node * router, pStack * protocolStack);
  * and handling them.
  */
 void NodeStart(network * net, node * router);
-void NodeWaitMessages(network * net, node * router);
+void NodeWaitMessages(network * net, int node_id);
 
 
 /*
@@ -102,14 +102,22 @@ void SendMessage(network * net, int sender, int receiver, message * msg);
 void SendConfMessage(network * net, int sender, int receiver, confMessage * msg);
 
 /*
- * Function: ReceivePhysical
- * Usage: ReceivePhysical(&net, &router, &physMsg);
+ * Function: ReceivePhysical, SendPhysical
+ * Usage: ReceivePhysical(&net, receiver_id, &physMsg);
+ *        SendPhysical(&net, &physMsg);
  * ------------------------------------------------
- * Function called upon reception of a physical message. It opens the message,
- * casts its content to the appropriate type and calls the appropriate reception
+ * Function called upon reception (resp. emission) of a physical message.
+ *
+ * Reception:
+ * It opens the message, casts its content to the appropriate type and 
+ * calls the appropriate reception
  * function.
+ *
+ * Emission:
+ * It puts the message in the appropriate pipe.
  */
-void ReceivePhysical(network * net, node * router, physicalMessage * msg);
+void ReceivePhysical(network * net, int receiver, physicalMessage * msg);
+void SendPhysical(network * net, physicalMessage * msg);
 
 /*
  * Function: ReceiveConf
@@ -135,7 +143,7 @@ void ReceiveConf(network * net, node * router, confMessage * msg);
  *
  * Received messages can be deleted.
  */
-void ReceiveMessage(node * router, message * msg);
+void ReceiveMessage(network * net, node * router, message * msg);
 void RouteMessage(network * net, node * router, message * msg);
 
 #endif
