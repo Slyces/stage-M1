@@ -11,6 +11,7 @@
 #include <igraph.h>
 #include <stdio.h>
 /* ────────────────────────── project code include ────────────────────────── */
+#include "pipe.h"
 #define MAX_SIZE 1024
 
 struct nodeStruct;
@@ -33,6 +34,8 @@ typedef struct {
     node ** nodes;
     int running;
     void * graph;
+    pipe_producer_t * producers;
+    pipe_consumer_t * consumers;
 } network;
 
 /*

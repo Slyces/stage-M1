@@ -9,18 +9,32 @@ network * NetworkCreate(void * graph, node ** nodesArray, int nodeNumber) {
     net->running = 0;
     net->threads = malloc(nodeNumber * sizeof(pthread_t));
     net->nodes = nodesArray;
+    /* -------------- creating pipes, producers and consumers --------------- */
+    pipe_t * pipes[net->n];
+    net->producers = malloc(net->n * sizeof(pipe_producer_t));
+    net->consumers = malloc(net->n * sizeof(pipe_consumer_t));
+    for (int i = 0; i < net->n; i++) {
+        pipes[i] = pipe_new(sizeof(physicalMessage *));
+        net->producers[i] = pipe_producer_new(pipes[i], 0);
+        net->consumers[i] = pipe_consumer_new(pipes[i], 0);
+        pipe_free(pipes[i]);
+    }
     return net;
 }
 
 void NetworkDestroy(network * net) {
     // delete the graph
     
-    // delete every node
+    // delete every node and pipes
     for (int i = 0; i < net->n; i++) {
         NodeDestroy(net->nodes[i]);
+        pipe_producer_free(net->producers[i]);
+        pipe_consumer_free(net->consumers[i]);
     }
-    //delete the array of node pointers
+    //delete the array of node pointers and prod / cons
     free(net->nodes);
+    free(net->producers);
+    free(net->consumers);
 
     //delete the array of threads id
     free(net->threads);
