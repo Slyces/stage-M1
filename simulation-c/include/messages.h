@@ -31,7 +31,7 @@ typedef struct {
     int sender;
     int receiver;
     messageType type; 
-    void * content;
+    void ** content;
 } physicalMessage;
 
 /*
@@ -69,7 +69,7 @@ void PhysicalDestroy(physicalMessage * msg);
  * Creates a string representing a given physical message.
  * Does not print the content of the message, only its header.
  */
-char * PhysicalPrint(physicalMessage * msg);
+void PhysicalPrint(char str[], physicalMessage * msg);
 
 /* ───────────────────────── configuration messages ───────────────────────── */
 
@@ -110,7 +110,7 @@ void ConfDestroy(confMessage * confMsg);
  * Creates a string representing a given configuration message.
  * Also prints the content of the stack.
  */
-char * ConfPrint(confMessage * confMsg);
+void ConfPrint(char str[], confMessage * confMsg);
 
 /* ───────────────────────── communication messages ───────────────────────── */
 
@@ -136,7 +136,8 @@ typedef struct {
  * This does not create and allocate the payload. Do not forget
  * to properly destroy the message after reception.
  */
-confMessage * MessageCreate(int src, pStack * protocolStack, size_t maxStack, void * payload);
+message * MessageCreate(int src, int dest, pStack * protocolStack,
+        void * payload);
 
 /*
  * Function: MessageDestroy
@@ -154,6 +155,6 @@ void MessageDestroy(message * msg);
  * Creates a string representing a given configuration message.
  * This does not print the payload, only its header.
  */
-char * MessagePrint(message * msg);
+void MessagePrint(char str[], message * msg);
 
 #endif

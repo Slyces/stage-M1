@@ -7,6 +7,7 @@
 #define false 0
 
 node * NodeCreate(int id, adaptFunction * adaptArray, size_t adaptNumber) {
+    printf("New node : id = %d, adapt n = %d\n", id ,(int) adaptNumber);
     node * newNode = malloc(sizeof(node));
     newNode->id = id;
     newNode->adaptNumber = adaptNumber;
@@ -21,12 +22,15 @@ node * NodeCreate(int id, adaptFunction * adaptArray, size_t adaptNumber) {
         /* --------------- adding new 'in' stacks to an array --------------- */
         found = false;
         pStack inStack = * AdaptIn(&adaptArray[i]);
+        /*char buff[25];*/
+        /*pStackPrint(buff, &inStack);*/
+        /*printf("stack: %s\n", buff);*/
         for (int j = 0; j < inCount; j++) {
             if (pStackEquals(inStack, inArray[j]))
                 found = true;
         }
         if (!found) {
-            inArray[inCount] = inStack;
+            inArray[inCount++] = inStack;
         }
         /* --------------- adding new 'out' stacks to an array -------------- */
         found = false;
@@ -36,7 +40,7 @@ node * NodeCreate(int id, adaptFunction * adaptArray, size_t adaptNumber) {
                 found = true;
         }
         if (!found) {
-            outArray[inCount] = outStack;
+            outArray[outCount++] = outStack;
         }
     }
     /* ------------------ allocate the in and out pointers ------------------ */
@@ -64,7 +68,9 @@ void NodeDestroy(node * someNode) {
     /* --------------------- destroy the routing table ---------------------- */
 
     /* ------------------- destroy the in and out arrays -------------------- */
+    /*printf("In stacks size : %lu\n", someNode->inSize);*/
     for (int i = 0; i < someNode->inSize; i++) {
+        /*printf("In stacks destroy\n");*/
         pStackDestroy(&someNode->in[i]);
     }
     free(someNode->in);
@@ -84,17 +90,23 @@ void NodeDestroy(node * someNode) {
 /* ──────────────────── initialisation and passive loop ───────────────────── */
 void NodeStart(network * net, node * router) {
     /* -------------------- send initialisation messages -------------------- */
-    for (int i = 0; i < net->n; i++) {
-        if (i != router->id) {
+    /*printf("Router %d initializing ... ", router->id);*/
+    // For each neighbor
+    for (int neighbor = 0; neighbor < net->n; neighbor++) {
+        if (neighbor != router->id) {
+            // for each accepted stack
             for (int j = 0; j < router->inSize; j++) {
-                pStack
-                confMessage * confMsg = ConfCreate(i, &router->in[j], 0);
-                physicalMessage * physMsg = PhysicalCreate(router->id, i,
-                        CONF, (void *) congMsg);
+                // copy the stack, or it will be deleted when the message  arrives
+                pStack * stackPtr = pStackCopy(&router->in[j]);
+                // create a conf message saying: "I can join myself for 0"
+                confMessage * confMsg = ConfCreate(router->id, stackPtr, 0);
+                // send it
+                /*printf("trying to send\n");*/
+                SendConfMessage(net, router->id, neighbor, confMsg);
             }
         }
     }
-
+    /*printf("Router %d done.\n", router->id);*/
     /* ------------------------- wait for messages -------------------------- */
     NodeWaitMessages(net, router->id);
 }
@@ -104,8 +116,8 @@ void NodeWaitMessages(network * net, int node_id) {
     while (net->running) {
         // try to pop messages
         int pointer[sizeof(void *)];
-        size_t bytesRead = pipe_pop(net->consumers[node_id], pointer, 1);
-        assert(bytesRead == sizeof(physicalMessage *));
+        size_t bytesRead = pipe_pop(net->consumers[node_id], pointer, sizeof(void *));
+        assert(bytesRead == sizeof(void *));
         ReceivePhysical(net, node_id, (physicalMessage *) pointer);
     }
 }
@@ -124,11 +136,19 @@ void ReceivePhysical(network * net, int receiver, physicalMessage * physMsg) {
     } else if (physMsg->type == CONF) {
         ReceiveConf(net, currentNode, (confMessage *) physMsg->content);
     }
+    /*printf("Alright there\n");*/
+    /*printf("List of some pointers: content %lu", (size_t) physMsg->content);*/
+    printf("hellow !!\n");
+    ConfDestroy((confMessage *) physMsg->content);
+    printf("hellow ??\n");
     PhysicalDestroy(physMsg);
 }
 
 void SendPhysical(network * net, physicalMessage * msg) {
-    pipe_push(net->producers[msg->receiver], (void *) msg, 1);
+    char strPhys[200];
+    PhysicalPrint(strPhys, msg);
+    /*printf("%d pushing [%s] to %d\n", msg->sender, strPhys, msg->receiver);*/
+    pipe_push(net->producers[msg->receiver], (void *) msg, sizeof(void *));
 }
 
 /* ──────────────────────────── sending messages ──────────────────────────── */
@@ -137,16 +157,23 @@ void SendMessage(network * net, int sender, int receiver, message * msg) {
 }
 
 void SendConfMessage(network * net, int sender, int receiver, confMessage * msg) {
+    /*char strMsg[200];*/
+    /*ConfPrint(strMsg, msg);*/
+    /*printf("Sending \n");*/
     SendPhysical(net, PhysicalCreate(sender, receiver, CONF, (void *) msg));
 }
 
 /* ──────────────────── reception / routing of messages ───────────────────── */
 void ReceiveConf(network * net, node * router, confMessage * msg) {
-    printf("conf received\n");
+    char strMsg[200];
+    ConfPrint(strMsg, msg);
+    printf("Router (%d) received : %s\n", router->id, strMsg);
+    /*ConfDestroy(msg);*/
 }
 
 void ReceiveMessage(network * net, node * router, message * msg) {
     printf("message for me received\n");
+    MessageDestroy(msg);
 }
 
 void RouteMessage(network * net, node * router, message * msg) {

@@ -27,6 +27,7 @@ void NetworkDestroy(network * net) {
     
     // delete every node and pipes
     for (int i = 0; i < net->n; i++) {
+        printf("Node destroy calling\n");
         NodeDestroy(net->nodes[i]);
         pipe_producer_free(net->producers[i]);
         pipe_consumer_free(net->consumers[i]);
@@ -54,9 +55,9 @@ void NetworkStart(network * net, double maxTime) {
 
     /* -------------------- wait for end of the network --------------------- */
     NetworkCheckEnd(net, maxTime);
-    for (int i = 0; i < net->n; i++) {
-        pthread_join(net->threads[i], NULL);
-    } 
+    /*for (int i = 0; i < net->n; i++) {*/
+        /*pthread_join(net->threads[i], NULL);*/
+    /*} */
 
     /* -------------------------- stop the network -------------------------- */
     NetworkDestroy(net);

@@ -86,10 +86,18 @@ int pStackEquals(pStack stackA, pStack stackB);
 int pStackIsTop(pStack container, pStack top);
 
 /*
+ * Function: pStackCopy
+ * --------------------
+ * Creates and allocates a new stack with the exact same values.
+ */
+pStack * pStackCopy(pStack * stack);
+
+/*
  * Function: protocolsPrint
  * Usage: printf("My protocol stack: %s", protocolsPrint(&pStack, stackSize));
  * ----------------------------------------------------------------
  * Creates a string representing a given protocol stack.
  */
-char * protocolsPrint(pStack * stack);
+void pStackPrint(char str[], pStack * stack);
+
 #endif

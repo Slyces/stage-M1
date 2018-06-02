@@ -145,6 +145,6 @@ pStack * AdaptIn(adaptFunction * function);
  * Creates a string representing a given adaptation function.
  * Two functions with the same representation are equals.
  */
-char * AdaptPrint(adaptFunction * function);
+void AdaptPrint(char str[], adaptFunction * function);
 
 #endif

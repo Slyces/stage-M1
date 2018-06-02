@@ -1,5 +1,6 @@
 #include "protocols.h"
 #include <stdlib.h>
+#include <string.h>
 
 #define true 1
 #define false 0
@@ -26,11 +27,11 @@ int pStackEmpty(pStack * stack) {
 }
 
 void pStackPush(pStack * stack, protocol p) {
-    stack->protocols[stack->top++] = p;
+    stack->protocols[++stack->top] = p;
 }
 
 protocol pStackPop(pStack * stack) {
-    return stack->protocols[--stack->top];
+    return stack->protocols[stack->top--];
 }
 
 int pStackEquals(pStack stackA, pStack stackB) {
@@ -51,4 +52,21 @@ int pStackIsTop(pStack container, pStack top) {
            return false; 
     }
     return true;
+}
+
+pStack * pStackCopy(pStack * stack) {
+    pStack * newStack = pStackCreate(stack->size);
+    newStack->top = stack->top;
+    memcpy((void *) newStack->protocols, (void *) stack->protocols, 
+            stack->size * sizeof(protocol));
+    return newStack;
+}
+#include <stdio.h>
+void pStackPrint(char str[], pStack * stack) {
+    str[0] = '\'';
+    for (int i = 0; i <= stack->top; i++) {
+        str[1 + i] = stack->protocols[i];
+    }
+    str[2 + stack->top] = '\'';
+    str[3 + stack->top] = '\0';
 }

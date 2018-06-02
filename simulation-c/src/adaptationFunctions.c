@@ -1,5 +1,6 @@
 #include "adaptationFunctions.h"
 #include <stdlib.h>
+#include <stdio.h>
 
 #define true 1
 #define false 0
@@ -58,6 +59,9 @@ void AdaptApply(pStack * stack, adaptFunction * function) {
 
 pStack * AdaptIn(adaptFunction * function) {
     pStack * stack = pStackCreate(2);
+    /*char buff[25];*/
+    /*AdaptPrint(buff, function);*/
+    /*printf("In for adapt %s ?\n", buff);*/
     if (function->type == DC)
         pStackPush(stack, function->out);
     pStackPush(stack, function->in);
@@ -70,4 +74,18 @@ pStack * AdaptOut(adaptFunction * function) {
         pStackPush(stack, function->in);
     pStackPush(stack, function->out);
     return stack;
+}
+
+void AdaptPrint(char str[], adaptFunction * function) {
+    switch(function->type) {
+        case CV:
+            sprintf(str, "f(%c → %c)", function->in, function->out);
+            break;
+        case EC:
+            sprintf(str, "f(%c → %c%c)", function->in, function->in, function->out);
+            break;
+        case DC:
+            sprintf(str, "f(%c%c → %c)", function->out, function->in, function->out);
+            break;
+    }
 }
