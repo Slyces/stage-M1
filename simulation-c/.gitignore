@@ -4,3 +4,6 @@ compile_commands.json
 
 # compilation files
 simulation
+
+# valgrind files
+vgcore*
