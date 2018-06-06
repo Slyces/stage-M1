@@ -58,7 +58,7 @@ typedef struct nodeStruct {
  * the in and out arrays, along with the routign table. Do not forget to use
  * NodeDestroy to free those structures.
  */
-node * NodeCreate(int id, adaptFunction * adaptArray, size_t adaptNumber);
+void NodeCreate(node *, int id, adaptFunction * adaptArray, size_t adaptNumber);
 
 /*
  * Function: NodeDestroy

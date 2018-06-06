@@ -37,7 +37,7 @@ typedef struct {
  * ----------------------
  * Allocates all necessary structures for the stack
  */
-pStack * pStackCreate(size_t size);
+void pStackCreate(pStack *, size_t size);
 
 /*
  * Funciton: pStackDestroy
@@ -90,7 +90,7 @@ int pStackIsTop(pStack container, pStack top);
  * --------------------
  * Creates and allocates a new stack with the exact same values.
  */
-pStack * pStackCopy(pStack * stack);
+void pStackCopy(pStack * origin, pStack * copy);
 
 /*
  * Function: protocolsPrint

@@ -1,9 +1,9 @@
 #include "network.h"
 #include <unistd.h>
+#include <stdlib.h>
 #include "nodes.h"
 
-network * NetworkCreate(void * graph, node ** nodesArray, int nodeNumber) {
-    network * net = malloc(sizeof(network));
+void NetworkCreate(network * net, void * graph, node ** nodesArray, int nodeNumber) {
     net->n = nodeNumber;
     net->graph = graph;
     net->running = 0;
@@ -17,9 +17,8 @@ network * NetworkCreate(void * graph, node ** nodesArray, int nodeNumber) {
         pipes[i] = pipe_new(sizeof(physicalMessage *), 0);
         net->producers[i] = pipe_producer_new(pipes[i]);
         net->consumers[i] = pipe_consumer_new(pipes[i]);
-        pipe_free(pipes[i]);
+        /*pipe_free(pipes[i]);*/
     }
-    return net;
 }
 
 void NetworkDestroy(network * net) {
@@ -28,14 +27,14 @@ void NetworkDestroy(network * net) {
     // delete every node and pipes
     for (int i = 0; i < net->n; i++) {
         printf("Node destroy calling\n");
-        NodeDestroy(net->nodes[i]);
         pipe_producer_free(net->producers[i]);
         pipe_consumer_free(net->consumers[i]);
+        NodeDestroy(net->nodes[i]);
     }
     //delete the array of node pointers and prod / cons
-    free(net->nodes);
     free(net->producers);
     free(net->consumers);
+    free(net->nodes);
 
     //delete the array of threads id
     free(net->threads);
@@ -55,17 +54,29 @@ void NetworkStart(network * net, double maxTime) {
 
     /* -------------------- wait for end of the network --------------------- */
     NetworkCheckEnd(net, maxTime);
-    /*for (int i = 0; i < net->n; i++) {*/
-        /*pthread_join(net->threads[i], NULL);*/
-    /*} */
+
+
+    /* -------------- send a message to each thread to stop it -------------- */
+    NetworkStop(net);
 
     /* -------------------------- stop the network -------------------------- */
     NetworkDestroy(net);
 }
 
+void NetworkStop(network * net) {
+    net->running = 0;
+    for (int i = 0; i < net->n; i++) {
+        physicalMessage * physMsg = malloc(sizeof(physicalMessage));
+        PhysicalCreate(physMsg, -1, -1, STOP, (message *) NULL);
+        pipe_push(net->producers[i], (void *) physMsg, sizeof(void *));
+    }
+    for (int i = 0; i < net->n; i++) {
+        pthread_join(net->threads[i], NULL);
+    } 
+}
+
 void NetworkCheckEnd(network * net, double maxTime) {
     sleep(maxTime);
-    net->running = 0;
 }
 
 void * ThreadStart(void * ptr) {

@@ -5,19 +5,18 @@
 #define true 1
 #define false 0
 
-adaptFunction * AdaptCreate(protocol in, protocol out, adaptType type) {
-    adaptFunction * function = malloc(sizeof(adaptFunction));
+void AdaptCreate(adaptFunction * function, protocol in, protocol out,
+       adaptType type) {
     function->in = in;
     function->out = out;
     function->type = type;
-    return function;
 }
 
 void AdaptDestroy(adaptFunction * function) {
     free(function);
 }
 
-adaptFunction * AdaptReverse(adaptFunction * function) {
+void AdaptReverse(adaptFunction * function, adaptFunction * reversed) {
     adaptType newType;
     switch(function->type) {
         case EC:
@@ -27,7 +26,7 @@ adaptFunction * AdaptReverse(adaptFunction * function) {
         default: //CV
            newType = CV;
     }
-    return AdaptCreate(function->out, function->in, newType);
+    AdaptCreate(reversed, function->out, function->in, newType);
 }
 
 int AdaptValid(pStack * stack, adaptFunction * function) {
@@ -57,23 +56,21 @@ void AdaptApply(pStack * stack, adaptFunction * function) {
     }
 }
 
-pStack * AdaptIn(adaptFunction * function) {
-    pStack * stack = pStackCreate(2);
+void AdaptIn(adaptFunction * function, pStack * stack) {
+    pStackCreate(stack, 2);
     /*char buff[25];*/
     /*AdaptPrint(buff, function);*/
     /*printf("In for adapt %s ?\n", buff);*/
     if (function->type == DC)
         pStackPush(stack, function->out);
     pStackPush(stack, function->in);
-    return stack;
 }
 
-pStack * AdaptOut(adaptFunction * function) {
-    pStack * stack = pStackCreate(2);
+void AdaptOut(adaptFunction * function, pStack * stack) {
+    pStackCreate(stack, 2);
     if (function->type == EC)
         pStackPush(stack, function->in);
     pStackPush(stack, function->out);
-    return stack;
 }
 
 void AdaptPrint(char str[], adaptFunction * function) {

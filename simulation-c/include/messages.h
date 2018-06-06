@@ -18,7 +18,7 @@
  * in the physical layer. It is used to write and read the physical
  * layer.
  */
-typedef enum {MSG, CONF} messageType;
+typedef enum {MSG, CONF, STOP} messageType;
 
 /*
  * Type: physicalMessage
@@ -31,7 +31,7 @@ typedef struct {
     int sender;
     int receiver;
     messageType type; 
-    void ** content;
+    void * content;
 } physicalMessage;
 
 /*
@@ -50,8 +50,8 @@ typedef struct {
  * Converts a message to a physical message. Allocates the memorry for 
  * the new object. Do not forget to destroy it.
  */
-physicalMessage * PhysicalCreate(int sender, int receiver,
-       messageType type, void * content);
+void PhysicalCreate(physicalMessage *, int sender, int receiver,
+        messageType type, void * content);
 
 /*
  * Function: PhysicalDestroy
@@ -93,7 +93,8 @@ typedef struct {
  * This creates and allocate the stack. Do not forget
  * to properly destroy the message after reception.
  */
-confMessage * ConfCreate(int dest, pStack * protocolStack, int cost);
+void ConfCreate(confMessage *, int dest, pStack * protocolStack,
+       int cost);
 
 /*
  * Function: ConfDestroy
@@ -136,7 +137,7 @@ typedef struct {
  * This does not create and allocate the payload. Do not forget
  * to properly destroy the message after reception.
  */
-message * MessageCreate(int src, int dest, pStack * protocolStack,
+void MessageCreate(message *, int src, int dest, pStack * protocolStack,
         void * payload);
 
 /*

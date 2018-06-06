@@ -25,7 +25,7 @@ void * RandomGraph(int n);
  * a probability p to be included in the subset. Then creates a node
  * using those adaptation functions.
  */
-node * RandomNode(int id, adaptFunction * allAdapt, size_t maxAdapt, double p);
+void RandomNode(node *, int id, adaptFunction * allAdapt, size_t maxAdapt, double p);
 
 /*
  * Function: RandomLink
@@ -47,7 +47,8 @@ networkLink * RandomLink(void);
  *   protocols
  * - create an array of nodes, with random adaptation functions
  */
-network * RandomNetwork(int n, size_t nbProtocols, double p, size_t maxStack);
+void RandomNetwork(network *, int n, size_t nbProtocols, double p,
+       size_t maxStack);
 
 /*
  * Function: main

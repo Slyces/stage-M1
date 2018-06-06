@@ -5,12 +5,10 @@
 #define true 1
 #define false 0
 
-pStack * pStackCreate(size_t size) {
-    pStack * stack = malloc(sizeof(pStack));
+void pStackCreate(pStack * stack, size_t size) {
     stack->size = size;
     stack->top = -1;
     stack->protocols = malloc(size * sizeof(protocol));
-    return stack;
 }
 
 void pStackDestroy(pStack * stack) {
@@ -54,12 +52,11 @@ int pStackIsTop(pStack container, pStack top) {
     return true;
 }
 
-pStack * pStackCopy(pStack * stack) {
-    pStack * newStack = pStackCreate(stack->size);
-    newStack->top = stack->top;
-    memcpy((void *) newStack->protocols, (void *) stack->protocols, 
-            stack->size * sizeof(protocol));
-    return newStack;
+void pStackCopy(pStack * origin, pStack * copy) {
+    pStackCreate(copy, origin->size);
+    copy->top = origin->top;
+    memcpy((void *) copy->protocols, (void *) origin->protocols, 
+            origin->size * sizeof(protocol));
 }
 #include <stdio.h>
 void pStackPrint(char str[], pStack * stack) {

@@ -3,14 +3,12 @@
 #include <stdio.h>
 
 /* ─────────────────────────── physical messages ──────────────────────────── */
-physicalMessage * PhysicalCreate(int sender, int receiver,
-       messageType type, void * content) {
-    physicalMessage * physMsg = malloc(sizeof(physicalMessage));
+void PhysicalCreate(physicalMessage * physMsg, int sender,
+        int receiver, messageType type, void * content) {
     physMsg->sender = sender;
     physMsg->receiver = receiver;
     physMsg->type = type;
     physMsg->content = content;
-    return physMsg;
 }
 
 void PhysicalDestroy(physicalMessage * msg) {
@@ -22,17 +20,16 @@ void PhysicalPrint(char str[], physicalMessage * msg) {
 }
 
 /* ───────────────────────── configuration messages ───────────────────────── */
-confMessage * ConfCreate(int dest, pStack * protocolStack, int cost) {
-    confMessage * msg = malloc(sizeof(confMessage));
+void ConfCreate(confMessage * msg, int dest, pStack * protocolStack,
+        int cost) {
     msg->dest = dest;
     msg->cost = cost;
     msg->protocolStack = protocolStack;
-    return msg;
 }
 
 void ConfDestroy(confMessage * msg) {
     pStackDestroy(msg->protocolStack);
-    /*free(msg);*/
+    free(msg);
 }
 
 void ConfPrint(char str[], confMessage * msg) {
@@ -42,17 +39,15 @@ void ConfPrint(char str[], confMessage * msg) {
 }
 
 /* ───────────────────────── communication messages ───────────────────────── */
-message * MessageCreate(int src, int dest, pStack * protocolStack,
+void MessageCreate(message * msg, int src, int dest, pStack * protocolStack,
         void * payload) {
-    message * msg = malloc(sizeof(message));
     msg->src = src;
     msg->dest = dest;
     msg->protocolStack = protocolStack;
     msg->payload = payload;
-    return msg;
 }
 
 void MessageDestroy(message * msg) {
     pStackDestroy(msg->protocolStack);
-    /*free(msg);*/
+    free(msg);
 }

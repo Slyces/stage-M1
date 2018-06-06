@@ -61,7 +61,7 @@ typedef struct {
  * Creates and allocates the appropriate structure for an adaptation
  * function. Also defines a unique hash.
  */
-adaptFunction * AdaptCreate(protocol in, protocol out, adaptType type);
+void AdaptCreate(adaptFunction *, protocol in, protocol out, adaptType type);
 
 /*
  * Function: AdaptDestroy
@@ -94,7 +94,7 @@ void AdaptDestroy(adaptFunction * function);
  * the application of `f`. `r` may be valid for `stack` right off
  * the bat, but there is no guaratee.
  */
-adaptFunction * AdaptReverse(adaptFunction * function);
+void AdaptReverse(adaptFunction * function, adaptFunction * reversed);
 
 /*
  * Function: AdaptValid
@@ -134,8 +134,8 @@ void AdaptApply(pStack * stack, adaptFunction * function);
  * Returns the smaller stack accepted (resp. created) by this
  * function.
  */
-pStack * AdaptOut(adaptFunction * function);
-pStack * AdaptIn(adaptFunction * function);
+void AdaptOut(adaptFunction * function, pStack * stack);
+void AdaptIn(adaptFunction * function, pStack * stack);
 
 
 /*

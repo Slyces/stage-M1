@@ -8,7 +8,7 @@
 
 /* ──────────────────────────── library includes ──────────────────────────── */
 #include <pthread.h>
-#include <igraph.h>
+//#include <igraph.h>
 #include <stdio.h>
 /* ────────────────────────── project code include ────────────────────────── */
 #include "pipe.h"
@@ -45,7 +45,7 @@ typedef struct {
  * to create a valid graph and valid nodes.
  * The graph must be oriented and symetric.
  */
-network * NetworkCreate(void * graph, node ** nodesArray, int nodeNumber);
+void NetworkCreate(network *, void * graph, node ** nodesArray, int nodeNumber);
 
 /*
  * Function: NetworkStart
@@ -66,6 +66,13 @@ void NetworkStart(network * net, double maxTime);
  * If not, ends it when the timer reaches maxTime seconds.
  */
 void NetworkCheckEnd(network * net, double maxTime);
+
+/*
+ * Function: NetworkStop
+ * ---------------------
+ * Sends a message to each node to terminate it.
+ */
+void NetworkStop(network * net);
 
 /*
  * Function: NetworkDestroy
