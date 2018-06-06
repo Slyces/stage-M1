@@ -31,7 +31,7 @@ typedef struct nodeStruct node;
 typedef struct {
     int n;  // number of nodes 
     pthread_t * threads;
-    node ** nodes;
+    node * nodes;
     int running;
     void * graph;
     pipe_producer_t ** producers;
@@ -45,7 +45,7 @@ typedef struct {
  * to create a valid graph and valid nodes.
  * The graph must be oriented and symetric.
  */
-void NetworkCreate(network *, void * graph, node ** nodesArray, int nodeNumber);
+void NetworkCreate(network *, void * graph, node * nodesArray, int nodeNumber);
 
 /*
  * Function: NetworkStart

@@ -83,9 +83,9 @@ void RandomNetwork(network * net, int n, size_t nbProtocols, double p,
     
     
     /* ───── create an array of nodes, with random adaptation functions ───── */
-    node ** nodesArray = malloc(n * sizeof(node *));
+    node * nodesArray = malloc(n * sizeof(node));
     for (int i = 0; i < n; i++) {
-         RandomNode(nodesArray[i], i, allAdapt, adaptMax, p);
+         RandomNode(&nodesArray[i], i, allAdapt, adaptMax, p);
     }
 
     /* ──────────────────────── free all structures ───────────────────────── */

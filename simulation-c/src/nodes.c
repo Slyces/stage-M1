@@ -11,6 +11,7 @@ void NodeCreate(node * newNode, int id, adaptFunction * adaptArray,
         size_t adaptNumber) {
     printf("New node : id = %d, adapt n = %d\n", id ,(int) adaptNumber);
     newNode->id = id;
+    printf("here\n");
     newNode->adaptNumber = adaptNumber;
     newNode->adaptArray = adaptArray;
     /* ------------------- creation of the routign table -------------------- */
@@ -86,12 +87,7 @@ void NodeDestroy(node * someNode) {
     }
     free(someNode->out);
     /* ------------------ destroy the adaptation functions ------------------ */
-    for (int i = 0; i < someNode->adaptNumber; i++) {
-        AdaptDestroy(&someNode->adaptArray[i]);
-    }
     free(someNode->adaptArray);
-    /* ------------------------ free the node itself ------------------------ */
-    free(someNode);
 }
 
 /* ──────────────────── initialisation and passive loop ───────────────────── */
@@ -136,8 +132,13 @@ void NodeWaitMessages(network * net, int node_id) {
         size_t bytesRead = pipe_pop(net->consumers[node_id], pointer, sizeof(void *));
         assert(bytesRead == sizeof(void *));
         physicalMessage * msg = (physicalMessage *) pointer;
-        if (msg->type == STOP) { /*PhysicalDestroy(msg);*/ break; }
-        ReceivePhysical(net, node_id, msg);
+        if (msg->type == STOP) {
+            PhysicalDestroy(msg);
+            break;
+        }
+        else {
+           ReceivePhysical(net, node_id, msg);
+        }
     }
 }
 
@@ -145,7 +146,7 @@ void NodeWaitMessages(network * net, int node_id) {
 void ReceivePhysical(network * net, int receiver, physicalMessage * physMsg) {
     int node_id = IdFromThread(net);
     assert(node_id == receiver);
-    node * currentNode = net->nodes[node_id];
+    node * currentNode = &net->nodes[node_id];
     if (physMsg->type == MSG) {
         message * msg = (message *) physMsg->content;
         if (msg->dest == receiver)
@@ -154,13 +155,8 @@ void ReceivePhysical(network * net, int receiver, physicalMessage * physMsg) {
             RouteMessage(net, currentNode, msg);
     } else if (physMsg->type == CONF) {
         ReceiveConf(net, currentNode, (confMessage *) physMsg->content);
-        /*printf("Alright there\n");*/
-        /*printf("List of some pointers: content %lu", (size_t) physMsg->content);*/
-        ConfDestroy((confMessage *) physMsg->content);
-        printf("breakpoint 1\n");
-        PhysicalDestroy(physMsg);
-        printf("breakpoint 2\n");
     }
+    PhysicalDestroy(physMsg);
 }
 
 void SendPhysical(network * net, physicalMessage * msg) {
@@ -181,7 +177,7 @@ void SendConfMessage(network * net, int sender, int receiver, confMessage * msg)
     char strMsg[200];
     ConfPrint(strMsg, msg);
     printf("Sending %s\n", strMsg);
-    net->nodes[sender]->confSent++;
+    net->nodes[sender].confSent++;
     physicalMessage * physMsg = malloc(sizeof(physicalMessage));
     PhysicalCreate(physMsg, sender, receiver, CONF, (void *) msg),
     SendPhysical(net, physMsg);

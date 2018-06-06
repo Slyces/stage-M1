@@ -13,7 +13,6 @@ void pStackCreate(pStack * stack, size_t size) {
 
 void pStackDestroy(pStack * stack) {
     free(stack->protocols);
-    free(stack);
 }
 
 int pStackFull(pStack * stack) {

@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include "nodes.h"
 
-void NetworkCreate(network * net, void * graph, node ** nodesArray, int nodeNumber) {
+void NetworkCreate(network * net, void * graph, node * nodesArray, int nodeNumber) {
     net->n = nodeNumber;
     net->graph = graph;
     net->running = 0;
@@ -29,7 +29,7 @@ void NetworkDestroy(network * net) {
         printf("Node destroy calling\n");
         pipe_producer_free(net->producers[i]);
         pipe_consumer_free(net->consumers[i]);
-        NodeDestroy(net->nodes[i]);
+        NodeDestroy(&net->nodes[i]);
     }
     //delete the array of node pointers and prod / cons
     free(net->producers);
@@ -98,6 +98,6 @@ int IdFromThread(network * net) {
 node * NodeFromThread(network * net) {
     int nodeId = IdFromThread(net);
     if (nodeId >= 0)
-        return net->nodes[nodeId];
+        return &net->nodes[nodeId];
     return NULL;
 }
