@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include "nodes.h"
+#include <assert.h>
 
 void NetworkCreate(network * net, void * graph, node * nodesArray, int nodeNumber) {
     net->n = nodeNumber;
@@ -26,7 +27,6 @@ void NetworkDestroy(network * net) {
     
     // delete every node and pipes
     for (int i = 0; i < net->n; i++) {
-        printf("Node destroy calling\n");
         pipe_producer_free(net->producers[i]);
         pipe_consumer_free(net->consumers[i]);
         NodeDestroy(&net->nodes[i]);
@@ -43,6 +43,7 @@ void NetworkDestroy(network * net) {
 void NetworkStart(network * net, double maxTime) {
     int n = net->n;
     net->running = 1; 
+    net->started = clock();
 
     /* ---------------------- creation of the threads ----------------------- */
     for (int i = 0; i < n; i++) {
@@ -58,6 +59,9 @@ void NetworkStart(network * net, double maxTime) {
 
     /* -------------- send a message to each thread to stop it -------------- */
     NetworkStop(net);
+    
+    printf("/* ────────────────────────── network stopped ─────────────────────────── */\n");
+    printf("Total time : %f ms. Max time : %f ms.\n", RunTime(net) * 1000, maxTime * 1000);
 
     /* -------------------------- stop the network -------------------------- */
     NetworkDestroy(net);
@@ -65,6 +69,12 @@ void NetworkStart(network * net, double maxTime) {
 
 void NetworkStop(network * net) {
     net->running = 0;
+    int received = 0, sent = 0;
+    for (int i = 0; i < net->n; i++) {
+        received += net->nodes[i].confReceived;
+        sent += net->nodes[i].confSent;
+    }
+    assert(sent == received);
     for (int i = 0; i < net->n; i++) {
         physicalMessage * physMsg = malloc(sizeof(physicalMessage));
         PhysicalCreate(physMsg, -1, -1, STOP, (message *) NULL);
@@ -72,11 +82,20 @@ void NetworkStop(network * net) {
     }
     for (int i = 0; i < net->n; i++) {
         pthread_join(net->threads[i], NULL);
-    } 
+    }
+    printf("sent : %d, received : %d\n", sent, received); 
 }
 
 void NetworkCheckEnd(network * net, double maxTime) {
-    sleep(maxTime);
+    int active = 1;
+    while (RunTime(net) < maxTime && active) {
+        active = 0;
+        double threshold = 1;
+        double time = RunTime(net);
+        for (int i = 0; i < net->n; i++) {
+            active |= (time - net->nodes[i].last_message) < threshold;
+        }
+    }
 }
 
 void * ThreadStart(void * ptr) {
@@ -84,6 +103,10 @@ void * ThreadStart(void * ptr) {
     node * router = NodeFromThread(net);
     NodeStart(net, router);
     return NULL;
+}
+
+double RunTime(network * net) {
+    return (double)(clock() - net->started) / CLOCKS_PER_SEC;    
 }
 
 int IdFromThread(network * net) {

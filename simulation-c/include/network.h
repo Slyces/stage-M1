@@ -34,6 +34,7 @@ typedef struct {
     node * nodes;
     int running;
     void * graph;
+    clock_t started;
     pipe_producer_t ** producers;
     pipe_consumer_t ** consumers;
 } network;
@@ -81,6 +82,13 @@ void NetworkStop(network * net);
  * contained nodes, along with the graph and its links.
  */
 void NetworkDestroy(network * net);
+
+/*
+ * Function: RunTime
+ * -----------------
+ * Return the number of ms elapsed since the network started
+ */
+double RunTime(network * net);
 
 /*
  * Function: IdFromThread, NodeFromThread

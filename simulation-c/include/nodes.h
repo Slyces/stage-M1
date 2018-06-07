@@ -41,6 +41,7 @@ typedef struct nodeStruct {
     size_t adaptNumber;
     pStack * in, * out;
     size_t inSize, outSize;
+    double last_message;
     /* statistics */
     int confReceived, confSent;
     int messageReceived, messageRouted, messageDiscarded;
