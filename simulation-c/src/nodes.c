@@ -27,6 +27,7 @@ void NodeCreate(node * newNode, int id, adaptFunction * adaptArray,
         found = false;
         pStack inStack;
         AdaptIn(&adaptArray[i], &inStack);
+
         /*char buff[25];*/
         /*pStackPrint(buff, &inStack);*/
         /*printf("stack: %s\n", buff);*/
@@ -124,13 +125,13 @@ void NodeWaitMessages(network * net, int node_id) {
     /* --------------------- check if messages arrived ---------------------- */
     while (net->running) {
         // try to pop messages
-        int pointer[sizeof(void *)];
-        size_t bytesRead = pipe_pop(net->consumers[node_id], pointer, sizeof(void *));
+        void * pointer = NULL;
+        size_t bytesRead = pipe_pop(net->consumers[node_id], pointer, 1);
         net->nodes[node_id].last_message = RunTime(net);
-        assert(bytesRead == sizeof(void *));
+        assert(bytesRead == 1);
         physicalMessage * msg = (physicalMessage *) pointer;
         if (msg->type == STOP) {
-            /*PhysicalDestroy(msg);*/
+            PhysicalDestroy(msg);
             break;
         }
         else {
@@ -160,7 +161,7 @@ void SendPhysical(network * net, physicalMessage * msg) {
     char strPhys[200];
     PhysicalPrint(strPhys, msg);
     /*printf("%d pushing [%s] to %d\n", msg->sender, strPhys, msg->receiver);*/
-    pipe_push(net->producers[msg->receiver], (void *) msg, sizeof(physicalMessage *));
+    pipe_push(net->producers[msg->receiver], (void *) msg, 1);
 }
 
 /* ──────────────────────────── sending messages ──────────────────────────── */

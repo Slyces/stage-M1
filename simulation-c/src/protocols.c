@@ -32,7 +32,7 @@ protocol pStackPop(pStack * stack) {
 }
 
 int pStackEquals(pStack stackA, pStack stackB) {
-    if (stackA.size != stackB.size || stackA.top != stackB . top)
+    if (stackA.size != stackB.size || stackA.top != stackB.top)
         return false;
     for (int i = 0; i <= stackA.top; i++) {
         if (stackA.protocols[i] != stackB.protocols[i])
@@ -54,9 +54,9 @@ int pStackIsTop(pStack container, pStack top) {
 void pStackCopy(pStack * origin, pStack * copy) {
     pStackCreate(copy, origin->size);
     copy->top = origin->top;
-    memcpy((void *) copy->protocols, (void *) origin->protocols, 
-            origin->size * sizeof(protocol));
+    memcpy(copy->protocols, origin->protocols, origin->size * sizeof(protocol));
 }
+
 #include <stdio.h>
 void pStackPrint(char str[], pStack * stack) {
     str[0] = '\'';
