@@ -74,6 +74,7 @@ void NetworkStop(network * net) {
         received += net->nodes[i].confReceived;
         sent += net->nodes[i].confSent;
     }
+    printf("sent : %d, received : %d\n", sent, received);
     assert(sent == received);
     for (int i = 0; i < net->n; i++) {
         physicalMessage * physMsg = malloc(sizeof(physicalMessage));
@@ -83,7 +84,6 @@ void NetworkStop(network * net) {
     for (int i = 0; i < net->n; i++) {
         pthread_join(net->threads[i], NULL);
     }
-    printf("sent : %d, received : %d\n", sent, received); 
 }
 
 void NetworkCheckEnd(network * net, double maxTime) {

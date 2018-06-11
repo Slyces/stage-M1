@@ -125,7 +125,7 @@ void NodeWaitMessages(network * net, int node_id) {
     /* --------------------- check if messages arrived ---------------------- */
     while (net->running) {
         // try to pop messages
-        void * pointer = NULL;
+        char pointer[sizeof(void *)];
         size_t bytesRead = pipe_pop(net->consumers[node_id], pointer, 1);
         net->nodes[node_id].last_message = RunTime(net);
         assert(bytesRead == 1);
