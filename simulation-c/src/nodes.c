@@ -15,6 +15,7 @@ void NodeCreate(node * newNode, int id, adaptFunction * adaptArray,
     newNode->id = id;
     newNode->adaptNumber = adaptNumber;
     newNode->adaptArray = adaptArray;
+    newNode->active = 1; // when created, a node is active
     /* ------------------- creation of the routign table -------------------- */
     newNode->table = NULL;
     /* --------------------- construction of in and out --------------------- */
@@ -124,9 +125,11 @@ void NodeWaitMessages(network * net, int node_id) {
     /* --------------------- check if messages arrived ---------------------- */
     while (net->running) {
         // try to pop messages
+        net->nodeActive = 0; // node just going to sleep
         int pointer[sizeof(void *)];
         size_t bytesRead = pipe_pop(net->consumers[node_id], pointer, sizeof(void *));
-        net->nodes[node_id].last_message = RunTime(net);
+        net->nodeActive = 1; // node just woke up
+        printf("Read bytes from pipe : %p (I'm %d)", pointer, node_id);
         assert(bytesRead == sizeof(void *));
         physicalMessage * msg = (physicalMessage *) pointer;
         if (msg->type == STOP) {
@@ -160,7 +163,7 @@ void SendPhysical(network * net, physicalMessage * msg) {
     char strPhys[200];
     PhysicalPrint(strPhys, msg);
     /*printf("%d pushing [%s] to %d\n", msg->sender, strPhys, msg->receiver);*/
-    pipe_push(net->producers[msg->receiver], (void *) msg, sizeof(physicalMessage *));
+    pipe_push(net->producers[msg->receiver], (void *) &msg, sizeof(physicalMessage *));
 }
 
 /* ──────────────────────────── sending messages ──────────────────────────── */

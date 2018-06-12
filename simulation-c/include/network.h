@@ -33,6 +33,7 @@ typedef struct {
     pthread_t * threads;
     node * nodes;
     int running;
+    int nodeActive;
     void * graph;
     clock_t started;
     pipe_producer_t ** producers;

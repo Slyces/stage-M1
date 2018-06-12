@@ -10,6 +10,8 @@ void NetworkCreate(network * net, void * graph, node * nodesArray, int nodeNumbe
     net->running = 0;
     net->threads = malloc(nodeNumber * sizeof(pthread_t));
     net->nodes = nodesArray;
+    net->started = (clock_t) 0;
+    net->nodeActive = 1; // nodes are active at creation
     /* -------------- creating pipes, producers and consumers --------------- */
     pipe_t * pipes[net->n];
     net->producers = malloc(net->n * sizeof(pipe_producer_t *));
@@ -18,7 +20,7 @@ void NetworkCreate(network * net, void * graph, node * nodesArray, int nodeNumbe
         pipes[i] = pipe_new(sizeof(physicalMessage *), 0);
         net->producers[i] = pipe_producer_new(pipes[i]);
         net->consumers[i] = pipe_consumer_new(pipes[i]);
-        /*pipe_free(pipes[i]);*/
+        pipe_free(pipes[i]);
     }
 }
 
@@ -78,7 +80,7 @@ void NetworkStop(network * net) {
     for (int i = 0; i < net->n; i++) {
         physicalMessage * physMsg = malloc(sizeof(physicalMessage));
         PhysicalCreate(physMsg, -1, -1, STOP, (message *) NULL);
-        pipe_push(net->producers[i], (void *) physMsg, sizeof(void *));
+        pipe_push(net->producers[i], (void *) &physMsg, sizeof(void *));
     }
     for (int i = 0; i < net->n; i++) {
         pthread_join(net->threads[i], NULL);
@@ -86,15 +88,12 @@ void NetworkStop(network * net) {
     printf("sent : %d, received : %d\n", sent, received); 
 }
 
+#include <unistd.h>
+
 void NetworkCheckEnd(network * net, double maxTime) {
-    int active = 1;
-    while (RunTime(net) < maxTime && active) {
-        active = 0;
-        double threshold = 1;
-        double time = RunTime(net);
-        for (int i = 0; i < net->n; i++) {
-            active |= (time - net->nodes[i].last_message) < threshold;
-        }
+    while (RunTime(net) < maxTime && net->nodeActive) {
+        // stop if no nodes are active or time is up
+        usleep(100 * 1000); // sleep 100 ms
     }
 }
 
