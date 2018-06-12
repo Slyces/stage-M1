@@ -88,7 +88,7 @@ void RandomNetwork(network * net, int n, size_t nbProtocols, double p,
 int main(int argc, const char *argv[]) {
     printf("/* ─────────────────────────── simulation started ─────────────────────────── */\n");
     network * net = malloc(sizeof(network));
-    RandomNetwork(net, 3, 2, 1, 2); // 10 nodes, everything else disabled
+    RandomNetwork(net, 2, 1, 1, 3); // 10 nodes, everything else disabled
     NetworkStart(net, 1);
     printf("/* ──────────────────────────── simulation ended ──────────────────────────── */\n");
 }

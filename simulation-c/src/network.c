@@ -79,7 +79,7 @@ void NetworkStop(network * net) {
     for (int i = 0; i < net->n; i++) {
         physicalMessage * physMsg = malloc(sizeof(physicalMessage));
         PhysicalCreate(physMsg, -1, -1, STOP, (message *) NULL);
-        pipe_push(net->producers[i], (void *) physMsg, 1);
+        pipe_push(net->producers[i], (void **) &physMsg, 1);
     }
     for (int i = 0; i < net->n; i++) {
         pthread_join(net->threads[i], NULL);

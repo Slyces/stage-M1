@@ -10,7 +10,7 @@ DEPENDS := $(SOURCES:src/%.c=deps/%.d)
 MAKEFILES := Makefile
 
 CC=gcc
-CFLAGS := -O3 -g -std=c11 -Wall -Wno-unused-function
+CFLAGS := -O0 -g3 -std=c11 -Wall -Wno-unused-function
 CFLAGS += -DPADAWAN
 CFLAGS += -I./include
 CFLAGS += -I/usr/local/igraph

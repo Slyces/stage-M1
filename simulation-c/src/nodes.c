@@ -125,11 +125,12 @@ void NodeWaitMessages(network * net, int node_id) {
     /* --------------------- check if messages arrived ---------------------- */
     while (net->running) {
         // try to pop messages
-        char pointer[sizeof(void *)];
+        void ** pointer;
         size_t bytesRead = pipe_pop(net->consumers[node_id], pointer, 1);
+        printf("%d received %p from pipe\n", node_id, pointer);
         net->nodes[node_id].last_message = RunTime(net);
         assert(bytesRead == 1);
-        physicalMessage * msg = (physicalMessage *) pointer;
+        physicalMessage * msg = (physicalMessage *) * pointer;
         if (msg->type == STOP) {
             PhysicalDestroy(msg);
             break;
@@ -161,7 +162,8 @@ void SendPhysical(network * net, physicalMessage * msg) {
     char strPhys[200];
     PhysicalPrint(strPhys, msg);
     /*printf("%d pushing [%s] to %d\n", msg->sender, strPhys, msg->receiver);*/
-    pipe_push(net->producers[msg->receiver], (void *) msg, 1);
+    printf("sending pointer %p from %d to %d\n", (void **) &msg, msg->sender, msg->receiver);
+    pipe_push(net->producers[msg->receiver], (void **) &msg, 1);
 }
 
 /* ──────────────────────────── sending messages ──────────────────────────── */
