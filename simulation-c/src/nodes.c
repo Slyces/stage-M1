@@ -28,6 +28,7 @@ void NodeCreate(node * newNode, int id, adaptFunction * adaptArray,
         found = false;
         pStack inStack;
         AdaptIn(&adaptArray[i], &inStack);
+
         /*char buff[25];*/
         /*pStackPrint(buff, &inStack);*/
         /*printf("stack: %s\n", buff);*/
@@ -124,16 +125,20 @@ void NodeStart(network * net, node * router) {
 void NodeWaitMessages(network * net, int node_id) {
     /* --------------------- check if messages arrived ---------------------- */
     while (net->running) {
-        // try to pop messages
+        void ** pointer;
         net->nodeActive = 0; // node just going to sleep
-        int pointer[sizeof(void *)];
-        size_t bytesRead = pipe_pop(net->consumers[node_id], pointer, sizeof(void *));
+
+        // crucial part of the simulation : retrieving a message from the pipe
+        size_t bytesRead = pipe_pop(net->consumers[node_id], pointer, 1);
+
         net->nodeActive = 1; // node just woke up
-        printf("Read bytes from pipe : %p (I'm %d)", pointer, node_id);
-        assert(bytesRead == sizeof(void *));
-        physicalMessage * msg = (physicalMessage *) pointer;
+        printf("%d received %p from pipe\n", node_id, pointer);
+
+        assert(bytesRead == 1); // just a little test
+
+        physicalMessage * msg = (physicalMessage *) * pointer;
         if (msg->type == STOP) {
-            /*PhysicalDestroy(msg);*/
+            PhysicalDestroy(msg);
             break;
         }
         else {
@@ -163,7 +168,8 @@ void SendPhysical(network * net, physicalMessage * msg) {
     char strPhys[200];
     PhysicalPrint(strPhys, msg);
     /*printf("%d pushing [%s] to %d\n", msg->sender, strPhys, msg->receiver);*/
-    pipe_push(net->producers[msg->receiver], (void *) &msg, sizeof(physicalMessage *));
+    printf("sending pointer %p from %d to %d\n", (void **) &msg, msg->sender, msg->receiver);
+    pipe_push(net->producers[msg->receiver], (void **) &msg, 1);
 }
 
 /* ──────────────────────────── sending messages ──────────────────────────── */

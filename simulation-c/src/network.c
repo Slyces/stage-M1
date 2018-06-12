@@ -13,7 +13,7 @@ void NetworkCreate(network * net, void * graph, node * nodesArray, int nodeNumbe
     net->started = (clock_t) 0;
     net->nodeActive = 1; // nodes are active at creation
     /* -------------- creating pipes, producers and consumers --------------- */
-    pipe_t * pipes[net->n];
+    pipe_t ** pipes = malloc(net->n * sizeof(pipe_t *));
     net->producers = malloc(net->n * sizeof(pipe_producer_t *));
     net->consumers = malloc(net->n * sizeof(pipe_consumer_t *));
     for (int i = 0; i < net->n; i++) {
@@ -76,16 +76,16 @@ void NetworkStop(network * net) {
         received += net->nodes[i].confReceived;
         sent += net->nodes[i].confSent;
     }
+    printf("sent : %d, received : %d\n", sent, received);
     assert(sent == received);
     for (int i = 0; i < net->n; i++) {
         physicalMessage * physMsg = malloc(sizeof(physicalMessage));
         PhysicalCreate(physMsg, -1, -1, STOP, (message *) NULL);
-        pipe_push(net->producers[i], (void *) &physMsg, sizeof(void *));
+        pipe_push(net->producers[i], (void **) &physMsg, 1);
     }
     for (int i = 0; i < net->n; i++) {
         pthread_join(net->threads[i], NULL);
     }
-    printf("sent : %d, received : %d\n", sent, received); 
 }
 
 #include <unistd.h>
