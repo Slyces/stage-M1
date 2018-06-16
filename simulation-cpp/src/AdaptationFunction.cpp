@@ -71,3 +71,17 @@ string AdaptationFunction::toString() {
     str += out;
     return str + "')";
 }
+
+ProtocolStack * AdaptationFunction::In()const {
+    auto * stack = new ProtocolStack(2);
+    if (type == DC) stack->push(out);
+    stack->push(in);
+    return stack;
+}
+
+ProtocolStack * AdaptationFunction::Out()const {
+    ProtocolStack * stack = new ProtocolStack(2);
+    if (type == EC) stack->push(in);
+    stack->push(out);
+    return stack;
+}

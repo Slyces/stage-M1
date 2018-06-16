@@ -26,7 +26,7 @@ class ProtocolStack {
     protocol top(int);
     protocol pop();
     bool operator==(const ProtocolStack &stack);
-    string toString();
+    string toString()const;
     ProtocolStack clone() const;
 };
 

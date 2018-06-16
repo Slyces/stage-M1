@@ -110,6 +110,10 @@
 			<Option target="simulation-tests"/>
 			<Option target="simulation-cpp"/>
 		</Unit>
+		<Unit filename="/home/slyces/stage-M1/simulation-cpp/include/Node.hpp">
+			<Option target="simulation-tests"/>
+			<Option target="simulation-cpp"/>
+		</Unit>
 		<Unit filename="/home/slyces/stage-M1/simulation-cpp/include/ProtocolStack.hpp">
 			<Option target="simulation-tests"/>
 			<Option target="simulation-cpp"/>
@@ -118,6 +122,10 @@
 			<Option target="simulation-cpp"/>
 		</Unit>
 		<Unit filename="/home/slyces/stage-M1/simulation-cpp/src/AdaptationFunction.cpp">
+			<Option target="simulation-tests"/>
+			<Option target="simulation-cpp"/>
+		</Unit>
+		<Unit filename="/home/slyces/stage-M1/simulation-cpp/src/Node.cpp">
 			<Option target="simulation-tests"/>
 			<Option target="simulation-cpp"/>
 		</Unit>

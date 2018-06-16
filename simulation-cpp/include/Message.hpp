@@ -1,0 +1,9 @@
+
+#ifndef SIMULATION_CPP_MESSAGE_HPP
+#define SIMULATION_CPP_MESSAGE_HPP
+
+class Message {
+
+};
+
+#endif //SIMULATION_CPP_MESSAGE_HPP

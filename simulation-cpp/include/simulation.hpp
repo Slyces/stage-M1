@@ -1,8 +1,6 @@
 #ifndef SIMULATION_CPP_SIMULATION_HPP
 #define SIMULATION_CPP_SIMULATION_HPP
 
-
-
 /* Function: main
  * --------------
  *  Parses the console arguments to create a simulation, then gathers

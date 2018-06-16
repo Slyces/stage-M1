@@ -53,7 +53,7 @@ bool ProtocolStack::operator==(const ProtocolStack &stack) {
     return true;
 }
 
-string ProtocolStack::toString() {
+string ProtocolStack::toString()const {
     string repr = "<";
     for (int i = 0; i < topIndex; i++) {
         repr += protocols[i];

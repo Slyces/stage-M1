@@ -51,6 +51,9 @@ class AdaptationFunction {
     bool valid(ProtocolStack &);
     void apply(ProtocolStack &);
 
+    ProtocolStack * In()const;
+    ProtocolStack * Out()const;
+
     bool operator==(const AdaptationFunction &function);
     unsigned long hash();
 
