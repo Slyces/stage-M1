@@ -9,8 +9,6 @@ AdaptationFunction::AdaptationFunction(protocol in, protocol out, adaptType type
     this->type = type;
 }
 
-AdaptationFunction::~AdaptationFunction() = default;
-
 AdaptationFunction  AdaptationFunction::makeReverse() {
     adaptType newType = CV; // default type is [conversion]
     if (type == EC) { // [encapsulation]
@@ -56,4 +54,20 @@ void AdaptationFunction::apply(ProtocolStack & stack) {
     } else if (type == DC) {
         stack.pop();
     }
+}
+
+void AdaptationFunction::setAll(protocol in, protocol out, adaptType type) {
+    this->in = in;
+    this->out = out;
+    this->type = type;
+}
+
+string AdaptationFunction::toString() {
+    string str = "f('";
+    if (type == DC) str += out;
+    str += in;
+    str += "' → '";
+    if (type == EC) str += in;
+    str += out;
+    return str + "')";
 }

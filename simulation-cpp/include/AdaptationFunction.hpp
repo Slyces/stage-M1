@@ -42,15 +42,19 @@ class AdaptationFunction {
     protocol out;
 
   public:
+    AdaptationFunction() = default;
     AdaptationFunction(protocol in, protocol out, adaptType type);
-    ~AdaptationFunction();
-
+    ~AdaptationFunction() = default;
+    void setAll(protocol in, protocol out, adaptType type);
     AdaptationFunction makeReverse();
+
     bool valid(ProtocolStack &);
     void apply(ProtocolStack &);
+
     bool operator==(const AdaptationFunction &function);
     unsigned long hash();
 
+    string toString();
 };
 
 #endif //STAGE_M1_ADAPTATIONFUNCTION_HPP

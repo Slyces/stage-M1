@@ -196,12 +196,12 @@ SCENARIO("Adaptation functions are hashable and comparable", "[AdaptationFunctio
 }
 
 SCENARIO("Adaptation functions can be applied to stacks", "[AdaptationFunction]") {
-    AdaptationFunction * functions[3][4];
+    AdaptationFunction functions[3][4];
     adaptType types[] = {CV, EC, DC};
     for (auto type : types) {
         for (int x = 0; x < 2; x++) {
             for (int y = 0; y < 2; y++) {
-                functions[type][x * 2 + y] = new AdaptationFunction("xy"[x], "xy"[y], type);
+                functions[type][x * 2 + y].setAll("xy"[x], "xy"[y], type);
             }
         }
     }
@@ -221,14 +221,14 @@ SCENARIO("Adaptation functions can be applied to stacks", "[AdaptationFunction]"
         for (auto &stackPtr : stacks) {
             ProtocolStack stackCopy = stackPtr->clone();
             for (auto &type : types) {
-                for (auto &funcPtr : functions[type]) {
-                    if (funcPtr->valid(stackCopy)) {
+                for (auto &func : functions[type]) {
+                    if (func.valid(stackCopy)) {
                         THEN("The topIndex protocol corresponds to the <in> of the function") {
-                            REQUIRE(stackCopy.top() == funcPtr->in);
+                            REQUIRE(stackCopy.top() == func.in);
                         }
                         THEN("After application, the topIndex protocol corresponds to the <out> of the function") {
-                            funcPtr->apply(stackCopy);
-                            REQUIRE(stackCopy.top() == funcPtr->out);
+                            func.apply(stackCopy);
+                            REQUIRE(stackCopy.top() == func.out);
                         }
                     }
                 }
@@ -236,11 +236,6 @@ SCENARIO("Adaptation functions can be applied to stacks", "[AdaptationFunction]"
         }
     }
     // delete
-    for (auto &type : types) {
-        for (auto &funcPtr : functions[type]) {
-            delete funcPtr;
-        }
-    }
     for (auto &stackPtr : stacks) {
         delete stackPtr;
     }
