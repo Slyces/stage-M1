@@ -7,3 +7,7 @@
 __pycache__
 .idea
 cmake-build-debug/
+CMakeCache.txt
+vgcore*
+CMakeFiles/
+cmake_install.cmake
