@@ -110,7 +110,23 @@
 			<Option target="simulation-tests"/>
 			<Option target="simulation-cpp"/>
 		</Unit>
+		<Unit filename="/home/slyces/stage-M1/simulation-cpp/include/ConfMessage.hpp">
+			<Option target="simulation-tests"/>
+			<Option target="simulation-cpp"/>
+		</Unit>
+		<Unit filename="/home/slyces/stage-M1/simulation-cpp/include/Message.hpp">
+			<Option target="simulation-tests"/>
+			<Option target="simulation-cpp"/>
+		</Unit>
+		<Unit filename="/home/slyces/stage-M1/simulation-cpp/include/Network.hpp">
+			<Option target="simulation-tests"/>
+			<Option target="simulation-cpp"/>
+		</Unit>
 		<Unit filename="/home/slyces/stage-M1/simulation-cpp/include/Node.hpp">
+			<Option target="simulation-tests"/>
+			<Option target="simulation-cpp"/>
+		</Unit>
+		<Unit filename="/home/slyces/stage-M1/simulation-cpp/include/PhysicalMessage.hpp">
 			<Option target="simulation-tests"/>
 			<Option target="simulation-cpp"/>
 		</Unit>
@@ -125,7 +141,23 @@
 			<Option target="simulation-tests"/>
 			<Option target="simulation-cpp"/>
 		</Unit>
+		<Unit filename="/home/slyces/stage-M1/simulation-cpp/src/ConfMessage.cpp">
+			<Option target="simulation-tests"/>
+			<Option target="simulation-cpp"/>
+		</Unit>
+		<Unit filename="/home/slyces/stage-M1/simulation-cpp/src/Message.cpp">
+			<Option target="simulation-tests"/>
+			<Option target="simulation-cpp"/>
+		</Unit>
+		<Unit filename="/home/slyces/stage-M1/simulation-cpp/src/Network.cpp">
+			<Option target="simulation-tests"/>
+			<Option target="simulation-cpp"/>
+		</Unit>
 		<Unit filename="/home/slyces/stage-M1/simulation-cpp/src/Node.cpp">
+			<Option target="simulation-tests"/>
+			<Option target="simulation-cpp"/>
+		</Unit>
+		<Unit filename="/home/slyces/stage-M1/simulation-cpp/src/PhysicalMessage.cpp">
 			<Option target="simulation-tests"/>
 			<Option target="simulation-cpp"/>
 		</Unit>

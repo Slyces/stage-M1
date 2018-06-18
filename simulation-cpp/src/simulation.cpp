@@ -4,6 +4,7 @@
 #include "Node.hpp"
 #include "AdaptationFunction.hpp"
 #include "ProtocolStack.hpp"
+#include "Network.hpp"
 
 using namespace std;
 
@@ -46,6 +47,7 @@ int run(int n, int nbProtocols, int maxStack, double p, int nbIter) {
     std::uniform_real_distribution<> dist(0, 1);
 
     Node * nodes[n];
+    Network * network;
 
     /* create an array of random nodes */
     for (int i = 0; i < n; i++) {
@@ -56,19 +58,19 @@ int run(int n, int nbProtocols, int maxStack, double p, int nbIter) {
             if (dist(e2) < p)
                 selected.push_back(function);
         }
-        nodes[i] = new Node((unsigned int) i, selected);
+        nodes[i] = new Node(network, (unsigned int) i, selected);
     }
 
-    for (auto * node : nodes)
-        cout << node->toString() << endl;
-
-    /* instantiate the network */
+    /* creation of the network */
+    network = new Network(nullptr, nodes, static_cast<unsigned int>(n));
 
     /* run the network */
+    network->start();
 
     /* free the memory */
     for (auto &node : nodes)
         delete node;
+    delete network;
 }
 
 int main(int argc, const char * argv[]) {
@@ -81,6 +83,6 @@ int main(int argc, const char * argv[]) {
      *  - p: probability for a node to contain each adaptation function
      *  - nbIter: number of iteration
      */
-    run(100, 3, 5, 0.5, 1);
+    run(1 /*n*/, 1 /*nbprotocols*/, 1 /*maxStacks*/, 1 /*p*/, 1 /*nbIter*/);
     return 0;
 }

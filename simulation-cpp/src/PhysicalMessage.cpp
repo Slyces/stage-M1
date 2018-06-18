@@ -1,4 +1,4 @@
-#include <PhysicalMessage.hpp>
+#include "PhysicalMessage.hpp"
 using namespace std;
 
 PhysicalMessage::PhysicalMessage(int sender, int receiver, messageType type,
@@ -27,4 +27,12 @@ string PhysicalMessage::toString() {
             break;
     }
     return str + "]";
+}
+
+PhysicalMessage * PhysicalMessage::encode(int sender, int receiver, ConfMessage * msg) {
+    return new PhysicalMessage(sender, receiver, CONF, msg);
+}
+
+PhysicalMessage * PhysicalMessage::encode(int sender, int receiver, Message * msg) {
+    return new PhysicalMessage(sender, receiver, MSG, msg);
 }

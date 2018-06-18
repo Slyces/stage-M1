@@ -1,10 +1,15 @@
 // test headers and define
 #define CATCH_CONFIG_MAIN
+
 #include "catch.hpp"
 
 // includes
 #include "ProtocolStack.hpp"
 #include "AdaptationFunction.hpp"
+#include "Node.hpp"
+#include "Message.hpp"
+#include "ConfMessage.hpp"
+#include "PhysicalMessage.hpp"
 
 // testing protocol stacks
 SCENARIO("Protocols can be added and removed from a protocol stack", "[ProtocolStack]") {
@@ -67,12 +72,13 @@ SCENARIO("Protocols can be added and removed from a protocol stack", "[ProtocolS
             stack.push('a');
         }
 
-        ProtocolStack copy = stack.clone();
+        ProtocolStack * copy = stack.clone();
         THEN("Copy modification does not alter the original") {
-            copy.pop();
-            REQUIRE(!copy.full());
+            copy->pop();
+            REQUIRE(!copy->full());
             REQUIRE(stack.full());
         }
+        delete copy;
     }
 }
 
@@ -86,7 +92,8 @@ SCENARIO("Protocol stacks can be created from string", "[ProtocolStack]") {
             REQUIRE(fromString.empty());
         }
         THEN("The stack is equal to a size-created stack") {
-            REQUIRE((stack == fromString) == true);
+            bool equal = (stack == fromString);
+            REQUIRE(equal);
         }
     }
 
@@ -110,7 +117,7 @@ SCENARIO("Protocol stacks can be created from string", "[ProtocolStack]") {
         stack.push('d');
         ProtocolStack fromString(n, "abcd");
         THEN("They are equal") {
-            REQUIRE((stack == fromString) == true);
+            REQUIRE((stack == fromString));
         }
     }
 }
@@ -185,12 +192,12 @@ SCENARIO("Adaptation functions are hashable and comparable", "[AdaptationFunctio
         THEN("They are equal") {
             bool equal = conv_x == x_x;
             bool diffAdress = &conv_x != &x_x;
-            REQUIRE((diffAdress && equal) == true);
+            REQUIRE((diffAdress && equal));
         }
         THEN("They have the same hash") {
             bool hashEqual = conv_x.hash() == x_x.hash();
             bool diffAdress = &conv_x != &x_x;
-            REQUIRE((hashEqual && diffAdress) == true);
+            REQUIRE((hashEqual && diffAdress));
         }
     }
 }
@@ -219,20 +226,21 @@ SCENARIO("Adaptation functions can be applied to stacks", "[AdaptationFunction]"
     }
     WHEN("The stack is valid and we apply the function") {
         for (auto &stackPtr : stacks) {
-            ProtocolStack stackCopy = stackPtr->clone();
+            auto stackCopy = stackPtr->clone();
             for (auto &type : types) {
                 for (auto &func : functions[type]) {
-                    if (func.valid(stackCopy)) {
+                    if (func.valid(* stackCopy)) {
                         THEN("The topIndex protocol corresponds to the <in> of the function") {
-                            REQUIRE(stackCopy.top() == func.in);
+                            REQUIRE(stackCopy->top() == func.in);
                         }
                         THEN("After application, the topIndex protocol corresponds to the <out> of the function") {
-                            func.apply(stackCopy);
-                            REQUIRE(stackCopy.top() == func.out);
+                            func.apply(* stackCopy);
+                            REQUIRE(stackCopy->top() == func.out);
                         }
                     }
                 }
             }
+            delete stackCopy;
         }
     }
     // delete
@@ -268,23 +276,24 @@ SCENARIO("Adaptation functions can be reversed", "[AdaptationFunction]") {
             AdaptationFunction f = *funcPtr;
             AdaptationFunction reverse = f.makeReverse();
             for (auto &stackPtr : stacks) {
-                ProtocolStack copy = stackPtr->clone();
+                ProtocolStack * copy = stackPtr->clone();
                 THEN("f valid => (f o f⁻¹) (x) = x") {
-                    if (f.valid(copy)) {
-                        f.apply(copy);
-                        reverse.apply(copy);
-                        bool unchanged = copy == * stackPtr;
+                    if (f.valid(* copy)) {
+                        f.apply(* copy);
+                        reverse.apply(* copy);
+                        bool unchanged = * copy == * stackPtr;
                         REQUIRE(unchanged);
                     }
                 }
                 THEN("f⁻¹ valid => (f⁻¹ o f) (x) = x") {
-                    if (reverse.valid(copy)) {
-                        reverse.apply(copy);
-                        f.apply(copy);
-                        bool unchanged = copy == * stackPtr;
+                    if (reverse.valid(* copy)) {
+                        reverse.apply(* copy);
+                        f.apply(* copy);
+                        bool unchanged = (* copy == * stackPtr);
                         REQUIRE(unchanged);
                     }
                 }
+                delete copy;
             }
         }
     }
@@ -296,4 +305,56 @@ SCENARIO("Adaptation functions can be reversed", "[AdaptationFunction]") {
     for (auto &stackPtr : stacks) {
         delete stackPtr;
     }
+}
+
+SCENARIO("Node are created and destroyed without memory leak", "[Node]") {
+    int nbProtocols = 10; // a lot of protocols
+
+    /* create every protocol in use for this run */
+    protocol protocols[nbProtocols];
+    for (int i = 0; i < nbProtocols; i++) {
+        protocols[i] = static_cast<protocol>('a' + i);
+    }
+
+    /* create an array with every valid adaptation function */
+    int count = 0;
+    adaptType types[3] = {CV, EC, DC};
+    AdaptationFunction allFunctions[(nbProtocols * nbProtocols) * 3];
+    for (auto &in : protocols)
+        for (auto &out : protocols)
+            for (auto &type : types)
+                allFunctions[count++].setAll(in, out, type);
+
+    /* create an array of random nodes */
+    /* create a random subset of adaptation functions */
+    std::vector<AdaptationFunction> selected;
+    selected.reserve((unsigned long) nbProtocols * nbProtocols * 3);
+    for (auto function : allFunctions) {
+        selected.push_back(function);
+    }
+    WHEN("A node is created") {
+        auto * node = new Node(nullptr, (unsigned int) 0, selected);
+        THEN("The deletion does not leak memory") {
+            delete node;
+        }
+    }
+}
+
+SCENARIO("Messages are correctly printed", "[Message]") {
+    Message * msg = new Message(1, 3, new ProtocolStack(2, "xy"), (void *) "secret content");
+    ConfMessage * cMsg = new ConfMessage(7, new ProtocolStack(3, "abc"), 5);
+    PhysicalMessage * pMsg = PhysicalMessage::encode(1, 2, msg);
+    PhysicalMessage * pcMsg = PhysicalMessage::encode(1, 7, cMsg);
+    WHEN("A message / confmessage / physicalmessage is created") {
+        THEN("It can be printed with toString") {
+            REQUIRE(msg->toString() == "(1) → (3) : <x-y>");
+            REQUIRE(cMsg->toString() == "∙ → 7 : [5] <a-b-c>");
+            REQUIRE(pMsg->toString() == "[phys: 1 → 2 :MSG]");
+            REQUIRE(pcMsg->toString() == "[phys: 1 → 7 :CONF]");
+        }
+    }
+    delete msg;
+    delete cMsg;
+    delete pMsg;
+    delete pcMsg;
 }

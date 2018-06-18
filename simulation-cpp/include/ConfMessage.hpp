@@ -6,10 +6,10 @@
 class ConfMessage {
   public:
     int dest, cost;
-    const ProtocolStack stack;
+    ProtocolStack * stack;
 
   public:
-    ConfMessage(int dest, ProtocolStack stack, int cost);
+    ConfMessage(int dest, ProtocolStack * stack, int cost);
     ~ConfMessage();
 
     string toString();

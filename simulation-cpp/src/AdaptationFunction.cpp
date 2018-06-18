@@ -80,7 +80,7 @@ ProtocolStack * AdaptationFunction::In()const {
 }
 
 ProtocolStack * AdaptationFunction::Out()const {
-    ProtocolStack * stack = new ProtocolStack(2);
+    auto * stack = new ProtocolStack(2);
     if (type == EC) stack->push(in);
     stack->push(out);
     return stack;

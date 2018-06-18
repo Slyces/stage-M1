@@ -166,6 +166,96 @@ src/AdaptationFunction.cpp.s:
 	$(MAKE) -f CMakeFiles/simulation-cpp.dir/build.make CMakeFiles/simulation-cpp.dir/src/AdaptationFunction.cpp.s
 .PHONY : src/AdaptationFunction.cpp.s
 
+src/ConfMessage.o: src/ConfMessage.cpp.o
+
+.PHONY : src/ConfMessage.o
+
+# target to build an object file
+src/ConfMessage.cpp.o:
+	$(MAKE) -f CMakeFiles/simulation-tests.dir/build.make CMakeFiles/simulation-tests.dir/src/ConfMessage.cpp.o
+	$(MAKE) -f CMakeFiles/simulation-cpp.dir/build.make CMakeFiles/simulation-cpp.dir/src/ConfMessage.cpp.o
+.PHONY : src/ConfMessage.cpp.o
+
+src/ConfMessage.i: src/ConfMessage.cpp.i
+
+.PHONY : src/ConfMessage.i
+
+# target to preprocess a source file
+src/ConfMessage.cpp.i:
+	$(MAKE) -f CMakeFiles/simulation-tests.dir/build.make CMakeFiles/simulation-tests.dir/src/ConfMessage.cpp.i
+	$(MAKE) -f CMakeFiles/simulation-cpp.dir/build.make CMakeFiles/simulation-cpp.dir/src/ConfMessage.cpp.i
+.PHONY : src/ConfMessage.cpp.i
+
+src/ConfMessage.s: src/ConfMessage.cpp.s
+
+.PHONY : src/ConfMessage.s
+
+# target to generate assembly for a file
+src/ConfMessage.cpp.s:
+	$(MAKE) -f CMakeFiles/simulation-tests.dir/build.make CMakeFiles/simulation-tests.dir/src/ConfMessage.cpp.s
+	$(MAKE) -f CMakeFiles/simulation-cpp.dir/build.make CMakeFiles/simulation-cpp.dir/src/ConfMessage.cpp.s
+.PHONY : src/ConfMessage.cpp.s
+
+src/Message.o: src/Message.cpp.o
+
+.PHONY : src/Message.o
+
+# target to build an object file
+src/Message.cpp.o:
+	$(MAKE) -f CMakeFiles/simulation-tests.dir/build.make CMakeFiles/simulation-tests.dir/src/Message.cpp.o
+	$(MAKE) -f CMakeFiles/simulation-cpp.dir/build.make CMakeFiles/simulation-cpp.dir/src/Message.cpp.o
+.PHONY : src/Message.cpp.o
+
+src/Message.i: src/Message.cpp.i
+
+.PHONY : src/Message.i
+
+# target to preprocess a source file
+src/Message.cpp.i:
+	$(MAKE) -f CMakeFiles/simulation-tests.dir/build.make CMakeFiles/simulation-tests.dir/src/Message.cpp.i
+	$(MAKE) -f CMakeFiles/simulation-cpp.dir/build.make CMakeFiles/simulation-cpp.dir/src/Message.cpp.i
+.PHONY : src/Message.cpp.i
+
+src/Message.s: src/Message.cpp.s
+
+.PHONY : src/Message.s
+
+# target to generate assembly for a file
+src/Message.cpp.s:
+	$(MAKE) -f CMakeFiles/simulation-tests.dir/build.make CMakeFiles/simulation-tests.dir/src/Message.cpp.s
+	$(MAKE) -f CMakeFiles/simulation-cpp.dir/build.make CMakeFiles/simulation-cpp.dir/src/Message.cpp.s
+.PHONY : src/Message.cpp.s
+
+src/Network.o: src/Network.cpp.o
+
+.PHONY : src/Network.o
+
+# target to build an object file
+src/Network.cpp.o:
+	$(MAKE) -f CMakeFiles/simulation-tests.dir/build.make CMakeFiles/simulation-tests.dir/src/Network.cpp.o
+	$(MAKE) -f CMakeFiles/simulation-cpp.dir/build.make CMakeFiles/simulation-cpp.dir/src/Network.cpp.o
+.PHONY : src/Network.cpp.o
+
+src/Network.i: src/Network.cpp.i
+
+.PHONY : src/Network.i
+
+# target to preprocess a source file
+src/Network.cpp.i:
+	$(MAKE) -f CMakeFiles/simulation-tests.dir/build.make CMakeFiles/simulation-tests.dir/src/Network.cpp.i
+	$(MAKE) -f CMakeFiles/simulation-cpp.dir/build.make CMakeFiles/simulation-cpp.dir/src/Network.cpp.i
+.PHONY : src/Network.cpp.i
+
+src/Network.s: src/Network.cpp.s
+
+.PHONY : src/Network.s
+
+# target to generate assembly for a file
+src/Network.cpp.s:
+	$(MAKE) -f CMakeFiles/simulation-tests.dir/build.make CMakeFiles/simulation-tests.dir/src/Network.cpp.s
+	$(MAKE) -f CMakeFiles/simulation-cpp.dir/build.make CMakeFiles/simulation-cpp.dir/src/Network.cpp.s
+.PHONY : src/Network.cpp.s
+
 src/Node.o: src/Node.cpp.o
 
 .PHONY : src/Node.o
@@ -195,6 +285,36 @@ src/Node.cpp.s:
 	$(MAKE) -f CMakeFiles/simulation-tests.dir/build.make CMakeFiles/simulation-tests.dir/src/Node.cpp.s
 	$(MAKE) -f CMakeFiles/simulation-cpp.dir/build.make CMakeFiles/simulation-cpp.dir/src/Node.cpp.s
 .PHONY : src/Node.cpp.s
+
+src/PhysicalMessage.o: src/PhysicalMessage.cpp.o
+
+.PHONY : src/PhysicalMessage.o
+
+# target to build an object file
+src/PhysicalMessage.cpp.o:
+	$(MAKE) -f CMakeFiles/simulation-tests.dir/build.make CMakeFiles/simulation-tests.dir/src/PhysicalMessage.cpp.o
+	$(MAKE) -f CMakeFiles/simulation-cpp.dir/build.make CMakeFiles/simulation-cpp.dir/src/PhysicalMessage.cpp.o
+.PHONY : src/PhysicalMessage.cpp.o
+
+src/PhysicalMessage.i: src/PhysicalMessage.cpp.i
+
+.PHONY : src/PhysicalMessage.i
+
+# target to preprocess a source file
+src/PhysicalMessage.cpp.i:
+	$(MAKE) -f CMakeFiles/simulation-tests.dir/build.make CMakeFiles/simulation-tests.dir/src/PhysicalMessage.cpp.i
+	$(MAKE) -f CMakeFiles/simulation-cpp.dir/build.make CMakeFiles/simulation-cpp.dir/src/PhysicalMessage.cpp.i
+.PHONY : src/PhysicalMessage.cpp.i
+
+src/PhysicalMessage.s: src/PhysicalMessage.cpp.s
+
+.PHONY : src/PhysicalMessage.s
+
+# target to generate assembly for a file
+src/PhysicalMessage.cpp.s:
+	$(MAKE) -f CMakeFiles/simulation-tests.dir/build.make CMakeFiles/simulation-tests.dir/src/PhysicalMessage.cpp.s
+	$(MAKE) -f CMakeFiles/simulation-cpp.dir/build.make CMakeFiles/simulation-cpp.dir/src/PhysicalMessage.cpp.s
+.PHONY : src/PhysicalMessage.cpp.s
 
 src/ProtocolStack.o: src/ProtocolStack.cpp.o
 
@@ -293,9 +413,21 @@ help:
 	@echo "... src/AdaptationFunction.o"
 	@echo "... src/AdaptationFunction.i"
 	@echo "... src/AdaptationFunction.s"
+	@echo "... src/ConfMessage.o"
+	@echo "... src/ConfMessage.i"
+	@echo "... src/ConfMessage.s"
+	@echo "... src/Message.o"
+	@echo "... src/Message.i"
+	@echo "... src/Message.s"
+	@echo "... src/Network.o"
+	@echo "... src/Network.i"
+	@echo "... src/Network.s"
 	@echo "... src/Node.o"
 	@echo "... src/Node.i"
 	@echo "... src/Node.s"
+	@echo "... src/PhysicalMessage.o"
+	@echo "... src/PhysicalMessage.i"
+	@echo "... src/PhysicalMessage.s"
 	@echo "... src/ProtocolStack.o"
 	@echo "... src/ProtocolStack.i"
 	@echo "... src/ProtocolStack.s"

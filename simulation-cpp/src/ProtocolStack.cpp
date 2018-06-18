@@ -65,11 +65,11 @@ string ProtocolStack::toString()const {
     return repr + ">";
 }
 
-ProtocolStack ProtocolStack::clone() const {
-    ProtocolStack stack(size);
-    stack.topIndex = topIndex;
+ProtocolStack * ProtocolStack::clone() const {
+    auto * stack = new ProtocolStack(size);
+    stack->topIndex = topIndex;
     for (int i = 0; i <= topIndex; i++) {
-        stack.protocols[i] = protocols[i];
+        stack->protocols[i] = protocols[i];
     }
     return stack;
 }

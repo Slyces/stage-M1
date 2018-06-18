@@ -1,13 +1,15 @@
 
-#include <ProtocolStack.hpp>
-#include <ConfMessage.hpp>
+#include "ProtocolStack.hpp"
+#include "ConfMessage.hpp"
 
-ConfMessage::ConfMessage(int dest, ProtocolStack stack, int cost) : stack(stack) {
+ConfMessage::ConfMessage(int dest, ProtocolStack * stack, int cost) : stack(stack) {
     this->dest = dest;
     this->cost = cost;
 }
 
-ConfMessage::~ConfMessage() = default;
+ConfMessage::~ConfMessage() {
+    delete stack;
+}
 
 string ConfMessage::toString() {
     string str;
@@ -16,7 +18,7 @@ string ConfMessage::toString() {
     str += " : [";
     str += to_string(cost);
     str += "] ";
-    return str + stack.toString();
+    return str + stack->toString();
 }
 
 

@@ -27,7 +27,7 @@ class ProtocolStack {
     protocol pop();
     bool operator==(const ProtocolStack &stack);
     string toString()const;
-    ProtocolStack clone() const;
+    ProtocolStack * clone() const;
 };
 
 #endif //SIMULATION_CPP_PROTOCOLS_HPP
