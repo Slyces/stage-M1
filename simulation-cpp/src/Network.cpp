@@ -3,32 +3,48 @@
 #include <chrono>
 #include <thread>
 
-Network::Network(void * graph, Node ** nodes, unsigned int netSize) {
+
+Network::Network(void * graph, Node ** nodes, unsigned int netSize) : n(netSize) {
     this->graph = graph;
     this->nodes = nodes;
-    this->n = netSize;
-    threads_id = new pthread_t[n];
+    threads = new thread*[n];
+    queues = new PhysicalQueue[n];
 }
 
 Network::~Network() {
-    delete[] threads_id;
+    for (int i = 0; i < n; i++)
+        delete threads[i];
+    delete[] threads;
+    delete[] queues;
 }
 
 
 void Network::start() {
+    /* timing of the network */
+    auto start_time = chrono::high_resolution_clock::now();
+
     /* creation of the threads */
     printf("/* ------------------------ start of thread creation ------------------------ */\n");
     for (int i = 0; i < n; i++) {
-        pthread_create(&threads_id[i], nullptr, Node::StartNode, (void *) nodes[i]);
-        printf("Created thread %d with pthread_id %lu\n", i, threads_id[i]);
+        threads[i] = new thread(Node::StartNode, (void *) nodes[i]);
+        printf("Created thread %d.\n", i);
     }
     printf("/* ------------------------- end of thread creation ------------------------- */\n");
 
-    std::chrono::milliseconds timespan(500); // or whatever
+    // end of the simulation conditions
+    do {
+        running = false;
+        std::chrono::milliseconds timespan(timeout);
+        std::this_thread::sleep_for(timespan);
+    } while (running);
 
-    std::this_thread::sleep_for(timespan);
-
+    // on-stop actions
     stop();
+
+    auto stop_time = chrono::high_resolution_clock::now();
+    auto duration = chrono::duration_cast<chrono::milliseconds>(stop_time - start_time);
+    printf("/* ---------------------------- end of simulation --------------------------- */\n");
+    printf("The network took %li milliseconds to stop.\n", duration.count());
 }
 
 void Network::stop() {
@@ -37,14 +53,16 @@ void Network::stop() {
         sent += nodes[i]->confSent;
         received += nodes[i]->confReceived;
     }
-    printf("sent: %d, received: %d", sent, received);
+    printf("/* ------------------------- sending stop requests -------------------------- */\n");
+    for (int i = 0; i < n; i++) {
+        nodes[i]->send(new PhysicalMessage(i, i, STOP, nullptr));
+    }
+    for (int i = 0; i < n; i++) {
+        threads[i]->join();
+    }
+    printf("/* -------------------------------------------------------------------------- */\n");
+    printf("sent: %d, received: %d\n", sent, received);
     assert(sent == received);
-    for (int i = 0; i < n; i++) {
-        nodes[i]->send(new PhysicalMessage(-1, nodes[i]->id, STOP, nullptr));
-    }
-    for (int i = 0; i < n; i++) {
-//        pthread_join()
-    }
 }
 
 

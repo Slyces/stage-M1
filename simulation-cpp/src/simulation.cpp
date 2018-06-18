@@ -8,7 +8,7 @@
 
 using namespace std;
 
-int run(int n, int nbProtocols, int maxStack, double p, int nbIter) {
+int run(int n, int nbProtocols, int maxStack, double p) {
     /*
      * A run is made following several steps:
      *  - create a random graph
@@ -47,7 +47,7 @@ int run(int n, int nbProtocols, int maxStack, double p, int nbIter) {
     std::uniform_real_distribution<> dist(0, 1);
 
     Node * nodes[n];
-    Network * network;
+    auto * network = new Network(nullptr, nodes, static_cast<unsigned int>(n));
 
     /* create an array of random nodes */
     for (int i = 0; i < n; i++) {
@@ -60,9 +60,6 @@ int run(int n, int nbProtocols, int maxStack, double p, int nbIter) {
         }
         nodes[i] = new Node(network, (unsigned int) i, selected);
     }
-
-    /* creation of the network */
-    network = new Network(nullptr, nodes, static_cast<unsigned int>(n));
 
     /* run the network */
     network->start();
@@ -83,6 +80,8 @@ int main(int argc, const char * argv[]) {
      *  - p: probability for a node to contain each adaptation function
      *  - nbIter: number of iteration
      */
-    run(1 /*n*/, 1 /*nbprotocols*/, 1 /*maxStacks*/, 1 /*p*/, 1 /*nbIter*/);
+    int nbiter = 1;
+    for (int i = 0; i < nbiter; i++)
+        run(1024 /*n*/, 4 /*nbprotocols*/, 3 /*maxStacks*/, 0.4 /*p*/);
     return 0;
 }

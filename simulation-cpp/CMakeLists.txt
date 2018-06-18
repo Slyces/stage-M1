@@ -18,7 +18,7 @@ link_directories(~/espaces/travail/compiled/lib/)
 include_directories(~/espaces/travail/compiled/include/)
 
 
-add_executable(simulation-cpp ${SOURCES} ${HEADERS})
+add_executable(simulation-cpp ${SOURCES} ${HEADERS} include/concurrentqueue.h src/RoutingTable.cpp)
 
 target_link_libraries(simulation-cpp ${CMAKE_THREAD_LIBS_INIT})
 target_link_libraries(simulation-cpp ${IGRAPH_LIBRARIES})
@@ -26,7 +26,7 @@ target_link_libraries(simulation-cpp ${IGRAPH_LIBRARIES})
 # tests
 set(TEST_SOURCES ${SOURCES})
 list(REMOVE_ITEM TEST_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/simulation.cpp)
-set(TEST_HEADERS ${HEADERS})
+set(TEST_HEADERS ${HEADERS} include/blockingconcurrentqueue.h include/RoutingTable.hpp)
 list(REMOVE_ITEM TEST_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/include/simulation.hpp)
 
 add_executable(simulation-tests

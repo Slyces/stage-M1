@@ -85,9 +85,13 @@ string Node::toString() {
     return str;
 }
 
-
+void Node::StartNode(void *ptr) {
+    auto node = (Node *) ptr;
+    node->start();
+}
 
 void Node::start() {
+    printf("Thread %d started.\n", id);
     /* Send initialisation messages to each neighbor */
     for (int i = 0; i < network->n; i++) {
         auto neighbor = network->nodes[i];
@@ -98,6 +102,20 @@ void Node::start() {
                 send(neighbor->id, initMessage);
             }
         }
+    }
+    waitForMessages();
+}
+
+void Node::waitForMessages() {
+    /* ------------------------------ */
+    stop = false;
+    while (!stop) {
+        // -----
+        PhysicalMessage * receivedMessage = nullptr;
+        auto receiveTimeout = chrono::milliseconds(timeout);
+        network->queues[id].wait_dequeue_timed(receivedMessage, receiveTimeout);
+        if (receivedMessage != nullptr)
+            receive(receivedMessage);
     }
 }
 
@@ -112,9 +130,13 @@ void Node::send(int to, Message * msg) {
 
 void Node::send(PhysicalMessage * msg) {
     // ---
+    assert(msg->sender == id);
+//    cout << "[" << id << "] sending " << msg->toString() << endl;
+    network->queues[msg->receiver].enqueue(msg);
 }
 
 void Node::receive(PhysicalMessage * physMessage) {
+    network->running = true;
     assert(physMessage->receiver == id);
     if (physMessage->type == CONF) {
         receive((ConfMessage *) physMessage->content);
@@ -125,6 +147,7 @@ void Node::receive(PhysicalMessage * physMessage) {
         else
             route(message);
     } else if (physMessage->type == STOP) {
+        printf("Node %d receiving STOP request from the network.\n", id);
         stop = true;
     }
     delete physMessage;
@@ -133,6 +156,7 @@ void Node::receive(PhysicalMessage * physMessage) {
 void Node::receive(ConfMessage * msg) {
     /* Do some things */
     confReceived++;
+//    cout << "[" << id << "] Received " << msg->toString() << endl;
 }
 
 void Node::receive(Message * msg) {
@@ -144,10 +168,4 @@ void Node::receive(Message * msg) {
 void Node::route(Message * msg) {
     messageRouted++;
 }
-
-void * Node::StartNode(void * ptr) {
-    ((Node *) ptr)->start();
-    return nullptr;
-}
-
 

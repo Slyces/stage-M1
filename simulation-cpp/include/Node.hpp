@@ -13,20 +13,23 @@ class Node {
     vector<AdaptationFunction> adaptFunctions;
     vector<ProtocolStack *> In;
     vector<ProtocolStack *> Out;
-
+    int timeout = 15;
     bool stop = false;
 
     unsigned int confReceived, confSent,
             messageReceived, messageRouted, messageDiscarded;
+
+
 
   public:
     Node();
     Node(Network *, unsigned int id, vector<AdaptationFunction> const&);
     ~Node();
 
-    static void *StartNode(void *);
+    static void StartNode(void * ptr);
 
     void start();
+    void waitForMessages();
 
     void send(PhysicalMessage * msg);
     void send(int to, ConfMessage * msg);
@@ -38,6 +41,7 @@ class Node {
     void route(Message * msg);
 
     string toString();
+
 };
 
 #endif //SIMULATION_CPP_NODE_HPP

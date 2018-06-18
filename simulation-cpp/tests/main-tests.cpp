@@ -358,3 +358,56 @@ SCENARIO("Messages are correctly printed", "[Message]") {
     delete pMsg;
     delete pcMsg;
 }
+
+SCENARIO("Single node network", "[Network]") {
+    Node * node;
+    Node ** pNode = &node;
+    auto * network = new Network(nullptr, pNode, 1);
+    std::vector<AdaptationFunction> selected;
+    node = new Node(network, 0, selected);
+
+    WHEN("Network starts") {
+        THEN("It stops instantly with no memory issue") {
+            network->start();
+        }
+    }
+    delete node;
+    delete network;
+}
+
+SCENARIO("Multi node network", "[Network]") {
+    unsigned int n = 200;
+    AdaptationFunction functions[] = {AdaptationFunction('a', 'b', CV)};
+    Node * nodes[n];
+    auto * network = new Network(nullptr, nodes, static_cast<unsigned int>(n));
+
+    /* create an array of random nodes */
+    for (int i = 0; i < n; i++) {
+        /* create a random subset of adaptation functions */
+        std::vector<AdaptationFunction> selected;
+        for (auto &function : functions)
+            selected.push_back(function);
+        nodes[i] = new Node(network, (unsigned int) i, selected);
+        nodes[i]->timeout = 100;
+    }
+
+    WHEN("Nodes have no common in/out between neighbors") {
+        network->timeout = 5;
+        network->start();
+        THEN("The sum of messages is [sum of degrees] * [size in]") {
+            // every node has degree (n - 1) [fully connected graph]
+            int received = 0, sent = 0;
+            for (auto &node : nodes) {
+                sent += node->confSent;
+                received += node->confReceived;
+            }
+            REQUIRE((sent == received));
+            REQUIRE((sent ==  n * (n - 1)));
+        }
+    }
+
+    /* free the memory */
+    for (auto &node : nodes)
+        delete node;
+    delete network;
+}
