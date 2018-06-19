@@ -10,9 +10,9 @@ class Node {
   public:
     Network * network;
     unsigned int id;
-    vector<AdaptationFunction> adaptFunctions;
-    vector<ProtocolStack *> In;
-    vector<ProtocolStack *> Out;
+    std::vector<AdaptationFunction> adaptFunctions;
+    std::vector<ProtocolStack *> In;
+    std::vector<ProtocolStack *> Out;
     int timeout = 15;
     bool stop = false;
 
@@ -23,13 +23,13 @@ class Node {
 
   public:
     Node();
-    Node(Network *, unsigned int id, vector<AdaptationFunction> const&);
+    Node(Network *, unsigned int id, std::vector<AdaptationFunction> const&);
     ~Node();
 
     static void StartNode(void * ptr);
 
     void start();
-    void waitForMessages();
+    void initialize();
 
     void send(PhysicalMessage * msg);
     void send(int to, ConfMessage * msg);
@@ -40,8 +40,7 @@ class Node {
     void receive(Message * msg);
     void route(Message * msg);
 
-    string toString();
-
+    std::string toString();
 };
 
 #endif //SIMULATION_CPP_NODE_HPP

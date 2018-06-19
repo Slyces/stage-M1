@@ -87,10 +87,11 @@ string Node::toString() {
 
 void Node::StartNode(void *ptr) {
     auto node = (Node *) ptr;
+    node->initialize();
     node->start();
 }
 
-void Node::start() {
+void Node::initialize(){
     printf("Thread %d started.\n", id);
     /* Send initialisation messages to each neighbor */
     for (int i = 0; i < network->n; i++) {
@@ -98,15 +99,14 @@ void Node::start() {
         if (neighbor != this) {
             /* For each stack accepted as input */
             for (auto &inStack : In) {
-                auto * initMessage = new ConfMessage(neighbor->id, inStack->clone(), 0);
+                auto * initMessage = new ConfMessage(id, inStack->clone(), 0);
                 send(neighbor->id, initMessage);
             }
         }
     }
-    waitForMessages();
 }
 
-void Node::waitForMessages() {
+void Node::start() {
     /* ------------------------------ */
     stop = false;
     while (!stop) {
@@ -121,6 +121,7 @@ void Node::waitForMessages() {
 
 void Node::send(int to, ConfMessage * msg) {
     confSent++;
+//    printf("[%d] sent <%s> to %d\n", id, msg->toString().c_str(), to);
     send(PhysicalMessage::encode(id, to, msg));
 }
 
@@ -131,7 +132,6 @@ void Node::send(int to, Message * msg) {
 void Node::send(PhysicalMessage * msg) {
     // ---
     assert(msg->sender == id);
-//    cout << "[" << id << "] sending " << msg->toString() << endl;
     network->queues[msg->receiver].enqueue(msg);
 }
 
@@ -156,12 +156,14 @@ void Node::receive(PhysicalMessage * physMessage) {
 void Node::receive(ConfMessage * msg) {
     /* Do some things */
     confReceived++;
-//    cout << "[" << id << "] Received " << msg->toString() << endl;
+//    printf("[%d] received <%s>\n", id, msg->toString().c_str());
+    delete msg;
 }
 
 void Node::receive(Message * msg) {
     /* Do some things */
     messageReceived++;
+    delete msg;
 
 }
 

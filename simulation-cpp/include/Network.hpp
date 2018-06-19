@@ -14,7 +14,7 @@ class Network {
   public:
     void * graph;
     Node ** nodes;
-    thread ** threads;
+    std::thread ** threads;
     PhysicalQueue * queues;
     unsigned int n;
     bool running = true;

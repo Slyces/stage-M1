@@ -13,7 +13,7 @@ class Message {
     Message(int sender, int receiver, ProtocolStack * stack, void * payload);
     ~Message();
 
-    string toString();
+    std::string toString();
 };
 
 #endif //SIMULATION_CPP_MESSAGE_HPP

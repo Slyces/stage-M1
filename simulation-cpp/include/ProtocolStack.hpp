@@ -4,8 +4,6 @@
 #include <cstdio>
 #include <string>
 
-using namespace std;
-
 typedef char protocol;
 
 class ProtocolStack {
@@ -15,7 +13,7 @@ class ProtocolStack {
     int topIndex;
 
     explicit ProtocolStack(size_t size);
-    ProtocolStack(size_t size, string);
+    ProtocolStack(size_t size, std::string);
     ~ProtocolStack();
 
   public:
@@ -26,7 +24,7 @@ class ProtocolStack {
     protocol top(int);
     protocol pop();
     bool operator==(const ProtocolStack &stack);
-    string toString()const;
+    std::string toString()const;
     ProtocolStack * clone() const;
 };
 

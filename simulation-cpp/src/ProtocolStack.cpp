@@ -2,6 +2,8 @@
 #include <ProtocolStack.hpp>
 #include <iostream>
 
+using namespace std;
+
 ProtocolStack::ProtocolStack(size_t size) : size(size) {
     protocols = static_cast<protocol *>(malloc(size * sizeof(protocol)));
     topIndex = -1;

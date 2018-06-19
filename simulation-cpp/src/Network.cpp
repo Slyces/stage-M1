@@ -3,6 +3,8 @@
 #include <chrono>
 #include <thread>
 
+using namespace std;
+
 
 Network::Network(void * graph, Node ** nodes, unsigned int netSize) : n(netSize) {
     this->graph = graph;

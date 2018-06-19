@@ -57,7 +57,7 @@ class AdaptationFunction {
     bool operator==(const AdaptationFunction &function);
     unsigned long hash();
 
-    string toString();
+    std::string toString();
 };
 
 #endif //STAGE_M1_ADAPTATIONFUNCTION_HPP

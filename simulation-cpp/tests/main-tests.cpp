@@ -11,6 +11,8 @@
 #include "ConfMessage.hpp"
 #include "PhysicalMessage.hpp"
 
+using namespace std;
+
 // testing protocol stacks
 SCENARIO("Protocols can be added and removed from a protocol stack", "[ProtocolStack]") {
     size_t n = 10;
@@ -376,7 +378,7 @@ SCENARIO("Single node network", "[Network]") {
 }
 
 SCENARIO("Multi node network", "[Network]") {
-    unsigned int n = 200;
+    unsigned int n = 10;
     AdaptationFunction functions[] = {AdaptationFunction('a', 'b', CV)};
     Node * nodes[n];
     auto * network = new Network(nullptr, nodes, static_cast<unsigned int>(n));
@@ -410,4 +412,11 @@ SCENARIO("Multi node network", "[Network]") {
     for (auto &node : nodes)
         delete node;
     delete network;
+}
+
+SCENARIO("Rows can be added and retrieved from a routign table", "[RoutingTable"]) {
+    RoutingTable table;
+    WHEN("Rows are added") {
+        Row r1 = Row(1, )
+    }
 }

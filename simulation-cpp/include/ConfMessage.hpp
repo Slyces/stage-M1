@@ -12,7 +12,7 @@ class ConfMessage {
     ConfMessage(int dest, ProtocolStack * stack, int cost);
     ~ConfMessage();
 
-    string toString();
+    std::string toString();
 };
 
 #endif //SIMULATION_CPP_CONFMESSAGE_HPP

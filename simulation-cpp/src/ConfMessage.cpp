@@ -2,6 +2,8 @@
 #include "ProtocolStack.hpp"
 #include "ConfMessage.hpp"
 
+using namespace std;
+
 ConfMessage::ConfMessage(int dest, ProtocolStack * stack, int cost) : stack(stack) {
     this->dest = dest;
     this->cost = cost;

@@ -1,6 +1,8 @@
 #include "ProtocolStack.hpp"
 #include "Message.hpp"
 
+using namespace std;
+
 Message::Message(int sender, int receiver, ProtocolStack * stack, void * payload)
         : stack(stack), payload(payload) {
     this->source = sender;

@@ -62,6 +62,7 @@ int run(int n, int nbProtocols, int maxStack, double p) {
     }
 
     /* run the network */
+    network->timeout = 40;
     network->start();
 
     /* free the memory */
@@ -82,6 +83,7 @@ int main(int argc, const char * argv[]) {
      */
     int nbiter = 1;
     for (int i = 0; i < nbiter; i++)
-        run(1024 /*n*/, 4 /*nbprotocols*/, 3 /*maxStacks*/, 0.4 /*p*/);
+        run(10 /*n*/, 20 /*nbprotocols*/, 3 /*maxStacks*/, 1 /*p*/);
+    cout << sizeof(size_t);
     return 0;
 }
