@@ -2,10 +2,11 @@ cmake_minimum_required(VERSION 3.6)
 set(CMAKE_CXX_STANDARD 11)
 project(simulation-cpp)
 
-set(CMAKE_CXX_FLAGS "-g")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -Wall")
 
 # include the header files
 include_directories(include)
+include_directories(boost-library)
 
 # find sources in src/
 file(GLOB SOURCES "src/*.cpp")
@@ -18,7 +19,7 @@ link_directories(~/espaces/travail/compiled/lib/)
 include_directories(~/espaces/travail/compiled/include/)
 
 
-add_executable(simulation-cpp ${SOURCES} ${HEADERS} include/concurrentqueue.h src/RoutingTable.cpp)
+add_executable(simulation-cpp ${SOURCES} src/RoutingTable.cpp)
 
 target_link_libraries(simulation-cpp ${CMAKE_THREAD_LIBS_INIT})
 target_link_libraries(simulation-cpp ${IGRAPH_LIBRARIES})
@@ -30,7 +31,7 @@ set(TEST_HEADERS ${HEADERS} include/blockingconcurrentqueue.h include/RoutingTab
 list(REMOVE_ITEM TEST_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/include/simulation.hpp)
 
 add_executable(simulation-tests
-        tests/catch.hpp tests/main-tests.cpp
-        ${TEST_SOURCES} ${TEST_HEADERS})
+        tests/main-tests.cpp ${TEST_SOURCES})
+
 target_link_libraries(simulation-tests ${CMAKE_THREAD_LIBS_INIT})
 target_link_libraries(simulation-tests ${IGRAPH_LIBRARIES})

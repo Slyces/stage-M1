@@ -8,187 +8,179 @@
 		<Option virtualFolders="CMake Files\;"/>
 		<Build>
 			<Target title="all">
-				<Option working_dir="/net/cremi/slassourreui/stage/simulation-cpp"/>
+				<Option working_dir="/home/slyces/stage-M1/simulation-cpp"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/net/cremi/slassourreui/stage/simulation-cpp/Makefile&quot;  VERBOSE=1 all"/>
-					<CompileFile command="/usr/bin/make -f &quot;/net/cremi/slassourreui/stage/simulation-cpp/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/net/cremi/slassourreui/stage/simulation-cpp/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/net/cremi/slassourreui/stage/simulation-cpp/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/slyces/stage-M1/simulation-cpp/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/slyces/stage-M1/simulation-cpp/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/slyces/stage-M1/simulation-cpp/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/slyces/stage-M1/simulation-cpp/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="edit_cache">
-				<Option working_dir="/net/cremi/slassourreui/stage/simulation-cpp"/>
+				<Option working_dir="/home/slyces/stage-M1/simulation-cpp"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/net/cremi/slassourreui/stage/simulation-cpp/Makefile&quot;  VERBOSE=1 edit_cache"/>
-					<CompileFile command="/usr/bin/make -f &quot;/net/cremi/slassourreui/stage/simulation-cpp/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/net/cremi/slassourreui/stage/simulation-cpp/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/net/cremi/slassourreui/stage/simulation-cpp/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/slyces/stage-M1/simulation-cpp/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/slyces/stage-M1/simulation-cpp/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/slyces/stage-M1/simulation-cpp/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/slyces/stage-M1/simulation-cpp/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="rebuild_cache">
-				<Option working_dir="/net/cremi/slassourreui/stage/simulation-cpp"/>
+				<Option working_dir="/home/slyces/stage-M1/simulation-cpp"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/net/cremi/slassourreui/stage/simulation-cpp/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
-					<CompileFile command="/usr/bin/make -f &quot;/net/cremi/slassourreui/stage/simulation-cpp/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/net/cremi/slassourreui/stage/simulation-cpp/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/net/cremi/slassourreui/stage/simulation-cpp/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/slyces/stage-M1/simulation-cpp/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/slyces/stage-M1/simulation-cpp/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/slyces/stage-M1/simulation-cpp/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/slyces/stage-M1/simulation-cpp/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="simulation-tests">
-				<Option output="/net/cremi/slassourreui/stage/simulation-cpp/simulation-tests" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/net/cremi/slassourreui/stage/simulation-cpp"/>
+				<Option output="/home/slyces/stage-M1/simulation-cpp/simulation-tests" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/slyces/stage-M1/simulation-cpp"/>
 				<Option object_output="./"/>
 				<Option type="1"/>
 				<Option compiler="gcc"/>
 				<Compiler>
-					<Add directory="/net/cremi/slassourreui/stage/simulation-cpp/include"/>
-					<Add directory="/net/cremi/slassourreui/espaces/travail/compiled/include"/>
+					<Add directory="/home/slyces/stage-M1/simulation-cpp/include"/>
+					<Add directory="/home/slyces/stage-M1/simulation-cpp/boost-library"/>
+					<Add directory="/home/slyces/espaces/travail/compiled/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-pc-linux-gnu/7.3.1/../../../../include/c++/7.3.1"/>
+					<Add directory="/usr/lib/gcc/x86_64-pc-linux-gnu/7.3.1/../../../../include/c++/7.3.1/x86_64-pc-linux-gnu"/>
+					<Add directory="/usr/lib/gcc/x86_64-pc-linux-gnu/7.3.1/../../../../include/c++/7.3.1/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-pc-linux-gnu/7.3.1/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-pc-linux-gnu/7.3.1/include-fixed"/>
+					<Add directory="/usr/include"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/net/cremi/slassourreui/stage/simulation-cpp/Makefile&quot;  VERBOSE=1 simulation-tests"/>
-					<CompileFile command="/usr/bin/make -f &quot;/net/cremi/slassourreui/stage/simulation-cpp/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/net/cremi/slassourreui/stage/simulation-cpp/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/net/cremi/slassourreui/stage/simulation-cpp/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/slyces/stage-M1/simulation-cpp/Makefile&quot;  VERBOSE=1 simulation-tests"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/slyces/stage-M1/simulation-cpp/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/slyces/stage-M1/simulation-cpp/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/slyces/stage-M1/simulation-cpp/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="simulation-tests/fast">
-				<Option output="/net/cremi/slassourreui/stage/simulation-cpp/simulation-tests" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/net/cremi/slassourreui/stage/simulation-cpp"/>
+				<Option output="/home/slyces/stage-M1/simulation-cpp/simulation-tests" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/slyces/stage-M1/simulation-cpp"/>
 				<Option object_output="./"/>
 				<Option type="1"/>
 				<Option compiler="gcc"/>
 				<Compiler>
-					<Add directory="/net/cremi/slassourreui/stage/simulation-cpp/include"/>
-					<Add directory="/net/cremi/slassourreui/espaces/travail/compiled/include"/>
+					<Add directory="/home/slyces/stage-M1/simulation-cpp/include"/>
+					<Add directory="/home/slyces/stage-M1/simulation-cpp/boost-library"/>
+					<Add directory="/home/slyces/espaces/travail/compiled/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-pc-linux-gnu/7.3.1/../../../../include/c++/7.3.1"/>
+					<Add directory="/usr/lib/gcc/x86_64-pc-linux-gnu/7.3.1/../../../../include/c++/7.3.1/x86_64-pc-linux-gnu"/>
+					<Add directory="/usr/lib/gcc/x86_64-pc-linux-gnu/7.3.1/../../../../include/c++/7.3.1/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-pc-linux-gnu/7.3.1/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-pc-linux-gnu/7.3.1/include-fixed"/>
+					<Add directory="/usr/include"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/net/cremi/slassourreui/stage/simulation-cpp/Makefile&quot;  VERBOSE=1 simulation-tests/fast"/>
-					<CompileFile command="/usr/bin/make -f &quot;/net/cremi/slassourreui/stage/simulation-cpp/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/net/cremi/slassourreui/stage/simulation-cpp/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/net/cremi/slassourreui/stage/simulation-cpp/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/slyces/stage-M1/simulation-cpp/Makefile&quot;  VERBOSE=1 simulation-tests/fast"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/slyces/stage-M1/simulation-cpp/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/slyces/stage-M1/simulation-cpp/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/slyces/stage-M1/simulation-cpp/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="simulation-cpp">
-				<Option output="/net/cremi/slassourreui/stage/simulation-cpp/simulation-cpp" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/net/cremi/slassourreui/stage/simulation-cpp"/>
+				<Option output="/home/slyces/stage-M1/simulation-cpp/simulation-cpp" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/slyces/stage-M1/simulation-cpp"/>
 				<Option object_output="./"/>
 				<Option type="1"/>
 				<Option compiler="gcc"/>
 				<Compiler>
-					<Add directory="/net/cremi/slassourreui/stage/simulation-cpp/include"/>
-					<Add directory="/net/cremi/slassourreui/espaces/travail/compiled/include"/>
+					<Add directory="/home/slyces/stage-M1/simulation-cpp/include"/>
+					<Add directory="/home/slyces/stage-M1/simulation-cpp/boost-library"/>
+					<Add directory="/home/slyces/espaces/travail/compiled/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-pc-linux-gnu/7.3.1/../../../../include/c++/7.3.1"/>
+					<Add directory="/usr/lib/gcc/x86_64-pc-linux-gnu/7.3.1/../../../../include/c++/7.3.1/x86_64-pc-linux-gnu"/>
+					<Add directory="/usr/lib/gcc/x86_64-pc-linux-gnu/7.3.1/../../../../include/c++/7.3.1/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-pc-linux-gnu/7.3.1/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-pc-linux-gnu/7.3.1/include-fixed"/>
+					<Add directory="/usr/include"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/net/cremi/slassourreui/stage/simulation-cpp/Makefile&quot;  VERBOSE=1 simulation-cpp"/>
-					<CompileFile command="/usr/bin/make -f &quot;/net/cremi/slassourreui/stage/simulation-cpp/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/net/cremi/slassourreui/stage/simulation-cpp/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/net/cremi/slassourreui/stage/simulation-cpp/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/slyces/stage-M1/simulation-cpp/Makefile&quot;  VERBOSE=1 simulation-cpp"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/slyces/stage-M1/simulation-cpp/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/slyces/stage-M1/simulation-cpp/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/slyces/stage-M1/simulation-cpp/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="simulation-cpp/fast">
-				<Option output="/net/cremi/slassourreui/stage/simulation-cpp/simulation-cpp" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/net/cremi/slassourreui/stage/simulation-cpp"/>
+				<Option output="/home/slyces/stage-M1/simulation-cpp/simulation-cpp" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/slyces/stage-M1/simulation-cpp"/>
 				<Option object_output="./"/>
 				<Option type="1"/>
 				<Option compiler="gcc"/>
 				<Compiler>
-					<Add directory="/net/cremi/slassourreui/stage/simulation-cpp/include"/>
-					<Add directory="/net/cremi/slassourreui/espaces/travail/compiled/include"/>
+					<Add directory="/home/slyces/stage-M1/simulation-cpp/include"/>
+					<Add directory="/home/slyces/stage-M1/simulation-cpp/boost-library"/>
+					<Add directory="/home/slyces/espaces/travail/compiled/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-pc-linux-gnu/7.3.1/../../../../include/c++/7.3.1"/>
+					<Add directory="/usr/lib/gcc/x86_64-pc-linux-gnu/7.3.1/../../../../include/c++/7.3.1/x86_64-pc-linux-gnu"/>
+					<Add directory="/usr/lib/gcc/x86_64-pc-linux-gnu/7.3.1/../../../../include/c++/7.3.1/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-pc-linux-gnu/7.3.1/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-pc-linux-gnu/7.3.1/include-fixed"/>
+					<Add directory="/usr/include"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/net/cremi/slassourreui/stage/simulation-cpp/Makefile&quot;  VERBOSE=1 simulation-cpp/fast"/>
-					<CompileFile command="/usr/bin/make -f &quot;/net/cremi/slassourreui/stage/simulation-cpp/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/net/cremi/slassourreui/stage/simulation-cpp/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/net/cremi/slassourreui/stage/simulation-cpp/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/slyces/stage-M1/simulation-cpp/Makefile&quot;  VERBOSE=1 simulation-cpp/fast"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/slyces/stage-M1/simulation-cpp/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/slyces/stage-M1/simulation-cpp/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/slyces/stage-M1/simulation-cpp/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 		</Build>
-		<Unit filename="/net/cremi/slassourreui/stage/simulation-cpp/include/AdaptationFunction.hpp">
+		<Unit filename="/home/slyces/stage-M1/simulation-cpp/src/AdaptationFunction.cpp">
 			<Option target="simulation-tests"/>
 			<Option target="simulation-cpp"/>
 		</Unit>
-		<Unit filename="/net/cremi/slassourreui/stage/simulation-cpp/include/ConfMessage.hpp">
+		<Unit filename="/home/slyces/stage-M1/simulation-cpp/src/ConfMessage.cpp">
 			<Option target="simulation-tests"/>
 			<Option target="simulation-cpp"/>
 		</Unit>
-		<Unit filename="/net/cremi/slassourreui/stage/simulation-cpp/include/Message.hpp">
+		<Unit filename="/home/slyces/stage-M1/simulation-cpp/src/Link.cpp">
 			<Option target="simulation-tests"/>
 			<Option target="simulation-cpp"/>
 		</Unit>
-		<Unit filename="/net/cremi/slassourreui/stage/simulation-cpp/include/Network.hpp">
+		<Unit filename="/home/slyces/stage-M1/simulation-cpp/src/Message.cpp">
 			<Option target="simulation-tests"/>
 			<Option target="simulation-cpp"/>
 		</Unit>
-		<Unit filename="/net/cremi/slassourreui/stage/simulation-cpp/include/Node.hpp">
+		<Unit filename="/home/slyces/stage-M1/simulation-cpp/src/Network.cpp">
 			<Option target="simulation-tests"/>
 			<Option target="simulation-cpp"/>
 		</Unit>
-		<Unit filename="/net/cremi/slassourreui/stage/simulation-cpp/include/PhysicalMessage.hpp">
+		<Unit filename="/home/slyces/stage-M1/simulation-cpp/src/Node.cpp">
 			<Option target="simulation-tests"/>
 			<Option target="simulation-cpp"/>
 		</Unit>
-		<Unit filename="/net/cremi/slassourreui/stage/simulation-cpp/include/ProtocolStack.hpp">
+		<Unit filename="/home/slyces/stage-M1/simulation-cpp/src/PhysicalMessage.cpp">
 			<Option target="simulation-tests"/>
 			<Option target="simulation-cpp"/>
 		</Unit>
-		<Unit filename="/net/cremi/slassourreui/stage/simulation-cpp/include/RoutingTable.hpp">
+		<Unit filename="/home/slyces/stage-M1/simulation-cpp/src/ProtocolStack.cpp">
 			<Option target="simulation-tests"/>
 			<Option target="simulation-cpp"/>
 		</Unit>
-		<Unit filename="/net/cremi/slassourreui/stage/simulation-cpp/include/blockingconcurrentqueue.h">
-			<Option target="simulation-tests"/>
-		</Unit>
-		<Unit filename="/net/cremi/slassourreui/stage/simulation-cpp/include/concurrentqueue.h">
-			<Option target="simulation-cpp"/>
-		</Unit>
-		<Unit filename="/net/cremi/slassourreui/stage/simulation-cpp/include/simulation.hpp">
-			<Option target="simulation-cpp"/>
-		</Unit>
-		<Unit filename="/net/cremi/slassourreui/stage/simulation-cpp/src/AdaptationFunction.cpp">
+		<Unit filename="/home/slyces/stage-M1/simulation-cpp/src/RoutingTable.cpp">
 			<Option target="simulation-tests"/>
 			<Option target="simulation-cpp"/>
 		</Unit>
-		<Unit filename="/net/cremi/slassourreui/stage/simulation-cpp/src/ConfMessage.cpp">
-			<Option target="simulation-tests"/>
+		<Unit filename="/home/slyces/stage-M1/simulation-cpp/src/simulation.cpp">
 			<Option target="simulation-cpp"/>
 		</Unit>
-		<Unit filename="/net/cremi/slassourreui/stage/simulation-cpp/src/Message.cpp">
-			<Option target="simulation-tests"/>
-			<Option target="simulation-cpp"/>
-		</Unit>
-		<Unit filename="/net/cremi/slassourreui/stage/simulation-cpp/src/Network.cpp">
-			<Option target="simulation-tests"/>
-			<Option target="simulation-cpp"/>
-		</Unit>
-		<Unit filename="/net/cremi/slassourreui/stage/simulation-cpp/src/Node.cpp">
-			<Option target="simulation-tests"/>
-			<Option target="simulation-cpp"/>
-		</Unit>
-		<Unit filename="/net/cremi/slassourreui/stage/simulation-cpp/src/PhysicalMessage.cpp">
-			<Option target="simulation-tests"/>
-			<Option target="simulation-cpp"/>
-		</Unit>
-		<Unit filename="/net/cremi/slassourreui/stage/simulation-cpp/src/ProtocolStack.cpp">
-			<Option target="simulation-tests"/>
-			<Option target="simulation-cpp"/>
-		</Unit>
-		<Unit filename="/net/cremi/slassourreui/stage/simulation-cpp/src/RoutingTable.cpp">
-			<Option target="simulation-tests"/>
-			<Option target="simulation-cpp"/>
-		</Unit>
-		<Unit filename="/net/cremi/slassourreui/stage/simulation-cpp/src/simulation.cpp">
-			<Option target="simulation-cpp"/>
-		</Unit>
-		<Unit filename="/net/cremi/slassourreui/stage/simulation-cpp/tests/catch.hpp">
+		<Unit filename="/home/slyces/stage-M1/simulation-cpp/tests/main-tests.cpp">
 			<Option target="simulation-tests"/>
 		</Unit>
-		<Unit filename="/net/cremi/slassourreui/stage/simulation-cpp/tests/main-tests.cpp">
-			<Option target="simulation-tests"/>
-		</Unit>
-		<Unit filename="/net/cremi/slassourreui/stage/simulation-cpp/CMakeLists.txt">
+		<Unit filename="/home/slyces/stage-M1/simulation-cpp/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\"/>
 		</Unit>
 	</Project>

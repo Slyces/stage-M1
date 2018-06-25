@@ -16,7 +16,7 @@ Node::Node() {
     messageDiscarded = 0;
 }
 
-Node::Node(Network * net, unsigned int id, vector<AdaptationFunction> const& adaptFunctions) {
+Node::Node(Network * net, unsigned int id, vector<AdaptationFunction> const &adaptFunctions) {
     this->id = id;
     this->adaptFunctions = adaptFunctions;
     this->network = net;
@@ -35,7 +35,7 @@ Node::Node(Network * net, unsigned int id, vector<AdaptationFunction> const& ada
 
         alreadyHere = false;
         for (auto &stack : In)
-            alreadyHere |= (* stack == * inStack);
+            alreadyHere |= (*stack == *inStack);
         if (!alreadyHere) In.push_back(inStack);
         else delete inStack;
 
@@ -44,7 +44,7 @@ Node::Node(Network * net, unsigned int id, vector<AdaptationFunction> const& ada
 
         alreadyHere = false;
         for (auto &stack : Out)
-            alreadyHere |= (* stack == * outStack);
+            alreadyHere |= (*stack == *outStack);
         if (!alreadyHere) Out.push_back(outStack);
         else delete outStack;
     }
@@ -85,20 +85,24 @@ string Node::toString() {
     return str;
 }
 
-void Node::StartNode(void *ptr) {
+void Node::StartNode(void * ptr) {
     auto node = (Node *) ptr;
     node->initialize();
     node->start();
 }
 
-void Node::initialize(){
+void Node::initialize() {
     printf("Thread %d started.\n", id);
-    /* Send initialisation messages to each neighbor */
-    for (int i = 0; i < network->n; i++) {
-        auto neighbor = network->nodes[i];
-        if (neighbor != this) {
-            /* For each stack accepted as input */
-            for (auto &inStack : In) {
+    /* Send initialisation messages to each neighbor */ for (auto &f : adaptFunctions) {
+        auto * in = f.In();
+        table.addRoute(id, id, 0, f, in->clone());
+        delete in;
+    }
+    for (auto &inStack : In) {
+        for (unsigned int i = 0; i < network->n; i++) {
+            auto neighbor = network->nodes[i];
+            if (neighbor != this) {
+                /* For each stack accepted as input */
                 auto * initMessage = new ConfMessage(id, inStack->clone(), 0);
                 send(neighbor->id, initMessage);
             }
@@ -106,11 +110,8 @@ void Node::initialize(){
     }
 }
 
-void Node::start() {
-    /* ------------------------------ */
-    stop = false;
-    while (!stop) {
-        // -----
+void Node::start() { /* ------------------------------ */ stop = false;
+    while (!stop) { // -----
         PhysicalMessage * receivedMessage = nullptr;
         auto receiveTimeout = chrono::milliseconds(timeout);
         network->queues[id].wait_dequeue_timed(receivedMessage, receiveTimeout);
@@ -131,18 +132,18 @@ void Node::send(int to, Message * msg) {
 
 void Node::send(PhysicalMessage * msg) {
     // ---
-    assert(msg->sender == id);
+    assert(msg->sender == (int) id);
     network->queues[msg->receiver].enqueue(msg);
 }
 
 void Node::receive(PhysicalMessage * physMessage) {
     network->running = true;
-    assert(physMessage->receiver == id);
+    assert(physMessage->receiver == (int) id);
     if (physMessage->type == CONF) {
-        receive((ConfMessage *) physMessage->content);
+        receive(physMessage->sender, (ConfMessage *) physMessage->content);
     } else if (physMessage->type == MSG) {
         auto * message = (Message *) physMessage->content;
-        if (message->dest == id)
+        if (message->dest == (int) id)
             receive(message);
         else
             route(message);
@@ -153,10 +154,26 @@ void Node::receive(PhysicalMessage * physMessage) {
     delete physMessage;
 }
 
-void Node::receive(ConfMessage * msg) {
-    /* Do some things */
+void Node::receive(int from, ConfMessage * msg) {
     confReceived++;
-//    printf("[%d] received <%s>\n", id, msg->toString().c_str());
+    for (auto &f : adaptFunctions) {
+        auto rev = f.makeReverse();
+        if (rev.valid(*msg->stack)) {
+            // This node is capable of creating this stack, given the right entry
+            auto * required = msg->stack->clone();
+            rev.apply(*required);
+            /* the new route receives the <required> stack, applies f, then sends it
+             * to the emitting node (<from>). */
+            int fee = 1;
+            network->graph.
+            bool added = table.addRoute(msg->dest, from, msg->cost + fee, f, required);
+            if (added)
+                for (unsigned int i = 0; i < network->n; i++)
+                    send(i, new ConfMessage(msg->dest, required->clone(), msg->cost + fee));
+            delete required;
+        }
+        // else, it cannot create such a stack, no matter the entry
+    }
     delete msg;
 }
 
@@ -170,4 +187,42 @@ void Node::receive(Message * msg) {
 void Node::route(Message * msg) {
     messageRouted++;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+ *
+ *
+ * S = {A, C, E, F, I}
+ *
+ * |S| =? 7
+ *
+ */
+
+//char V[] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'};
+//char S[] = {'A', 'C', 'E', 'F', 'I'};
+//
+//char A = S[0];
+
+
+
+
+
+
+
 

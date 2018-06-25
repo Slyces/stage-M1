@@ -5,11 +5,13 @@
 #include "AdaptationFunction.hpp"
 #include "Network.hpp"
 #include "PhysicalMessage.hpp"
+#include "RoutingTable.hpp"
 
 class Node {
   public:
     Network * network;
     unsigned int id;
+    RoutingTable table;
     std::vector<AdaptationFunction> adaptFunctions;
     std::vector<ProtocolStack *> In;
     std::vector<ProtocolStack *> Out;
@@ -36,7 +38,7 @@ class Node {
     void send(int to, Message * msg);
 
     void receive(PhysicalMessage * physMessage);
-    void receive(ConfMessage * msg);
+    void receive(int from, ConfMessage * msg);
     void receive(Message * msg);
     void route(Message * msg);
 

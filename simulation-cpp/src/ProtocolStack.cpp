@@ -7,7 +7,7 @@ using namespace std;
 ProtocolStack::ProtocolStack(size_t size) : size(size) {
     protocols = static_cast<protocol *>(malloc(size * sizeof(protocol)));
     topIndex = -1;
-    for (int i = 0; i < size; i++) {
+    for (unsigned int i = 0; i < size; i++) {
         protocols[i] = '-';
     }
 //    cout << "creation : " << toString() << " size : " << size << " top : " << topIndex << endl;
@@ -16,7 +16,7 @@ ProtocolStack::ProtocolStack(size_t size) : size(size) {
 ProtocolStack::ProtocolStack(size_t size, string str) : size(size) {
     protocols = static_cast<protocol *>(malloc(size * sizeof(protocol)));
     topIndex = static_cast<int>(str.length() < size ? str.length() - 1 : size - 1);
-    for (int i = 0; i < size; i++) {
+    for (unsigned int i = 0; i < size; i++) {
         if (i < str.length())
             protocols[i] = str.at(static_cast<unsigned long>(i));
         else
@@ -34,7 +34,7 @@ bool ProtocolStack::empty() {
 }
 
 bool ProtocolStack::full() {
-    return topIndex == size - 1;
+    return topIndex == (int) size - 1;
 }
 
 void ProtocolStack::push(protocol p) {
@@ -83,6 +83,7 @@ protocol ProtocolStack::top(int index) {
 protocol ProtocolStack::top() {
     return protocols[topIndex];
 }
+
 
 
 

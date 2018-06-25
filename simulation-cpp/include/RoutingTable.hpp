@@ -10,14 +10,37 @@
 #include "ProtocolStack.hpp"
 #include "AdaptationFunction.hpp"
 
-struct Row;
-struct Key;
+struct Row {
+    int dest;
+    ProtocolStack * stack;
+    AdaptationFunction function;
+    int next_hop;
+    int cost;
+};
 
-namespace std { struct hash<Key>; };
+struct Key {
+    int dest;
+    ProtocolStack * stack;
+};
+bool operator==(const Key &lhs, const Key &rhs);
+bool operator<(const Key &lhs, const Key &rhs);
+
+
+unsigned int MurmurHash2(const void *key, int len, unsigned int seed);
+
+namespace std {
+    template<> struct hash<Key> {
+        size_t operator()(const Key &k) const noexcept {
+            size_t stackHash = MurmurHash2(k.stack->protocols, sizeof(protocol) * (k.stack->topIndex + 1), 324157103);
+            stackHash ^= MurmurHash2(&k.dest, sizeof(k.dest), 2314654);
+            return stackHash;
+        }
+    };
+}
 
 class RoutingTable {
   public:
-    std::map<Key, Row> table;
+    std::unordered_map<Key, Row> table;
 
     RoutingTable();
 

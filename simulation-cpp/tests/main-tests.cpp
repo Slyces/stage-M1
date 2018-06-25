@@ -1,6 +1,8 @@
 // test headers and define
 #define CATCH_CONFIG_MAIN
 
+#include <RoutingTable.hpp>
+#include <Link.hpp>
 #include "catch.hpp"
 
 // includes
@@ -10,6 +12,7 @@
 #include "Message.hpp"
 #include "ConfMessage.hpp"
 #include "PhysicalMessage.hpp"
+#include "RoutingTable.hpp"
 
 using namespace std;
 
@@ -61,7 +64,7 @@ SCENARIO("Protocols can be added and removed from a protocol stack", "[ProtocolS
     }
 
     WHEN("Stack is filled") {
-        for (int i = 0; i < n; ++i) {
+        for (unsigned int i = 0; i < n; ++i) {
             stack.push('a');
         }
         THEN("The stack is full") {
@@ -70,7 +73,7 @@ SCENARIO("Protocols can be added and removed from a protocol stack", "[ProtocolS
     }
 
     WHEN("Stack is copied") {
-        for (int i = 0; i < n; ++i) {
+        for (unsigned int i = 0; i < n; ++i) {
             stack.push('a');
         }
 
@@ -89,7 +92,6 @@ SCENARIO("Protocol stacks can be created from string", "[ProtocolStack]") {
     ProtocolStack stack(10);
     WHEN("The creation string is empty") {
         ProtocolStack fromString(n, "");
-        bool b = stack == fromString;
         THEN("The stack is also empty") {
             REQUIRE(fromString.empty());
         }
@@ -101,13 +103,13 @@ SCENARIO("Protocol stacks can be created from string", "[ProtocolStack]") {
 
     WHEN("The creation string is too large") {
         string str;
-        for (int i = 0; i < 2 * n; i++) {
+        for (unsigned int i = 0; i < 2 * n; i++) {
             str += (char) ('a' + i);
         }
         ProtocolStack fromString(n, str);
         THEN("The protocol stack is full, stopping at size elements") {
             REQUIRE(fromString.full());
-            for (int i = 0; i < n; i++) {
+            for (unsigned int i = 0; i < n; i++) {
                 REQUIRE(fromString.protocols[i] == str.at(i));
             }
         }
@@ -184,11 +186,6 @@ SCENARIO("Adaptation functions are hashable and comparable", "[AdaptationFunctio
     ProtocolStack xy(2, "xy");
     ProtocolStack yx(2, "yx");
     AdaptationFunction conv_x('x', 'x', CV);
-    AdaptationFunction conv_y('x', 'x', CV);
-    AdaptationFunction decap_x('x', 'x', DC);
-    AdaptationFunction decap_y('y', 'x', DC);
-    AdaptationFunction encap_x('x', 'x', EC);
-    AdaptationFunction encap_y('x', 'y', EC);
     WHEN("Two adaptation functions have different address but same parameters") {
         AdaptationFunction x_x('x', 'x', CV);
         THEN("They are equal") {
@@ -309,6 +306,37 @@ SCENARIO("Adaptation functions can be reversed", "[AdaptationFunction]") {
     }
 }
 
+SCENARIO("Adaptation functions are hashable", "[Adaptation Function]") {
+    int n = 2, p = 2, count;
+    adaptType types[] = {CV, EC, DC};
+    AdaptationFunction functions[p][3 * n * n];
+    for (int h = 0; h < p; h++) {
+        count = 0;
+        for (int i = 0; i < n; i++)
+            for (int j = 0; j < n; j++)
+                for (auto &type : types)
+                    functions[h][count++].setAll((char) ('a' + i), (char) ('a' + j), type);
+    }
+
+    WHEN("A large number of functions are created") {
+        THEN("They all have different hashes") {
+            for (auto &f1 : functions[0])
+                for (auto &f2 : functions[0])
+                    if (&f1 != &f2) {
+                        REQUIRE(f1.hash() != f2.hash());
+                    }
+        }
+        THEN("Different object (different adresses) with same values have the same hash") {
+            for (int i = 0; i < 3*n*n; i++) {
+                auto f1 = functions[0][i];
+                auto f2 = functions[1][i];
+                REQUIRE(f1.hash() == f2.hash());
+                REQUIRE(&functions[0][i] != &functions[1][i]);
+            }
+        }
+    }
+}
+
 SCENARIO("Node are created and destroyed without memory leak", "[Node]") {
     int nbProtocols = 10; // a lot of protocols
 
@@ -381,15 +409,15 @@ SCENARIO("Multi node network", "[Network]") {
     unsigned int n = 10;
     AdaptationFunction functions[] = {AdaptationFunction('a', 'b', CV)};
     Node * nodes[n];
-    auto * network = new Network(nullptr, nodes, static_cast<unsigned int>(n));
+    auto * network = new Network(nullptr, nodes, n);
 
     /* create an array of random nodes */
-    for (int i = 0; i < n; i++) {
+    for (unsigned int i = 0; i < n; i++) {
         /* create a random subset of adaptation functions */
         std::vector<AdaptationFunction> selected;
         for (auto &function : functions)
             selected.push_back(function);
-        nodes[i] = new Node(network, (unsigned int) i, selected);
+        nodes[i] = new Node(network, i, selected);
         nodes[i]->timeout = 100;
     }
 
@@ -398,13 +426,13 @@ SCENARIO("Multi node network", "[Network]") {
         network->start();
         THEN("The sum of messages is [sum of degrees] * [size in]") {
             // every node has degree (n - 1) [fully connected graph]
-            int received = 0, sent = 0;
+            unsigned int received = 0, sent = 0;
             for (auto &node : nodes) {
                 sent += node->confSent;
                 received += node->confReceived;
             }
             REQUIRE((sent == received));
-            REQUIRE((sent ==  n * (n - 1)));
+            REQUIRE((sent == n * (n - 1)));
         }
     }
 
@@ -414,9 +442,170 @@ SCENARIO("Multi node network", "[Network]") {
     delete network;
 }
 
-SCENARIO("Rows can be added and retrieved from a routign table", "[RoutingTable"]) {
+SCENARIO("Routing table keys are correctly hashed", "[RoutingTable]") {
+    // ---------------------------------------
+    unsigned int n = 2;
+    unsigned int N = n * n * n;
+    int dests[N];
+    ProtocolStack * stacks[N];
+    for (unsigned int i = 0; i < N; i++) dests[i] = i;
+    for (unsigned int i = 0; i < n; i++) {
+        auto a = static_cast<protocol>('a' + i);
+        for (unsigned int j = 0; j < n; j++) {
+            auto b = static_cast<protocol>('a' + j);
+            for (unsigned int k = 0; k < n; k++) {
+                auto c = static_cast<protocol>('a' + k);
+                stacks[n * n * i + n * j + k] = new ProtocolStack(3, {a, b, c, '\0'});
+            }
+        }
+    }
+    int p = 3;
+    Key keys[p][N * N];
+    for (int i = 0; i < p; i++) {
+        for (unsigned int j = 0; j < N; j++) {
+            for (unsigned int k = 0; k < N; k++) {
+                keys[i][j * N + k].dest = dests[j];
+                keys[i][j * N + k].stack = stacks[k];
+            }
+        }
+    }
+    WHEN("Keys have different values") {
+        for (int i = 0; i < p; i++) {
+            for (unsigned int j = 0; j < N * N; ++j)
+                for (unsigned int k = 0; k < N * N; ++k) {
+                    if (j != k) {
+                        Key lhKey = keys[i][j];
+                        Key rhKey = keys[i][k];
+                        THEN("They do not have the same hash") {
+                            REQUIRE((std::hash<Key>{}(lhKey) != std::hash<Key>{}(rhKey)));
+                        }
+                        THEN("They are not equal") {
+                            REQUIRE(!(lhKey == rhKey));
+                        }
+                    }
+                }
+        }
+    }
+    WHEN("Keys have the same value and same / or different adress") {
+        for (int i = 0; i < p; i++)
+            for (int j = 0; j < p; j++) {
+                for (unsigned int k = 0; k < N; k++) {
+                    Key lhKey = keys[i][k];
+                    Key rhKey = keys[j][k];
+                    THEN("They have the same hash") {
+                        REQUIRE((std::hash<Key>{}(lhKey) == std::hash<Key>{}(rhKey)));
+                    }
+                    THEN("They are equal") {
+                        REQUIRE(lhKey == rhKey);
+                    }
+                }
+            }
+    }
+    // delete
+    for (auto &stack : stacks)
+        delete stack;
+}
+
+SCENARIO("Rows can be added and retrieved from a routing table", "[RoutingTable]") {
     RoutingTable table;
+    auto * s1 = new ProtocolStack(2, "ab");
+    auto * s2 = new ProtocolStack(2, "bc");
+    AdaptationFunction f = AdaptationFunction('a', 'b', CV);
     WHEN("Rows are added") {
-        Row r1 = Row(1, )
+        THEN("New rows are accepted") {
+            // new rows
+            REQUIRE(table.addRoute(1, 4, 6,
+                                   AdaptationFunction('a', 'b', CV), s1));
+            REQUIRE(table.addRoute(4, 2, 7, f, s1));
+            REQUIRE(table.addRoute(4, 2, 9, f, s2));
+        }
+        THEN("Rows with same keys and equal or higher cost are refused") {
+            // equal or higher cost
+            table.addRoute(4, 2, 7, f, s1);
+            REQUIRE(!(table.addRoute(4, 2, 7, f, s1)));
+            REQUIRE(!(table.addRoute(4, 2, 9, f, s1)));
+        }
+        THEN("Rows with same keys but lower cost are accepted") {
+            // lower cost
+            table.addRoute(4, 2, 7, f, s1);
+            REQUIRE(table.addRoute(4, 2, 4, f, s1));
+            REQUIRE(table.addRoute(4, 2, 2, f, s1));
+        }
+    }
+    delete s1;
+    delete s2;
+}
+
+SCENARIO("Routing table print is functionnal", "[RoutingTable]") {
+    RoutingTable table;
+    int n = 100;
+    for (int i = 0; i < n; i++) {
+        auto * s = new ProtocolStack(10, "works?");
+        table.addRoute(i, i, 0, AdaptationFunction('a', 'b', CV), s);
+        delete s;
+    }
+    WHEN("The table has several rows") {
+        THEN("It's representation is accurate") {
+            cout << table.toString() << endl;
+        }
     }
 }
+
+#include <boost/graph/adjacency_list.hpp>
+
+using namespace boost;
+
+SCENARIO("4 nodes in a line with 2 protocols", "[Simulation]") {
+    /*
+     * Topology of the network :
+     * A <--> B <--> C <--> D
+     *
+     * A : x → x
+     * B : x → x, x → y, y → x
+     * C : x → x, x → y, y → x
+     * D : x → x
+     */
+    unsigned long A = 0, B = 1, C = 2, D = 3;
+
+    Graph graph;
+    LinkProperty default_link(Link(1));
+    boost::add_edge(A, B, default_link, graph);
+    boost::add_edge(B, A, default_link, graph);
+    boost::add_edge(B, C, default_link, graph);
+    boost::add_edge(C, B, default_link, graph);
+    boost::add_edge(C, D, default_link, graph);
+    boost::add_edge(D, C, default_link, graph);
+
+    Node * nodes[4];
+    auto * network = new Network(&graph, nodes, 4);
+
+    /* Node A */
+    std::vector<AdaptationFunction> selectedA;
+    selectedA.push_back(AdaptationFunction('x', 'x', CV));
+    nodes[A] = new Node(network, A, selectedA);
+
+    /* Node B */
+    std::vector<AdaptationFunction> selectedB;
+    selectedB.push_back(AdaptationFunction('x', 'y', CV));
+    selectedB.push_back(AdaptationFunction('y', 'x', CV));
+    nodes[B] = new Node(network, B, selectedB);
+
+    /* Node C */
+    std::vector<AdaptationFunction> selectedC;
+    selectedC.push_back(AdaptationFunction('x', 'y', CV));
+    selectedC.push_back(AdaptationFunction('y', 'x', CV));
+    nodes[C] = new Node(network, C, selectedC);
+
+    /* Node D */
+    std::vector<AdaptationFunction> selectedD;
+    selectedD.push_back(AdaptationFunction('x', 'x', CV));
+    nodes[D] = new Node(network, D, selectedD);
+
+    network->start();
+
+    /* free the memory */
+    for (auto &node : nodes)
+        delete node;
+    delete network;
+}
+

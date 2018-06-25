@@ -2,18 +2,23 @@
 #define SIMULATION_CPP_NETWORK_HPP
 
 #include <thread>
-#include "Node.hpp"
+#include <boost/graph/adjacency_list.hpp>
 #include "blockingconcurrentqueue.h"
 #include "PhysicalMessage.hpp"
+#include "Link.hpp"
 
 class Node;
 
 typedef moodycamel::BlockingConcurrentQueue<PhysicalMessage *> PhysicalQueue;
+typedef boost::property<boost::edge_weight_t, Link> LinkProperty;
+typedef boost::adjacency_list<boost::vecS, boost::vecS,
+        boost::bidirectionalS, boost::no_property, LinkProperty> Graph;
 
 class Network {
   public:
-    void * graph;
+    Graph * graph;
     Node ** nodes;
+    boost::property_map<Graph, LinkProperty>::type linkMap;
     std::thread ** threads;
     PhysicalQueue * queues;
     unsigned int n;
@@ -21,7 +26,7 @@ class Network {
     int timeout = 5;
 
   public:
-    Network(void * graph, Node ** nodes, unsigned int netSize);
+    Network(Graph * graph, Node ** nodes, unsigned int netSize);
     ~Network();
 
     void start();

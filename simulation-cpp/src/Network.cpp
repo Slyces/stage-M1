@@ -1,20 +1,23 @@
-#include <Node.hpp>
 #include <cassert>
 #include <chrono>
 #include <thread>
+#include <iostream>
+#include "Node.hpp"
+#include "Network.hpp"
 
 using namespace std;
 
 
-Network::Network(void * graph, Node ** nodes, unsigned int netSize) : n(netSize) {
+Network::Network(Graph * graph, Node ** nodes, unsigned int netSize) : n(netSize) {
     this->graph = graph;
     this->nodes = nodes;
     threads = new thread*[n];
     queues = new PhysicalQueue[n];
+    this->linkMap = boost::get(LinkProperty::value_type, graph);
 }
 
 Network::~Network() {
-    for (int i = 0; i < n; i++)
+    for (unsigned int i = 0; i < n; i++)
         delete threads[i];
     delete[] threads;
     delete[] queues;
@@ -27,7 +30,7 @@ void Network::start() {
 
     /* creation of the threads */
     printf("/* ------------------------ start of thread creation ------------------------ */\n");
-    for (int i = 0; i < n; i++) {
+    for (unsigned int i = 0; i < n; i++) {
         threads[i] = new thread(Node::StartNode, (void *) nodes[i]);
         printf("Created thread %d.\n", i);
     }
@@ -45,21 +48,26 @@ void Network::start() {
 
     auto stop_time = chrono::high_resolution_clock::now();
     auto duration = chrono::duration_cast<chrono::milliseconds>(stop_time - start_time);
+
+    printf("/* -------------------------------------------------------------------------- */\n");
+    for (unsigned int i = 0; i < n; i++)
+        cout << nodes[i]->table.toString() << endl;
+
     printf("/* ---------------------------- end of simulation --------------------------- */\n");
     printf("The network took %li milliseconds to stop.\n", duration.count());
 }
 
 void Network::stop() {
     int sent = 0, received = 0;
-    for (int i = 0; i < n; i++) {
+    for (unsigned int i = 0; i < n; i++) {
         sent += nodes[i]->confSent;
         received += nodes[i]->confReceived;
     }
     printf("/* ------------------------- sending stop requests -------------------------- */\n");
-    for (int i = 0; i < n; i++) {
+    for (unsigned int i = 0; i < n; i++) {
         nodes[i]->send(new PhysicalMessage(i, i, STOP, nullptr));
     }
-    for (int i = 0; i < n; i++) {
+    for (unsigned int i = 0; i < n; i++) {
         threads[i]->join();
     }
     printf("/* -------------------------------------------------------------------------- */\n");

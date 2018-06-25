@@ -1,23 +1,11 @@
 
 #include <RoutingTable.hpp>
+#include <iostream>
 
 using namespace std;
 
-struct Row {
-    int dest;
-    ProtocolStack * stack;
-    AdaptationFunction function;
-    int next_hop;
-    int cost;
-};
-
-struct Key {
-    int dest;
-    ProtocolStack * stack;
-};
-
 bool operator==(const Key &lhs, const Key &rhs) {
-    return lhs.dest == rhs.dest && lhs.stack == rhs.stack;
+    return lhs.dest == rhs.dest && (* lhs.stack) == (* rhs.stack);
 }
 
 bool operator<(const Key &lhs, const Key &rhs) {
@@ -72,15 +60,6 @@ unsigned int MurmurHash2(const void *key, int len, unsigned int seed) {
     return h;
 }
 
-namespace std {
-    template<> struct hash<Key> {
-        size_t operator()(const Key &k) const noexcept {
-            size_t stackHash = MurmurHash2(k.stack->protocols, k.stack->topIndex + 1, 324157103);
-            stackHash &= k.dest;
-            return stackHash;
-        }
-    };
-}
 
 RoutingTable::RoutingTable() = default;
 
@@ -93,8 +72,7 @@ RoutingTable::~RoutingTable() {
 }
 
 bool RoutingTable::contains(int dest, ProtocolStack * stack) {
-    auto iter = table.find(Key {dest, stack});
-    return iter != table.end();
+    return table.find(Key {dest, stack}) != table.end();
 }
 
 Row RoutingTable::get(int dest, ProtocolStack * stack) {
@@ -104,22 +82,35 @@ Row RoutingTable::get(int dest, ProtocolStack * stack) {
 
 bool RoutingTable::addRoute(int dest, int next_hop, int cost,
                             AdaptationFunction function, ProtocolStack * stack) {
-    if (contains(dest, stack))
-        return false;
+    if (contains(dest, stack)) {
+        Key key = Key {dest, stack};
+        if (table[key].cost > cost) {
+            table[key].function = function;
+            table[key].next_hop = next_hop;
+            table[key].cost = cost;
+            return true;
+        } else {
+            return false;
+        }
+    }
     ProtocolStack * clonedStack = stack->clone();
     table[Key {dest, clonedStack}] = Row {dest, clonedStack, function, next_hop, cost};
+    return true;
 }
 
-string center(const string &s, const int width) {
-    return string((width - s.length()) / 2, ' ') + s
-           + string((width - s.length()) / 2 + ((s.length() - width) % 2) == 1 ? 1 : 0 , ' ');
+string center(const string &str, const int width) {
+    unsigned long missing = width - str.length();
+    if (missing <= 0) return str;
+    string before = string(missing / 2, ' ');
+    string after = string(missing / 2 + (missing % 2), ' ');
+    return before + str + after;
 }
 
 string RoutingTable::toString() {
-    unsigned long n = table.size();
+    size_t n = table.size();
     string columns[5][n];
     int i = 0;
-    int maxs[5] = {11, 0, 0, 0, 0};
+    int maxs[5] = {11, 5, 8, 8, 4};
     for (auto &entry : table) {
         columns[0][i] = to_string(entry.second.dest);
         columns[1][i] = entry.second.stack->toString();
@@ -130,7 +121,7 @@ string RoutingTable::toString() {
             maxs[k] = std::max(maxs[k], static_cast<const int &>(columns[k][i].length()));
         i++;
     }
-    string seps[5] = {"   ", " | ", "   ", "   ", ""};
+    string seps[5] = {"   ", " | ", "   ", "   ", " "};
     string str;
     str += center("destination", maxs[0]);
     str += seps[0];
@@ -147,12 +138,31 @@ string RoutingTable::toString() {
     str += string(len, '-');
     str += "\n";
 
-    for (int i = 0; i < 5; i++) {
-        for (int j = 0; j < n; j++) {
-            str += center(columns[i][j], maxs[i]);
+    // sorting rows
+    int indexes[n];
+    for (unsigned int i = 0; i < n; i++) indexes[i] = i;
+
+    int a, b;
+    for(unsigned int i = 0; i < n; i++) {
+        for(unsigned int j= n - 1; j > i; j--) {
+            a = indexes[j];
+            b = indexes[j - 1];
+            if(columns[0][a] < columns[0][b]
+                    || ((columns[0][a] == columns[0][b]) && (columns[1][a] < columns[1][b]))) {
+                indexes[j - 1] = a;
+                indexes[j] = b;
+            }
+        }
+    }
+
+    for (unsigned int j = 0; j < n; j++) {
+        for (unsigned int i = 0; i < 5; i++) {
+            if (i == 4) str += "  ";
+            str += center(columns[i][indexes[j]], maxs[i]);
             str += seps[i];
         }
         str += "\n";
     }
+    return str;
 }
 

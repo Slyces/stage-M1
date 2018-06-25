@@ -54,10 +54,19 @@ class AdaptationFunction {
     ProtocolStack * In()const;
     ProtocolStack * Out()const;
 
-    bool operator==(const AdaptationFunction &function);
-    unsigned long hash();
+//    bool operator==(const AdaptationFunction &function);
+    std::size_t hash() const;
 
     std::string toString();
 };
+
+bool operator==(const AdaptationFunction &lhs, const AdaptationFunction &rhs);
+
+namespace std {
+    template<> struct hash<AdaptationFunction> {
+        size_t operator()(const AdaptationFunction &af) const noexcept {
+            return af.hash(); }
+    };
+}
 
 #endif //STAGE_M1_ADAPTATIONFUNCTION_HPP

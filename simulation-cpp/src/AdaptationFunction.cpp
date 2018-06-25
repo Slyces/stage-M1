@@ -1,5 +1,4 @@
 #include <AdaptationFunction.hpp>
-#include <iostream>
 
 using namespace std;
 
@@ -34,15 +33,18 @@ bool AdaptationFunction::valid(ProtocolStack &stack) {
     return false;
 }
 
-bool AdaptationFunction::operator==(const AdaptationFunction &f) {
-    return in == f.in && out == f.out && type == f.type;
-}
+//bool AdaptationFunction::operator==(const AdaptationFunction &f) {
+//    return in == f.in && out == f.out && type == f.type;
+//}
 
-unsigned long AdaptationFunction::hash() {
-    unsigned long hash = 0;
-    hash <<= in;
-    hash <<= out;
-    return hash << type;
+size_t AdaptationFunction::hash() const {
+    int offset = sizeof(protocol) * 8;
+    auto hash = static_cast<size_t>(in);
+    hash <<= offset;
+    hash += out;
+    hash <<= offset;
+    hash += (protocol) type;
+    return hash;
 }
 
 void AdaptationFunction::apply(ProtocolStack & stack) {
@@ -72,16 +74,20 @@ string AdaptationFunction::toString() {
     return str + "')";
 }
 
-ProtocolStack * AdaptationFunction::In()const {
+ProtocolStack * AdaptationFunction::In() const {
     auto * stack = new ProtocolStack(2);
     if (type == DC) stack->push(out);
     stack->push(in);
     return stack;
 }
 
-ProtocolStack * AdaptationFunction::Out()const {
+ProtocolStack * AdaptationFunction::Out() const {
     auto * stack = new ProtocolStack(2);
     if (type == EC) stack->push(in);
     stack->push(out);
     return stack;
+}
+
+bool operator==(const AdaptationFunction &lhs, const AdaptationFunction &rhs) {
+    return lhs.in == rhs.in && lhs.out == rhs.out && lhs.type == rhs.type;
 }

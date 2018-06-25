@@ -1,12 +1,18 @@
 #include <cstdio>
 #include <iostream>
 #include <random>
+#include <boost/graph/adjacency_list.hpp>
+#include <boost/graph/graph_selectors.hpp>
+#include <Link.hpp>
 #include "Node.hpp"
 #include "AdaptationFunction.hpp"
 #include "ProtocolStack.hpp"
 #include "Network.hpp"
 
 using namespace std;
+using namespace boost;
+
+typedef adjacency_list<vecS, vecS, bidirectionalS, no_property, Link> Graph;
 
 int run(int n, int nbProtocols, int maxStack, double p) {
     /*
@@ -22,6 +28,7 @@ int run(int n, int nbProtocols, int maxStack, double p) {
      */
 
     /* random graph creation */
+
 
     /* create links structures */
 
@@ -58,17 +65,19 @@ int run(int n, int nbProtocols, int maxStack, double p) {
             if (dist(e2) < p)
                 selected.push_back(function);
         }
+        cout << "Selected :" << endl;
         nodes[i] = new Node(network, (unsigned int) i, selected);
     }
 
     /* run the network */
-    network->timeout = 40;
+//    network->timeout = 40;
     network->start();
 
     /* free the memory */
     for (auto &node : nodes)
         delete node;
     delete network;
+    return 1;
 }
 
 int main(int argc, const char * argv[]) {
@@ -83,7 +92,7 @@ int main(int argc, const char * argv[]) {
      */
     int nbiter = 1;
     for (int i = 0; i < nbiter; i++)
-        run(10 /*n*/, 20 /*nbprotocols*/, 3 /*maxStacks*/, 1 /*p*/);
+        run(3 /*n*/, 2 /*nbprotocols*/, 3 /*maxStacks*/, 1 /*p*/);
     cout << sizeof(size_t);
     return 0;
 }
