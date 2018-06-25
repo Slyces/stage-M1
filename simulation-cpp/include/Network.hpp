@@ -10,15 +10,13 @@
 class Node;
 
 typedef moodycamel::BlockingConcurrentQueue<PhysicalMessage *> PhysicalQueue;
-typedef boost::property<boost::edge_weight_t, Link> LinkProperty;
 typedef boost::adjacency_list<boost::vecS, boost::vecS,
-        boost::bidirectionalS, boost::no_property, LinkProperty> Graph;
+        boost::bidirectionalS, boost::no_property, Link> Graph;
 
 class Network {
   public:
     Graph * graph;
     Node ** nodes;
-    boost::property_map<Graph, LinkProperty>::type linkMap;
     std::thread ** threads;
     PhysicalQueue * queues;
     unsigned int n;

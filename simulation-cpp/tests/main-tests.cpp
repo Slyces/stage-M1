@@ -1,8 +1,6 @@
 // test headers and define
 #define CATCH_CONFIG_MAIN
 
-#include <RoutingTable.hpp>
-#include <Link.hpp>
 #include "catch.hpp"
 
 // includes
@@ -13,6 +11,8 @@
 #include "ConfMessage.hpp"
 #include "PhysicalMessage.hpp"
 #include "RoutingTable.hpp"
+#include "Link.hpp"
+//#include "Network.hpp"
 
 using namespace std;
 
@@ -568,7 +568,7 @@ SCENARIO("4 nodes in a line with 2 protocols", "[Simulation]") {
     unsigned long A = 0, B = 1, C = 2, D = 3;
 
     Graph graph;
-    LinkProperty default_link(Link(1));
+    Link default_link = Link(1);
     boost::add_edge(A, B, default_link, graph);
     boost::add_edge(B, A, default_link, graph);
     boost::add_edge(B, C, default_link, graph);
@@ -576,30 +576,34 @@ SCENARIO("4 nodes in a line with 2 protocols", "[Simulation]") {
     boost::add_edge(C, D, default_link, graph);
     boost::add_edge(D, C, default_link, graph);
 
+//    for (auto vp = vertices(graph); vp.first != vp.second; ++vp) {
+//
+//    }
+
     Node * nodes[4];
     auto * network = new Network(&graph, nodes, 4);
 
     /* Node A */
     std::vector<AdaptationFunction> selectedA;
-    selectedA.push_back(AdaptationFunction('x', 'x', CV));
-    nodes[A] = new Node(network, A, selectedA);
+    selectedA.emplace_back('x', 'x', CV);
+    nodes[A] = new Node(network, static_cast<unsigned int>(A), selectedA);
 
     /* Node B */
     std::vector<AdaptationFunction> selectedB;
-    selectedB.push_back(AdaptationFunction('x', 'y', CV));
-    selectedB.push_back(AdaptationFunction('y', 'x', CV));
-    nodes[B] = new Node(network, B, selectedB);
+    selectedB.emplace_back('x', 'y', CV);
+    selectedB.emplace_back('y', 'x', CV);
+    nodes[B] = new Node(network, static_cast<unsigned int>(B), selectedB);
 
     /* Node C */
     std::vector<AdaptationFunction> selectedC;
-    selectedC.push_back(AdaptationFunction('x', 'y', CV));
-    selectedC.push_back(AdaptationFunction('y', 'x', CV));
-    nodes[C] = new Node(network, C, selectedC);
+    selectedC.emplace_back('x', 'y', CV);
+    selectedC.emplace_back('y', 'x', CV);
+    nodes[C] = new Node(network, static_cast<unsigned int>(C), selectedC);
 
     /* Node D */
     std::vector<AdaptationFunction> selectedD;
-    selectedD.push_back(AdaptationFunction('x', 'x', CV));
-    nodes[D] = new Node(network, D, selectedD);
+    selectedD.emplace_back('x', 'x', CV);
+    nodes[D] = new Node(network, static_cast<unsigned int>(D), selectedD);
 
     network->start();
 

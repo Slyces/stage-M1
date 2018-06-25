@@ -13,6 +13,7 @@ class Link {
   public:
     std::unordered_map<AdaptationFunction, unsigned int> costs;
   public:
+    Link();
     explicit Link(unsigned int default_cost);
     Link(unsigned int default_cost, const std::vector<AdaptationFunction> &);
     ~Link() = default;
@@ -23,5 +24,9 @@ class Link {
 
     unsigned int default_cost;
 };
+
+//struct LinkProperty {
+//    Link link;
+//};
 
 #endif //SIMULATION_CPP_LINK_HPP

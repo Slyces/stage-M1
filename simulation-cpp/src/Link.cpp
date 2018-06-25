@@ -1,5 +1,9 @@
 #include <vector>
-#include <Link.hpp>
+#include "Link.hpp"
+
+Link::Link() {
+    this->default_cost = 1;
+}
 
 Link::Link(unsigned int default_cost) {
     this->default_cost = default_cost;

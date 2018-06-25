@@ -13,7 +13,6 @@ Network::Network(Graph * graph, Node ** nodes, unsigned int netSize) : n(netSize
     this->nodes = nodes;
     threads = new thread*[n];
     queues = new PhysicalQueue[n];
-    this->linkMap = boost::get(LinkProperty::value_type, graph);
 }
 
 Network::~Network() {
@@ -50,8 +49,10 @@ void Network::start() {
     auto duration = chrono::duration_cast<chrono::milliseconds>(stop_time - start_time);
 
     printf("/* -------------------------------------------------------------------------- */\n");
-    for (unsigned int i = 0; i < n; i++)
+    for (unsigned int i = 0; i < n; i++) {
+        cout << "Routing table - Node (" << i << ")" <<endl;
         cout << nodes[i]->table.toString() << endl;
+    }
 
     printf("/* ---------------------------- end of simulation --------------------------- */\n");
     printf("The network took %li milliseconds to stop.\n", duration.count());

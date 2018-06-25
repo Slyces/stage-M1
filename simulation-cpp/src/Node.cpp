@@ -165,11 +165,14 @@ void Node::receive(int from, ConfMessage * msg) {
             /* the new route receives the <required> stack, applies f, then sends it
              * to the emitting node (<from>). */
             int fee = 1;
-            network->graph.
+//            network->graph.
+
             bool added = table.addRoute(msg->dest, from, msg->cost + fee, f, required);
             if (added)
-                for (unsigned int i = 0; i < network->n; i++)
-                    send(i, new ConfMessage(msg->dest, required->clone(), msg->cost + fee));
+                for (unsigned int i = 0; i < network->n; i++) {
+                    if (i != id)
+                        send(i, new ConfMessage(msg->dest, required->clone(), msg->cost + fee));
+                }
             delete required;
         }
         // else, it cannot create such a stack, no matter the entry
@@ -187,42 +190,4 @@ void Node::receive(Message * msg) {
 void Node::route(Message * msg) {
     messageRouted++;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
- *
- *
- * S = {A, C, E, F, I}
- *
- * |S| =? 7
- *
- */
-
-//char V[] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'};
-//char S[] = {'A', 'C', 'E', 'F', 'I'};
-//
-//char A = S[0];
-
-
-
-
-
-
-
 
