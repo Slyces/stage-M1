@@ -3,16 +3,25 @@
 #include <random>
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/graph_selectors.hpp>
-#include <Link.hpp>
+#include "Link.hpp"
 #include "Node.hpp"
 #include "AdaptationFunction.hpp"
-#include "ProtocolStack.hpp"
-#include "Network.hpp"
 
 using namespace std;
 using namespace boost;
 
 typedef adjacency_list<vecS, vecS, bidirectionalS, no_property, Link> Graph;
+
+Graph BarabasiAlbert(unsigned long n, unsigned long m) {
+    assert(m >= 1 && m <= n);
+    Graph graph(m);
+    Link default_link(1);
+    for (unsigned long u = 0; u < m; u++)
+        for (unsigned long v = u + 1; v < m; v++) {
+            boost::add_edge(u, v, default_link, graph);
+            boost::add_edge(v, u, default_link, graph);
+    }
+}
 
 int run(int n, int nbProtocols, int maxStack, double p) {
     /*
@@ -96,3 +105,4 @@ int main(int argc, const char * argv[]) {
     cout << sizeof(size_t);
     return 0;
 }
+

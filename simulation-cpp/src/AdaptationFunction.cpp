@@ -74,15 +74,19 @@ string AdaptationFunction::toString() {
     return str + "')";
 }
 
-ProtocolStack * AdaptationFunction::In() const {
-    auto * stack = new ProtocolStack(2);
+ProtocolStack * AdaptationFunction::In() const { return In(2);}
+
+ProtocolStack * AdaptationFunction::Out() const { return Out(2);}
+
+ProtocolStack * AdaptationFunction::In(size_t n) const {
+    auto * stack = new ProtocolStack(n);
     if (type == DC) stack->push(out);
     stack->push(in);
     return stack;
 }
 
-ProtocolStack * AdaptationFunction::Out() const {
-    auto * stack = new ProtocolStack(2);
+ProtocolStack * AdaptationFunction::Out(size_t n) const {
+    auto * stack = new ProtocolStack(n);
     if (type == EC) stack->push(in);
     stack->push(out);
     return stack;

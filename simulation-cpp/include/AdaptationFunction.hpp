@@ -51,8 +51,10 @@ class AdaptationFunction {
     bool valid(ProtocolStack &);
     void apply(ProtocolStack &);
 
-    ProtocolStack * In()const;
-    ProtocolStack * Out()const;
+    ProtocolStack * In() const;
+    ProtocolStack * Out() const;
+    ProtocolStack * In(size_t) const;
+    ProtocolStack * Out(size_t) const;
 
 //    bool operator==(const AdaptationFunction &function);
     std::size_t hash() const;

@@ -8,9 +8,10 @@
 using namespace std;
 
 
-Network::Network(Graph * graph, Node ** nodes, unsigned int netSize) : n(netSize) {
+Network::Network(Graph &graph, Node ** nodes, unsigned int netSize, unsigned int maxStack) : n(netSize) {
     this->graph = graph;
     this->nodes = nodes;
+    this->maxStack = maxStack;
     threads = new thread*[n];
     queues = new PhysicalQueue[n];
 }

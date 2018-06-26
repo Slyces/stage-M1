@@ -94,19 +94,15 @@ void Node::StartNode(void * ptr) {
 void Node::initialize() {
     printf("Thread %d started.\n", id);
     /* Send initialisation messages to each neighbor */ for (auto &f : adaptFunctions) {
-        auto * in = f.In();
-        table.addRoute(id, id, 0, f, in->clone());
+        auto * in = f.In(network->maxStack);
+        table.addRoute(id, id, 0, f, in);
         delete in;
     }
     for (auto &inStack : In) {
-        for (unsigned int i = 0; i < network->n; i++) {
-            auto neighbor = network->nodes[i];
-            if (neighbor != this) {
-                /* For each stack accepted as input */
-                auto * initMessage = new ConfMessage(id, inStack->clone(), 0);
-                send(neighbor->id, initMessage);
-            }
+        for (auto neighbors = boost::adjacent_vertices(id, network->graph); neighbors.first != neighbors.second; ++neighbors.first)  {
+            send((int) * neighbors.first, new ConfMessage(id, inStack->clone(), 0));
         }
+        /* For each stack accepted as input */
     }
 }
 
@@ -122,7 +118,6 @@ void Node::start() { /* ------------------------------ */ stop = false;
 
 void Node::send(int to, ConfMessage * msg) {
     confSent++;
-//    printf("[%d] sent <%s> to %d\n", id, msg->toString().c_str(), to);
     send(PhysicalMessage::encode(id, to, msg));
 }
 
@@ -164,15 +159,15 @@ void Node::receive(int from, ConfMessage * msg) {
             rev.apply(*required);
             /* the new route receives the <required> stack, applies f, then sends it
              * to the emitting node (<from>). */
-            int fee = 1;
-//            network->graph.
+            auto edge_link = boost::edge(id, (unsigned long) from, network->graph).first;
+            int fee = network->graph[edge_link].getCost(f);
 
             bool added = table.addRoute(msg->dest, from, msg->cost + fee, f, required);
-            if (added)
-                for (unsigned int i = 0; i < network->n; i++) {
-                    if (i != id)
-                        send(i, new ConfMessage(msg->dest, required->clone(), msg->cost + fee));
+            if (added) {
+                for (auto neighbors = boost::adjacent_vertices(id, network->graph); neighbors.first != neighbors.second; ++neighbors.first)  {
+                    send((int) * neighbors.first, new ConfMessage(msg->dest, required->clone(), msg->cost + fee));
                 }
+            }
             delete required;
         }
         // else, it cannot create such a stack, no matter the entry

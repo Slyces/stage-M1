@@ -2,6 +2,7 @@
 #define CATCH_CONFIG_MAIN
 
 #include "catch.hpp"
+#include <boost/graph/adjacency_list.hpp>
 
 // includes
 #include "ProtocolStack.hpp"
@@ -14,6 +15,8 @@
 #include "Link.hpp"
 //#include "Network.hpp"
 
+
+using namespace boost;
 using namespace std;
 
 // testing protocol stacks
@@ -392,7 +395,8 @@ SCENARIO("Messages are correctly printed", "[Message]") {
 SCENARIO("Single node network", "[Network]") {
     Node * node;
     Node ** pNode = &node;
-    auto * network = new Network(nullptr, pNode, 1);
+    Graph graph;
+    auto * network = new Network(graph, pNode, 1, 10);
     std::vector<AdaptationFunction> selected;
     node = new Node(network, 0, selected);
 
@@ -407,9 +411,21 @@ SCENARIO("Single node network", "[Network]") {
 
 SCENARIO("Multi node network", "[Network]") {
     unsigned int n = 10;
+
+    /* Fully connected graph */
+    Graph graph(n);
+    for (unsigned long u = 0; u < n; u++) {
+        for (unsigned long v = 0; v < n; v++) {
+            if (u != v)
+                boost::add_edge(u, v, Link(1), graph);
+        }
+    }
+
+
     AdaptationFunction functions[] = {AdaptationFunction('a', 'b', CV)};
+
     Node * nodes[n];
-    auto * network = new Network(nullptr, nodes, n);
+    auto * network = new Network(graph, nodes, n, 10);
 
     /* create an array of random nodes */
     for (unsigned int i = 0; i < n; i++) {
@@ -551,10 +567,6 @@ SCENARIO("Routing table print is functionnal", "[RoutingTable]") {
     }
 }
 
-#include <boost/graph/adjacency_list.hpp>
-
-using namespace boost;
-
 SCENARIO("4 nodes in a line with 2 protocols", "[Simulation]") {
     /*
      * Topology of the network :
@@ -569,19 +581,15 @@ SCENARIO("4 nodes in a line with 2 protocols", "[Simulation]") {
 
     Graph graph;
     Link default_link = Link(1);
-    boost::add_edge(A, B, default_link, graph);
-    boost::add_edge(B, A, default_link, graph);
-    boost::add_edge(B, C, default_link, graph);
-    boost::add_edge(C, B, default_link, graph);
-    boost::add_edge(C, D, default_link, graph);
-    boost::add_edge(D, C, default_link, graph);
-
-//    for (auto vp = vertices(graph); vp.first != vp.second; ++vp) {
-//
-//    }
+    boost::add_edge(A, B, Link(1), graph);
+    boost::add_edge(B, A, Link(1), graph);
+    boost::add_edge(B, C, Link(1), graph);
+    boost::add_edge(C, B, Link(1), graph);
+    boost::add_edge(C, D, Link(1), graph);
+    boost::add_edge(D, C, Link(1), graph);
 
     Node * nodes[4];
-    auto * network = new Network(&graph, nodes, 4);
+    auto * network = new Network(graph, nodes, 4, 10);
 
     /* Node A */
     std::vector<AdaptationFunction> selectedA;
@@ -613,3 +621,46 @@ SCENARIO("4 nodes in a line with 2 protocols", "[Simulation]") {
     delete network;
 }
 
+SCENARIO("Links can have different costs depending on the adaptation function", "[Link]") {
+    unsigned int n = 3;
+
+    /* Construction of the graph */
+    Graph graph(n);
+
+    AdaptationFunction functions[] = {
+            AdaptationFunction('x', 'x', CV),
+            AdaptationFunction('y', 'y', CV),
+            AdaptationFunction('z', 'z', CV)
+    };
+
+    int edges = 0;
+    for (unsigned long u = 0; u < n; u++) {
+        for (unsigned long v = 0; v < n; v++) {
+            Link link;
+            link.addFunction(functions[0], (unsigned int) edges);
+            link.addFunction(functions[1], n + edges);
+            link.addFunction(functions[2], 2 * n + edges);
+            boost::add_edge(u, v, link, graph);
+            edges++;
+        }
+    }
+
+    Node * nodes[n];
+    auto * network = new Network(graph, nodes, n, 1);
+
+    for (unsigned int u = 0; u < n; u ++) {
+        std::vector<AdaptationFunction> selected;
+        for (auto &function : functions)
+            selected.push_back(function);
+        nodes[u] = new Node(network, u, selected);
+    }
+
+    network->start();
+
+    
+
+    /* free the memory */
+    for (auto &node : nodes)
+        delete node;
+    delete network;
+}
