@@ -31,7 +31,9 @@ Node::Node(Network * net, unsigned int id, vector<AdaptationFunction> const &ada
 
     for (auto &func : adaptFunctions) {
         /* Buid the In list of stacks */
-        ProtocolStack * inStack = func.In();
+        if (func.type == DC && network->maxStack == 1)
+            break;
+        ProtocolStack * inStack = func.In(network->maxStack);
 
         alreadyHere = false;
         for (auto &stack : In)
@@ -40,7 +42,7 @@ Node::Node(Network * net, unsigned int id, vector<AdaptationFunction> const &ada
         else delete inStack;
 
         /* Buid the Out list of stacks */
-        ProtocolStack * outStack = func.Out();
+        ProtocolStack * outStack = func.Out(network->maxStack);
 
         alreadyHere = false;
         for (auto &stack : Out)
@@ -93,13 +95,16 @@ void Node::StartNode(void * ptr) {
 
 void Node::initialize() {
     printf("Thread %d started.\n", id);
-    /* Send initialisation messages to each neighbor */ for (auto &f : adaptFunctions) {
-        auto * in = f.In(network->maxStack);
-        table.addRoute(id, id, 0, f, in);
-        delete in;
-    }
+    /* Send initialisation messages to each neighbor */
+    for (auto &f : adaptFunctions)
+        if (! (f.type == DC && network->maxStack == 1)) {
+            auto * in = f.In(network->maxStack);
+            table.addRoute(id, id, 0, f, in);
+            delete in;
+        }
     for (auto &inStack : In) {
-        for (auto neighbors = boost::adjacent_vertices(id, network->graph); neighbors.first != neighbors.second; ++neighbors.first)  {
+        for (auto neighbors = boost::adjacent_vertices(id, network->graph);
+                neighbors.first != neighbors.second; ++neighbors.first)  {
             send((int) * neighbors.first, new ConfMessage(id, inStack->clone(), 0));
         }
         /* For each stack accepted as input */
@@ -153,6 +158,7 @@ void Node::receive(int from, ConfMessage * msg) {
     confReceived++;
     for (auto &f : adaptFunctions) {
         auto rev = f.makeReverse();
+        assert(msg->stack->size == network->maxStack);
         if (rev.valid(*msg->stack)) {
             // This node is capable of creating this stack, given the right entry
             auto * required = msg->stack->clone();

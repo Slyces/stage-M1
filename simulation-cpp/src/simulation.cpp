@@ -12,15 +12,64 @@ using namespace boost;
 
 typedef adjacency_list<vecS, vecS, bidirectionalS, no_property, Link> Graph;
 
-Graph BarabasiAlbert(unsigned long n, unsigned long m) {
+Graph BarabasiAlbert(int n, int m) {
     assert(m >= 1 && m <= n);
+    /* variables */
+    int degrees[n];
+    int sum = m * (m - 1);
     Graph graph(m);
     Link default_link(1);
-    for (unsigned long u = 0; u < m; u++)
-        for (unsigned long v = u + 1; v < m; v++) {
+    /* First create a complete graph of size m */
+    for (unsigned long u = 0; u < (unsigned long) m; u++)
+        for (unsigned long v = u + 1; v < (unsigned long) m; v++) {
             boost::add_edge(u, v, default_link, graph);
             boost::add_edge(v, u, default_link, graph);
     }
+    /* then keep track of the degrees of each vertices */
+    for (int i = 0; i < m; i++)
+        degrees[i] = m - 1;
+    double sum_p[n];
+
+    /* After initialization, we have m nodes marked from 0 to m - 1.
+     * The next node's index is m. */
+    auto current_vertex = static_cast<unsigned long>(m);
+    while (current_vertex < (unsigned long) n) {
+        std::vector<unsigned long> connected;
+        assert(connected.empty());
+        int count = 0;
+        for (auto &val : sum_p)
+            val = 0;
+        for (int i = 0; i < current_vertex; i++)
+            for (int j = i; j < current_vertex; j++)
+                sum_p[current_vertex - i] += degrees[j];
+        for (auto &val : sum_p)
+            val /= sum;
+        cout << "new node : " << current_vertex << endl;
+        do {
+            double r = ((double) rand() / (RAND_MAX));
+            int i = 0;
+            while (i < current_vertex - 1 && r >= sum_p[i] && r >= sum_p[i + 1])
+                i++;
+            bool added = true;
+            boost::add_edge(current_vertex, i, default_link, graph).second;
+            boost::add_edge(i, current_vertex, default_link, graph).second;
+            for (auto &vertex : connected) {
+                added &= (vertex != i);
+            }
+            if (added) {
+                cout << "linking to " << i << endl;
+                connected.push_back(i);
+                count++;
+            }
+        } while (count < m);
+        boost::add_vertex(graph);
+        degrees[current_vertex] = m; // new vertices always have m connections
+        for (auto &index : connected)
+            degrees[index]++;
+        sum += m;
+        current_vertex++;
+    }
+    return graph;
 }
 
 int run(int n, int nbProtocols, int maxStack, double p) {
@@ -36,10 +85,9 @@ int run(int n, int nbProtocols, int maxStack, double p) {
      *  - free memory
      */
 
+
     /* random graph creation */
-
-
-    /* create links structures */
+    Graph graph = BarabasiAlbert(n, 5);
 
     /* create every protocol in use for this run */
     protocol protocols[nbProtocols];
@@ -63,7 +111,8 @@ int run(int n, int nbProtocols, int maxStack, double p) {
     std::uniform_real_distribution<> dist(0, 1);
 
     Node * nodes[n];
-    auto * network = new Network(nullptr, nodes, static_cast<unsigned int>(n));
+    auto * network = new Network(graph, nodes,
+            static_cast<unsigned int>(n), static_cast<unsigned int>(maxStack));
 
     /* create an array of random nodes */
     for (int i = 0; i < n; i++) {
@@ -74,7 +123,6 @@ int run(int n, int nbProtocols, int maxStack, double p) {
             if (dist(e2) < p)
                 selected.push_back(function);
         }
-        cout << "Selected :" << endl;
         nodes[i] = new Node(network, (unsigned int) i, selected);
     }
 
@@ -89,8 +137,28 @@ int run(int n, int nbProtocols, int maxStack, double p) {
     return 1;
 }
 
+static void usage(string &progname, int val) {
+    cout << "Usage: " << progname << " n prot stack p iter" << endl;
+    printf("Positional arguments are :\n");
+    printf("\tn: size of the graph\n");
+    printf("\tprot: number of protocols\n");
+    printf("\tstack: maximum stack size\n");
+    printf("\tp: probability for a node to contain each function\n");
+    printf("\titer: number of iterations\n");
+    exit(val);
+}
+
+inline double convertToDouble(const std::string& s,
+                              bool failIfLeftoverChars = true) {
+    std::istringstream i(s);
+    double x;
+    char c;
+    if (!(i >> x) || (failIfLeftoverChars && i.get(c)))
+        throw runtime_error("convertToDouble(\"" + s + "\")");
+    return x;
+}
+
 int main(int argc, const char * argv[]) {
-    printf("Hello, world !\n");
     /*
      * Expected arguments :
      *  - n: the size of the graph
@@ -99,10 +167,19 @@ int main(int argc, const char * argv[]) {
      *  - p: probability for a node to contain each adaptation function
      *  - nbIter: number of iteration
      */
-    int nbiter = 1;
-    for (int i = 0; i < nbiter; i++)
-        run(3 /*n*/, 2 /*nbprotocols*/, 3 /*maxStacks*/, 1 /*p*/);
-    cout << sizeof(size_t);
+//    namespace po = boost::program_options;
+    string progname = "simulation-cpp";
+    if (argc != 6) {
+        cout << "Wrong number of arguments." << endl;
+        usage(progname, 1);
+    }
+    int n = stoi(argv[1]);
+    int nbProtocols = stoi(argv[2]);
+    int maxStack = stoi(argv[3]);
+    double p = convertToDouble(argv[4]);
+    int nbIter = stoi(argv[5]);
+    for (int i = 0; i < nbIter; i++)
+        run(n /*n*/, nbProtocols /*nbprotocols*/, maxStack /*maxStacks*/, p /*p*/);
     return 0;
 }
 
