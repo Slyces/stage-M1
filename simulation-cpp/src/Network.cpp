@@ -32,7 +32,7 @@ void Network::start() {
     printf("/* ------------------------ start of thread creation ------------------------ */\n");
     for (unsigned int i = 0; i < n; i++) {
         threads[i] = new thread(Node::StartNode, (void *) nodes[i]);
-        printf("Created thread %d.\n", i);
+//        printf("Created thread %d.\n", i);
     }
     printf("/* ------------------------- end of thread creation ------------------------- */\n");
 
@@ -51,8 +51,8 @@ void Network::start() {
 
     printf("/* -------------------------------------------------------------------------- */\n");
     for (unsigned int i = 0; i < n; i++) {
-        cout << "Routing table - Node (" << i << ")" <<endl;
-        cout << nodes[i]->table.toString() << endl;
+        cout << "Routing table - Node (" << i << ") : " << nodes[i]->table.table.size() << " entries" << endl;
+//        cout << nodes[i]->table.toString() << endl;
     }
 
     printf("/* ---------------------------- end of simulation --------------------------- */\n");

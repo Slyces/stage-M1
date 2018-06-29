@@ -3,6 +3,15 @@
 
 #include "Network.hpp"
 
+struct runStats {
+    double convergenceTime;
+    int messagesSent;
+    int diameter;
+    bool longPath;
+};
+
+runStats run(int n, int nbProtocols, int maxStack, double p);
+
 Graph BarabasiAlbert(int n, unsigned long m);
 
 /* Function: main

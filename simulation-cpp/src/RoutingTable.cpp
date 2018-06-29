@@ -4,14 +4,28 @@
 
 using namespace std;
 
+/* ──────────────────────── keys structure functions ──────────────────────── */
+
+/*
+ * Equality operator for table's keys
+ */
 bool operator==(const Key &lhs, const Key &rhs) {
     return lhs.dest == rhs.dest && (* lhs.stack) == (* rhs.stack);
 }
 
+/*
+ * Comparison operator for table's keys
+ */
 bool operator<(const Key &lhs, const Key &rhs) {
     return lhs.dest < rhs.dest;
 }
 
+
+/* ──────────────────────────────── hashing ───────────────────────────────── */
+
+/*
+ * Implementation of Murmur hash to hash the keys
+ */
 unsigned int MurmurHash2(const void *key, int len, unsigned int seed) {
     // 'm' and 'r' are mixing constants generated offline.
     // They're not really 'magic', they just happen to work well.
@@ -61,6 +75,7 @@ unsigned int MurmurHash2(const void *key, int len, unsigned int seed) {
 }
 
 
+/* ────────────────────── routing table implementation ────────────────────── */
 RoutingTable::RoutingTable() = default;
 
 
@@ -80,24 +95,46 @@ Row RoutingTable::get(int dest, ProtocolStack * stack) {
     return iter->second;
 }
 
+/*
+ * Method: addRoute
+ * ------------------
+ * Arguments:
+ *      - dest: destination of the route
+ *      - stack: incoming stack
+ *      - newt_hop: next node on the path
+ *      - cost: cost of the path
+ *      - function: function to apply to follow the route
+ *
+ * Returns: boolean
+ *      - true if the route was either new or better than the precedent
+ *      - false if a better route (cost-wise) is already known
+ */
 bool RoutingTable::addRoute(int dest, int next_hop, int cost,
                             AdaptationFunction function, ProtocolStack * stack) {
+    /* ----------------------- case: the route exists ----------------------- */
     if (contains(dest, stack)) {
-        Key key = Key {dest, stack};
-        if (table[key].cost > cost) {
-            table[key].function = function;
-            table[key].next_hop = next_hop;
-            table[key].cost = cost;
+        Row row = table[Key {dest, stack}];
+        if (row.cost > cost) {
+            /* - the existing route is less efficient, we update the entry -- */
+            row.function = function;
+            row.next_hop = next_hop;
+            row.cost = cost;
             return true;
-        } else {
-            return false;
         }
+        /* ------- the existing route is equal or better, do nothing -------- */
+        return false;
     }
+    /* ---------- the route does not exist, add it to the entries ----------- */
     ProtocolStack * clonedStack = stack->clone();
     table[Key {dest, clonedStack}] = Row {dest, clonedStack, function, next_hop, cost};
     return true;
 }
 
+/*
+ * Function: center
+ * ----------------
+ * Utilitary function to center a word within whitespaces.
+ */
 string center(const string &str, const int width) {
     unsigned long missing = width - str.length();
     if (missing <= 0) return str;
@@ -106,10 +143,22 @@ string center(const string &str, const int width) {
     return before + str + after;
 }
 
+/*
+ * Method: toString
+ * ----------------
+ * Creates a string representing the routing table. This string is meant to be
+ * as complete as possible.
+ * Formats the output using the following rules:
+ *      - Every row is printed, not ommiting any information
+ *      - Rows are sorted by destination, then cost
+ *      - Entries with different destinations are separated
+ */
 string RoutingTable::toString() {
     size_t n = table.size();
     string columns[5][n];
     int i = 0;
+
+    
     int maxs[5] = {11, 5, 8, 8, 4};
     for (auto &entry : table) {
         columns[0][i] = to_string(entry.second.dest);
@@ -123,32 +172,27 @@ string RoutingTable::toString() {
     }
     string seps[5] = {"   ", " | ", "   ", "   ", " "};
     string str;
-    str += center("destination", maxs[0]);
-    str += seps[0];
-    str += center("stack", maxs[1]);
-    str += seps[1];
-    str += center("next hop", maxs[2]);
-    str += seps[2];
-    str += center("function", maxs[3]);
-    str += seps[3];
-    str += center("cost", maxs[4]);
-    str += seps[4];
+    str += center("destination", maxs[0]) + seps[0];
+    str += center("stack", maxs[1]) + seps[1];
+    str += center("next hop", maxs[2]) + seps[2];
+    str += center("function", maxs[3]) + seps[3];
+    str += center("cost", maxs[4]) + seps[4];
     auto len = str.length();
-    str += "\n";
-    str += string(len, '-');
-    str += "\n";
+    str += "\n" + string(len, '-') + "\n";
 
     // sorting rows
     int indexes[n];
-    for (unsigned int i = 0; i < n; i++) indexes[i] = i;
+    for (i= 0; i < (int) n; i++)
+        indexes[i] = i;
 
     int a, b;
-    for(unsigned int i = 0; i < n; i++) {
-        for(unsigned int j= n - 1; j > i; j--) {
+    for(i= 0; i < (int) n; i++) {
+        for(auto j= static_cast<unsigned int>(n - 1); j > i; j--) {
             a = indexes[j];
             b = indexes[j - 1];
-            if(columns[0][a] < columns[0][b]
-                    || ((columns[0][a] == columns[0][b]) && (columns[1][a] < columns[1][b]))) {
+            int l_dest = stoi(columns[0][a]), r_dest = stoi(columns[0][b]);
+            if( (l_dest < r_dest) ||
+                    ((l_dest == r_dest) && (stoi(columns[4][a]) < stoi(columns[4][b])))) {
                 indexes[j - 1] = a;
                 indexes[j] = b;
             }
@@ -158,10 +202,11 @@ string RoutingTable::toString() {
     for (unsigned int j = 0; j < n; j++) {
         for (unsigned int i = 0; i < 5; i++) {
             if (i == 4) str += "  ";
-            str += center(columns[i][indexes[j]], maxs[i]);
-            str += seps[i];
+            str += center(columns[i][indexes[j]], maxs[i]) + seps[i];
         }
         str += "\n";
+        if (j != n - 1 && stoi(columns[0][indexes[j]]) != stoi(columns[0][indexes[j+1]]))
+            str += string(len, '~') + "\n";
     }
     return str;
 }

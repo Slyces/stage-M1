@@ -94,7 +94,7 @@ void Node::StartNode(void * ptr) {
 }
 
 void Node::initialize() {
-    printf("Thread %d started.\n", id);
+//    printf("Thread %d started.\n", id);
     /* Send initialisation messages to each neighbor */
     for (auto &f : adaptFunctions)
         if (! (f.type == DC && network->maxStack == 1)) {
@@ -148,7 +148,7 @@ void Node::receive(PhysicalMessage * physMessage) {
         else
             route(message);
     } else if (physMessage->type == STOP) {
-        printf("Node %d receiving STOP request from the network.\n", id);
+//        printf("Node %d receiving STOP request from the network.\n", id);
         stop = true;
     }
     delete physMessage;
