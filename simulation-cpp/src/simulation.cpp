@@ -35,69 +35,43 @@ Graph BarabasiAlbert(int n, int m) {
      */
     assert(m >= 1 && m <= n); // validity conditions of the algorithm
 
-    Graph graph(static_cast<unsigned long>(m)); // graph related variable
+    typedef unsigned long vertex;
+
+    Graph graph((vertex) m); // initial graph with m nodes
     Link default_link(1);
 
-    int degrees[n]; // degree of each nodes
-    int sum = m * (m - 1); // sum of degrees
-    double sum_p[n]; // sum of probabilities of getting each node
+    std::set<vertex> targets; // target nodes for new edges
+    for (vertex i = 0; i < (vertex) m; i++)
+        targets.insert(i); // starting with the m existing
 
-    /* -------------- preparation for random number generation -------------- */
+    std::vector<vertex> repeated_nodes; // list of existing nodes, repeated
+    // once for each adjacent edge
+
+    // random number generation variables
     std::random_device rd;
     std::mt19937 e2(rd());
-    std::uniform_real_distribution<> dist(0, 1);
 
-    /* ----------------- create a complete graph of size m ------------------ */
-    for (unsigned long u = 0; u < (unsigned long) m; u++)
-        for (unsigned long v = u + 1; v < (unsigned long) m; v++) {
-            boost::add_edge(u, v, default_link, graph);
-            boost::add_edge(v, u, default_link, graph);
+    auto source = (vertex) m;
+    while (source < n) {
+        for (const vertex &t : targets) {
+            add_edge(source, t, default_link, graph);
+            add_edge(t, source, default_link, graph);
+            repeated_nodes.push_back(t);
+            repeated_nodes.push_back(source);
+        }
+
+        // choose a random subset from repeated nodes
+        targets.empty();
+        std::uniform_int_distribution<> dist(0, (int) repeated_nodes.size() - 1);
+        while (targets.size() < m) {
+            auto random_index = (unsigned long) dist(e2);
+            targets.insert(repeated_nodes.at(random_index));
+        }
+        source++;
     }
 
-    /* ------------- keep track of the degrees of each vertices ------------- */
-    for (int i = 0; i < m; i++)
-        degrees[i] = m - 1;
-
-    auto current_vertex = static_cast<unsigned long>(m); // next node index is m
-    while (current_vertex < (unsigned long) n) {
-        std::set<unsigned long> connected; // vector of already connected nodes
-        assert(connected.empty());
-
-        boost::add_vertex(graph);
-        /* ------------------ compute sum of probabilities ------------------ */
-        for (auto &val : sum_p) val = 0; // reset previous values
-        for (int i = 0; i <  (int) current_vertex; i++)
-            for (int j = i; j < (int) current_vertex; j++)
-                sum_p[j] += degrees[i];
-        for (auto &val : sum_p)
-            val /= sum;
-
-        do {
-            /* --- pick a node at random following computed probabilities --- */
-            double r = dist(e2);
-            unsigned long i = 0;
-            while (i < current_vertex - 1 && r >= sum_p[i])
-                i++;
-
-            /* ----------------- add the link to the graph ------------------ */
-            if (connected.insert(i).second) { // those operations have no effect
-                // if the link already exists
-                boost::add_edge(current_vertex, i, default_link, graph).second;
-                boost::add_edge(i, current_vertex, default_link, graph).second;
-            }
-        } while (connected.size() < (size_t) m);
-
-        degrees[current_vertex] = m; // new vertices always have m connections
-        for (auto &index : connected)
-            degrees[index]++;
-        sum += 2 * m;
-        current_vertex++;
-    }
     for (unsigned long i = 0; i < (unsigned long) n; i++) {
         assert(boost::degree(i, graph) == (unsigned int) 2 * degrees[i]);
-//        cout << "( " << boost::degree(i, graph) << " - " << degrees[i] << " )" << endl;
-    }
-//    exit(0);
 
     return graph;
 }
