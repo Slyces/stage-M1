@@ -15,13 +15,11 @@ class Node {
     std::vector<AdaptationFunction> adaptFunctions;
     std::vector<ProtocolStack *> In;
     std::vector<ProtocolStack *> Out;
-    int timeout = 15;
+    int timeout = 10;
     bool stop = false;
 
     unsigned int confReceived, confSent,
             messageReceived, messageRouted, messageDiscarded;
-
-
 
   public:
     Node();

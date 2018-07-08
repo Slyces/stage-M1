@@ -168,7 +168,8 @@ void Node::receive(int from, ConfMessage * msg) {
 
             bool added = table.addRoute(msg->dest, from, msg->cost + fee, f, required);
             if (added) {
-                for (auto neighbors = boost::adjacent_vertices(id, network->graph); neighbors.first != neighbors.second; ++neighbors.first)  {
+                for (auto neighbors = boost::adjacent_vertices(id, network->graph);
+                        neighbors.first != neighbors.second; ++neighbors.first)  {
                     send((int) * neighbors.first, new ConfMessage(msg->dest, required->clone(), msg->cost + fee));
                 }
             }

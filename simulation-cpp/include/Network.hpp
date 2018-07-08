@@ -23,7 +23,7 @@ class Network {
     unsigned int maxStack;
     unsigned int n;
     bool running = true;
-    int timeout = 5;
+    int timeout = 20;
 
   public:
     Network(Graph &graph, Node ** nodes, unsigned int netSize, unsigned int maxStack);

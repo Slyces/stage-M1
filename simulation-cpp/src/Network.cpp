@@ -44,6 +44,10 @@ long Network::start() {
     auto stop_time = chrono::high_resolution_clock::now();
     auto duration = chrono::duration_cast<chrono::milliseconds>(stop_time - start_time);
 
+    for (unsigned int i = 0; i < n; i++) {
+        threads[i]->join();
+    }
+
     cout << duration.count() << " ms" << endl;
     return duration.count();
 }
@@ -56,9 +60,6 @@ void Network::stop() {
     }
     for (unsigned int i = 0; i < n; i++) {
         nodes[i]->send(new PhysicalMessage(i, i, STOP, nullptr));
-    }
-    for (unsigned int i = 0; i < n; i++) {
-        threads[i]->join();
     }
     assert(sent == received);
 }
