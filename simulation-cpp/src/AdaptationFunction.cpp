@@ -19,7 +19,6 @@ AdaptationFunction  AdaptationFunction::makeReverse() {
 }
 
 bool AdaptationFunction::valid(ProtocolStack &stack) {
-//    cout << "in stack : " << stack.toString() << " size : " << stack.size << " top : " << stack.topIndex << endl;
     if (stack.empty())
         return false;
     if (type == CV) { // [conversion] always possible
@@ -32,10 +31,6 @@ bool AdaptationFunction::valid(ProtocolStack &stack) {
     }
     return false;
 }
-
-//bool AdaptationFunction::operator==(const AdaptationFunction &f) {
-//    return in == f.in && out == f.out && type == f.type;
-//}
 
 size_t AdaptationFunction::hash() const {
     int offset = sizeof(protocol) * 8;

@@ -193,8 +193,8 @@ string RoutingTable::toString() {
         indexes[i] = i;
 
     int a, b;
-    for(i= 0; i < (int) n; i++) {
-        for(auto j= static_cast<unsigned int>(n - 1); j > i; j--) {
+    for (i= 0; i < (int) n; i++)
+        for (int j= (int) n - 1; j > i; j--) {
             a = indexes[j];
             b = indexes[j - 1];
             int l_dest = stoi(columns[0][a]), r_dest = stoi(columns[0][b]);
@@ -204,7 +204,6 @@ string RoutingTable::toString() {
                 indexes[j] = b;
             }
         }
-    }
 
     for (unsigned int j = 0; j < n; j++) {
         for (unsigned int i = 0; i < 5; i++) {

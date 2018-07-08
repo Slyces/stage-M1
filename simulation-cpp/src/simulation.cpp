@@ -170,7 +170,7 @@ runStats run(const int n, int nbProtocols, int maxStack, double p) {
 
     /* -------------------------- run the network --------------------------- */
     /*  optionally set the timeout used by the network to assume convergence  */
-     network->timeout = 20; //
+//     network->timeout = 20; //
     
     /* This method also stops the network automatically when no thread has woke
      * up since network.timeout ms */
@@ -193,7 +193,7 @@ runStats run(const int n, int nbProtocols, int maxStack, double p) {
     int u = -1, v = -1, diameter = 0;
     for (int i = 0; i < n; i++)
         for (int j = 0; j < n; j++)
-            if (d[i][j] > diameter) {
+            if ((int) d[i][j] > diameter) {
                 u = i;
                 v = j;
                 diameter = static_cast<int>(d[i][j]);
@@ -202,7 +202,8 @@ runStats run(const int n, int nbProtocols, int maxStack, double p) {
     stats.diameter = diameter;
 
     /* 3. Is there a path between two of the most distant nodes ? */
-    stats.longPath = network->nodes[u]->table.contains(v);
+    stats.longPath = network->nodes[u]->table.contains(v)
+            || network->nodes[v]->table.contains(u);
 
     /* 4. Number of messages sent */
     stats.messagesSent = 0;
@@ -259,7 +260,6 @@ int main(int argc, const char * argv[]) {
     }
     /* ---- really basic attribution of parameters, assuming good usage ----- */
     int n = stoi(argv[1]);
-    string a = argv[2];
     double p = stod(argv[2]);
     int nbProtocols = stoi(argv[3]);
     int maxStack = stoi(argv[4]);
@@ -283,7 +283,7 @@ int main(int argc, const char * argv[]) {
      * - sent        : mean | var
      * - diameter    : mean | var  
      */
-    printf("\n%.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f\n",
+    printf("%.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f\n",
             mean(convergence, nbIter), var(convergence, nbIter),
             mean(longPath, nbIter), var(longPath, nbIter),
             mean(sent, nbIter), var(sent, nbIter),

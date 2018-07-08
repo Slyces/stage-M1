@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # ----------------------------- library imports ------------------------------ #
-from statistics import mean, pvariance as var
+from statistics import mean, variance as var
 
 import argparse
 import networkx as nx
@@ -39,16 +39,13 @@ def run(size, p, nb_protocols, max_stack):
     # ---------------- compute the diameter and longest path ----------------- #
     diameter = 0
     paths = dict(nx.all_pairs_shortest_path(graph))
-    seen = set()
     for x in paths:
         for y in paths[x]:
-            if y not in seen:
-                seen.add(y)
-                if len(paths[x][y]) > diameter:
-                    diameter = len(paths[x][y])
+            if len(paths[x][y]) > diameter:
+                u, v = x, y
+                diameter = len(paths[x][y])
 
     # ---------------- create every valid adaptation function ---------------- #
-    print(nb_protocols)
     protocols = "abcdefghijklmnopqrstuvwxyz"[:nb_protocols]
     functions = set()
     for i in range(len(protocols)):
@@ -78,7 +75,6 @@ def run(size, p, nb_protocols, max_stack):
     received = sum([node.conf_received for node in nodes.values()])
     sent = sum([node.conf_sent for node in nodes.values()])
     # ---------------------- end of network somulation ----------------------- #
-    print(" | ".join(['{} : {: <5}'.format(x.id, str(x.wake_buffer.empty())) for x in nodes.values()]))
     rows = 0
     for node in nodes.values():
         for _ in node.routing_table:
@@ -87,35 +83,22 @@ def run(size, p, nb_protocols, max_stack):
     assert received >= rows
 
     assert sent == received
-    return
 
-    # path_exists = False
-    # for dest, stack in nodes[u].routing_table.table.keys():
-    #     if dest == v:
-    #         print(dest, stack)
-    #         print(nodes[u].Out)
-    #     if dest == v and len(stack) == 1 and stack[0] in nodes[u].Out:
-    #         print('Here !')
-    #         path_exists = True
-    # print('-' * 40)
-    # for dest, stack in nodes[v].routing_table.table.keys():
-    #     if dest == u:
-    #         print(dest, stack)
-    #     if dest == u and stack in nodes[u].Out:
-    #         path_exists = True
-    # print('-' * 40)
-    # print([str(x) for x in nodes[u].adapt_functions])
-    #
-    # print(nodes[u].routing_table)
-    # print(nodes[v].routing_table)
-    # print('  {}  '.format(path_exists).center(80, '-'))
-    #
-    # # returns
-    # #  - convergence time
-    # #  - path exists
-    # #  - nb messages
-    # #  - diameter
-    # return network.convergence_time(), int(path_exists), sent, diameter
+    path_exists = False
+    for dest, stack in nodes[u].routing_table.table.keys():
+        if dest == v and len(stack) == 1 and stack[0] in nodes[u].Out:
+            path_exists = True
+
+    for dest, stack in nodes[v].routing_table.table.keys():
+        if dest == u and stack in nodes[u].Out:
+            path_exists = True
+
+    # returns
+    #  - convergence time
+    #  - path exists
+    #  - nb messages
+    #  - diameter
+    return network.convergence_time(), int(path_exists), sent, diameter
 
 
 def simulation(size, p, nb_protocols, max_stack, n):
