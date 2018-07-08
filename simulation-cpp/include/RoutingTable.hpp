@@ -48,12 +48,15 @@ class RoutingTable {
 
     bool contains(int dest, ProtocolStack * stack);
 
+    bool contains(int dest);
+
     Row get(int dest, ProtocolStack * stack);
 
     bool addRoute(int dest, int next_hop, int cost,
                   AdaptationFunction function, ProtocolStack * stack);
 
     std::string toString();
+
 };
 
 #endif //SIMULATION_CPP_ROUTINGTABLE_HPP

@@ -10,6 +10,7 @@
 class Node;
 
 typedef moodycamel::BlockingConcurrentQueue<PhysicalMessage *> PhysicalQueue;
+
 typedef boost::adjacency_list<boost::vecS, boost::vecS,
         boost::bidirectionalS, boost::no_property, Link> Graph;
 
@@ -28,7 +29,7 @@ class Network {
     Network(Graph &graph, Node ** nodes, unsigned int netSize, unsigned int maxStack);
     ~Network();
 
-    void start();
+    long start();
     void stop();
 
 };

@@ -4,7 +4,7 @@
 #include "Network.hpp"
 
 struct runStats {
-    double convergenceTime;
+    long convergenceTime;
     int messagesSent;
     int diameter;
     bool longPath;

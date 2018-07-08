@@ -3,6 +3,8 @@
 #include <random>
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/graph_selectors.hpp>
+#include <boost/property_map/property_map.hpp>
+#include <boost/graph/johnson_all_pairs_shortest.hpp>
 #include <set>
 #include "simulation.hpp"
 #include "Link.hpp"
@@ -100,7 +102,7 @@ Graph BarabasiAlbert(int n, int m) {
     return graph;
 }
 
-runStats run(int n, int nbProtocols, int maxStack, double p) {
+runStats run(const int n, int nbProtocols, int maxStack, double p) {
     /*
      * A run is made following several steps:
      *  - create a random graph
@@ -118,11 +120,10 @@ runStats run(int n, int nbProtocols, int maxStack, double p) {
      *  - diameter of the graph
      *  - is there a path between two of the most distant nodes ?
      */
-    runStats stats;
+    runStats stats{};
 
     /* --------- create a graph using the Barabasi Albert algorithm --------- */
     Graph graph = BarabasiAlbert(n, 5);
-    //stats.diameter = 
 
     /* ------------- create every protocol in use for this run -------------- */
     protocol protocols[nbProtocols];
@@ -173,12 +174,46 @@ runStats run(int n, int nbProtocols, int maxStack, double p) {
     
     /* This method also stops the network automatically when no thread has woke
      * up since network.timeout ms */
-    network->start();
+    stats.convergenceTime = network->start();
 
-    /* free the memory */
+    /* ------------------ compute statistics about the run ------------------ */
+    /* 1. Convergence time - see above */
+
+    /* 2. Diameter of the graph */
+    graph_traits<Graph>::vertices_size_type d[n][n];
+    for (auto i = 0; i < n; i++)
+        std::fill_n(d[i], n, 0);
+
+    /* Find all pairs shortest path by using multiple BFS */
+    for (unsigned long source = 0; source < (unsigned long) n; source++)
+        breadth_first_search(graph, source, visitor(make_bfs_visitor(
+                record_distances(d[source], on_tree_edge())
+        )));
+
+    int u = -1, v = -1, diameter = 0;
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < n; j++)
+            if (d[i][j] > diameter) {
+                u = i;
+                v = j;
+                diameter = static_cast<int>(d[i][j]);
+            }
+
+    stats.diameter = diameter;
+
+    /* 3. Is there a path between two of the most distant nodes ? */
+    stats.longPath = network->nodes[u]->table.contains(v);
+
+    /* 4. Number of messages sent */
+    stats.messagesSent = 0;
+    for (int i = 0; i < n; i++)
+        stats.messagesSent += network->nodes[i]->confSent;
+
+    /* -------------------------- free the memory --------------------------- */
     for (auto &node : nodes)
         delete node;
     delete network;
+
     return stats;
 }
 
@@ -191,6 +226,21 @@ static void usage(string &progname, int val) {
     printf("\tstack: maximum stack size\n");
     printf("\titer: number of iterations\n");
     exit(val);
+}
+
+static double mean(const double array[], int size) {
+    double sum = 0;
+    for (int i = 0; i < size; i++)
+        sum += array[i];
+    return sum / size;
+}
+
+static double var(const double array[], int size) {
+    double m = mean(array, size);
+    double squared_sum = 0;
+    for (int i = 0; i < size; i++)
+        squared_sum += array[i] * array[i];
+    return squared_sum / size - m * m;
 }
 
 int main(int argc, const char * argv[]) {
@@ -215,10 +265,30 @@ int main(int argc, const char * argv[]) {
     int maxStack = stoi(argv[4]);
     int nbIter = stoi(argv[5]);
 
-    /* ---------- array of stats objects to compute means and vars ---------- */
-    runStats allRuns[nbIter];
-    for (int i = 0; i < nbIter; i++)
-        allRuns[i] = run(n /*n*/, nbProtocols /*nbprotocols*/, maxStack /*maxStacks*/, p /*p*/);
+    /* ---- arrays to compute means and variances of the different stats ---- */
+    runStats temp{};
+    double sent[nbIter], diameter[nbIter], longPath[nbIter], convergence[nbIter];
+    for (int i = 0; i < nbIter; i++) {
+        temp = run(n /*n*/, nbProtocols /*nbprotocols*/, maxStack /*maxStacks*/, p /*p*/);
+        sent[i] = (double) temp.messagesSent;
+        diameter[i] = (double) temp.diameter;
+        longPath[i] = (double) temp.longPath;
+        convergence[i] = (double) temp.convergenceTime / 1000; // ms to seconds
+    }
+
+    /* ------------------------- order of results : ------------------------- */
+    /*
+     * - convergence : mean | var
+     * - paths       : mean | var
+     * - sent        : mean | var
+     * - diameter    : mean | var  
+     */
+    printf("\n%.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f\n",
+            mean(convergence, nbIter), var(convergence, nbIter),
+            mean(longPath, nbIter), var(longPath, nbIter),
+            mean(sent, nbIter), var(sent, nbIter),
+            mean(diameter, nbIter), var(diameter, nbIter)
+    );
 
     return 0;
 }

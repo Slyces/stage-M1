@@ -24,7 +24,7 @@ Network::~Network() {
 }
 
 
-void Network::start() {
+long Network::start() {
     /* timing of the network */
     auto start_time = chrono::high_resolution_clock::now();
 
@@ -57,6 +57,7 @@ void Network::start() {
 
     printf("/* ---------------------------- end of simulation --------------------------- */\n");
     printf("The network took %li milliseconds to stop.\n", duration.count());
+    return duration.count();
 }
 
 void Network::stop() {

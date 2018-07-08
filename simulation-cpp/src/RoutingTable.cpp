@@ -90,6 +90,13 @@ bool RoutingTable::contains(int dest, ProtocolStack * stack) {
     return table.find(Key {dest, stack}) != table.end();
 }
 
+bool RoutingTable::contains(int dest) {
+    for (auto &pair : table)
+        if (pair.first.dest == dest)
+            return true;
+    return false;
+}
+
 Row RoutingTable::get(int dest, ProtocolStack * stack) {
     auto iter = table.find(Key {dest, stack});
     return iter->second;
